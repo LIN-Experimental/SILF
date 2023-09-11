@@ -10,6 +10,7 @@ internal class Eval
     public object Value { get; set; } = string.Empty;
 
 
+
     public Tipo Tipo { get; set; }
 
 

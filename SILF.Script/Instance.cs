@@ -14,7 +14,7 @@ public class Instance
     /// <summary>
     /// Lista de funciones.
     /// </summary>
-    private List<FuncionSILF> Functions = new();
+    //private List<FuncionSILF> Functions = new();
 
 
 
@@ -27,7 +27,8 @@ public class Instance
         new("number"),
         new("precision"),
         new("bool"),
-        new("char")
+        new("char"),
+        new("operator")
     };
 
 

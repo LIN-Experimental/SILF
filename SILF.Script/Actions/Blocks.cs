@@ -86,7 +86,7 @@ internal class Blocks
     /// Obtiene los operadores.
     /// </summary>
     /// <param name="value">valor</param>
-    public static List<Value> GetOperators(string value)
+    public static List<Eval> GetOperators(string value, Instance instance)
     {
 
         // Valor nulo.
@@ -94,13 +94,15 @@ internal class Blocks
             return new();
 
         // CodeBlocks.
-        List<Value> codeBlocks = new();
+        List<Eval> codeBlocks = new();
 
         // Preparación.
         value = value.Normalize().Trim();
 
         // Separación de los bloques.
         {
+
+            Tipo tipo = instance.Tipos.Where(T => T.tipo == "operator").FirstOrDefault();
 
             int counter = 0;
             bool isString = false;
@@ -139,10 +141,10 @@ internal class Blocks
                     }
 
                     if (fragment != null)
-                        codeBlocks.Add(new(fragment));
+                        codeBlocks.Add(new(fragment, new()));
 
                     fragment = null;
-                    codeBlocks.Add(new(@operator, true));
+                    codeBlocks.Add(new(@operator, tipo, true));
 
                     continue;
 
@@ -161,7 +163,7 @@ internal class Blocks
 
             {
                 if (fragment != null)
-                    codeBlocks.Add(new(fragment.Trim()));
+                    codeBlocks.Add(new(fragment.Trim(), new()));
             }
 
 
