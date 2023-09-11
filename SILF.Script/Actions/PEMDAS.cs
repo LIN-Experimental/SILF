@@ -4,17 +4,25 @@
 internal class PEMDAS
 {
 
+
     /// <summary>
-    /// Instancia de la app.
+    /// Instancia actual de la app
     /// </summary>
-    private Instance Instance;
+    private Instance Instance { get; set; }
 
 
-    private List<Eval> Values = new();
+    /// <summary>
+    /// Lista de valores
+    /// </summary>
+    private readonly List<Eval> Values = new();
 
 
 
-
+    /// <summary>
+    /// Nuevo solucionador PEMDAS
+    /// </summary>
+    /// <param name="instance">Instancia de la app</param>
+    /// <param name="values">Valores a resolver</param>
     public PEMDAS(Instance instance, List<Eval> values)
     {
         this.Instance = instance;
@@ -24,16 +32,16 @@ internal class PEMDAS
 
 
     /// <summary>
-    /// Resulve las operaciones y concatenaciones de S# en orden.
+    /// Resuelve las operaciones y concatenaciones de S# en orden.
     /// </summary>
     public void Solve()
     {
         //    A();  //Operadores aritmeticos
         //    N();  //Resuelve Nulos
         //    E();  //Exponentes
-        MD(); //Multiplicacion y Divicion
+        SolveMD(); //Multiplicacion y Divicion
               // P();  //%
-        AS(); //Adiccion y sustraccion
+        SolveSR(); //Adiccion y sustraccion
         //L_OY(); //Logico & y |
         //T(); // Terniarios
     }
@@ -41,260 +49,255 @@ internal class PEMDAS
 
 
 
-    private void MD()
+    /// <summary>
+    /// Soluciona multiplicaciones y divisiones.
+    /// </summary>
+    private void SolveMD()
     {
+        // Operadores
+        string[] operators = { "*", "/" };
 
-        // Comprueba si hay este operador
-        string[] operadores = { "*", "/" };
-        var @continue = Contains(operadores);
+        // Índice
+        int index = Continue(operators, Values);
 
-        if (!@continue)
+        // Si no hay indices
+        if (index < 0)
             return;
 
-        // Obtiene la ubicación.
-        int index = Values.FindIndex(T => T.Tipo.Description == "operator" && operadores.Contains(T.Value.ToString()));
+        // Valores
+        var (pre, ope, pos) = GetValues(index);
 
+        // Valores finales
+        object? value = null;
+        Tipo type = new();
 
-        // Evals
-        Eval pre = Values[index - 1];
-        Eval ope = Values[index];
-        Eval pos = Values[index + 1];
-
-
-        string valor = "";
-        Tipo finalType = new();
-
-
-        // Suma
+        // Operaciones
         if (pre.Tipo.Description == "number" && pos.Tipo.Description == "number")
         {
-            pre.Value = pre.Value.ToString().Replace(".", ",");
-            pos.Value = pos.Value.ToString().Replace(".", ",");
-
-
-            switch (ope.Value.ToString())
-            {
-                case "*":
-                    {
-
-                        double vl1 = 0;
-                        double vl2 = 0;
-
-                        //Trata de convertir el valor
-                        if (double.TryParse(pre.Value.ToString(), out vl1) && double.TryParse(pos.Value.ToString(), out vl2))
-                        {
-                            //Proceso
-                            string total = (vl1 * vl2).ToString();
-                            valor = total;
-                            finalType = pre.Tipo;
-                        }
-
-                        // Si no se pudo convertir
-                        else
-                        {
-                            valor = "";
-                        }
-
-                        break;
-                    }
-
-
-                case "/":
-                    {
-
-                        double vl1 = 0;
-                        double vl2 = 0;
-
-                        //Trata de convertir el valor
-                        if (double.TryParse(pre.Value.ToString(), out vl1) && double.TryParse(pos.Value.ToString(), out vl2))
-                        {
-                            //Proceso
-                            string total = (vl1 / vl2).ToString();
-                            valor = total;
-                            finalType = pre.Tipo;
-                        }
-
-                        // Si no se pudo convertir
-                        else
-                        {
-                            valor = "";
-                        }
-
-                        break;
-                    }
-
-
-            }
-
-        }
-
-
-        //Si no fue compatible
-        else
-        {
-            Instance.WriteError("Error de operador");
-        }
-
-        {
-            Values.RemoveRange(index-1, 3);
-            Values.Insert(index - 1, new(valor, finalType, false));
-        }
-
-        //Recursividas de la funcion
-        MD();
-    }
-
-
-
-    private void AS()
-    {
-
-        // Comprueba si hay este operador
-        string[] operadores = { "+", "-" };
-        var @continue = Contains(operadores);
-
-        if (!@continue)
-            return;
-
-        // Obtiene la ubicación.
-        int index = Values.FindIndex(T => T.Tipo.Description == "operator" && operadores.Contains(T.Value.ToString()));
-
-
-        // Evals
-        Eval pre = Values[index - 1];
-        Eval ope = Values[index];
-        Eval pos = Values[index + 1];
-
-
-        string valor = "";
-        Tipo finalType = new();
-
-
-        // Suma
-        if (pre.Tipo.Description == "number" && pos.Tipo.Description == "number")
-        {
-            pre.Value = pre.Value.ToString().Replace(".", ",");
-            pos.Value = pos.Value.ToString().Replace(".", ",");
-
-
+            // Si es preRun
             if (Instance.Environment == Environments.PreRun)
             {
-                valor = "0";
-                finalType = pre.Tipo;
+                value = "0";
+                type = pre.Tipo;
             }
+
+            // Valores
             else
             {
+                // Valores numéricos
+                bool canN1 = decimal.TryParse(pre.Value.ToString()?.Replace(".", ","), out decimal number1);
+                bool canN2 = decimal.TryParse(pos.Value.ToString()?.Replace(".", ","), out decimal number2);
+
+                // No se pudo convertir.
+                if (!canN1 || !canN2)
+                {
+                    Instance.WriteError("Error de conversion numérica");
+                    return;
+                }
+
+                // Segun el operador
                 switch (ope.Value.ToString())
                 {
-                    case "+":
+
+                    // Multiplicación
+                    case "*":
                         {
+                            // Total
+                            string total = (number1 * number2).ToString();
 
-                            double vl1 = 0;
-                            double vl2 = 0;
-
-                            //Trata de convertir el valor
-                            if (double.TryParse(pre.Value.ToString(), out vl1) && double.TryParse(pos.Value.ToString(), out vl2))
-                            {
-                                //Proceso
-                                string total = (vl1 + vl2).ToString();
-                                valor = total;
-                                finalType = pre.Tipo;
-                            }
-
-                            // Si no se pudo convertir
-                            else
-                            {
-                                valor = "";
-                            }
+                            // Proceso
+                            value = total;
+                            type = pre.Tipo;
 
                             break;
                         }
 
-
-                    case "-":
+                    // División
+                    case "/":
                         {
 
-                            double vl1 = 0;
-                            double vl2 = 0;
+                            // Total
+                            string total = (number1 / number2).ToString();
 
-                            //Trata de convertir el valor
-                            if (double.TryParse(pre.Value.ToString(), out vl1) && double.TryParse(pos.Value.ToString(), out vl2))
-                            {
-                                //Proceso
-                                string total = (vl1 - vl2).ToString();
-                                valor = total;
-                                finalType = pre.Tipo;
-                            }
-
-                            // Si no se pudo convertir
-                            else
-                            {
-                                valor = "";
-                            }
+                            // Proceso
+                            value = total;
+                            type = pre.Tipo;
 
                             break;
                         }
-
 
                 }
             }
 
+        }
 
+        // Si el operador no es compatible
+        else
+        {
+            // Error
+            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pre.Tipo.Description}> y <{pos.Tipo.Description}>");
 
         }
 
 
-        // Concatenación
+        // Eliminar los valores
+        Values.RemoveRange(index - 1, 3);
+        Values.Insert(index - 1, new(value ?? "", type, false));
+
+
+        SolveMD();
+
+    }
+
+
+
+    /// <summary>
+    /// Soluciona sumas y restas.
+    /// </summary>
+    private void SolveSR()
+    {
+        // Operadores
+        string[] operators = { "+", "-" };
+
+        // Índice
+        int index = Continue(operators, Values);
+
+        // Si no hay indices
+        if (index < 0)
+            return;
+
+        // Valores
+        var (pre, ope, pos) = GetValues(index);
+
+        // Valores finales
+        object? value = null;
+        Tipo type = new();
+
+        // Operaciones
+        if (pre.Tipo.Description == "number" && pos.Tipo.Description == "number")
+        {
+            // Si es preRun
+            if (Instance.Environment == Environments.PreRun)
+            {
+                value = "0";
+                type = pre.Tipo;
+            }
+
+            // Valores
+            else
+            {
+                // Valores numéricos
+                bool canN1 = decimal.TryParse(pre.Value.ToString()?.Replace(".", ","), out decimal number1);
+                bool canN2 = decimal.TryParse(pos.Value.ToString()?.Replace(".", ","), out decimal number2);
+
+                // No se pudo convertir.
+                if (!canN1 || !canN2)
+                {
+                    Instance.WriteError("Error de conversion numérica");
+                    return;
+                }
+
+                // Segun el operador
+                switch (ope.Value.ToString())
+                {
+
+                    // Suma
+                    case "+":
+                        {
+                            // Total
+                            string total = (number1 + number2).ToString();
+
+                            // Proceso
+                            value = total;
+                            type = pre.Tipo;
+
+                            break;
+                        }
+
+                    // División
+                    case "-":
+                        {
+
+                            // Total
+                            string total = (number1 - number2).ToString();
+
+                            // Proceso
+                            value = total;
+                            type = pre.Tipo;
+
+                            break;
+                        }
+
+                }
+            }
+
+        }
+
+        // Concatenar
         else if ((pre.Tipo.Description == "string" || pos.Tipo.Description == "string") & ope.Value.ToString() == "+")
         {
 
             if (Instance.Environment == Environments.PreRun)
             {
-                valor = "";
-                finalType = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+                value = "";
+                type = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
             }
             else
             {
-                valor = pre.Value.ToString() + pos.Value.ToString();
-                finalType = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+                value = pre.Value.ToString() + pos.Value.ToString();
+                type = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
             }
 
-
         }
 
-        //Si no fue compatible
+        // Si el operador no es compatible
         else
         {
-            Instance.WriteError("Error de operador");
+            // Error
+            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pre.Tipo.Description}> y <{pos.Tipo.Description}>");
+
         }
 
-        {
-            Values.RemoveRange(index - 1, 3);
-            Values.Insert(index - 1, new(valor, finalType, false));
-        }
 
-        //Recursividas de la funcion
-        AS();
+        // Eliminar los valores
+        Values.RemoveRange(index - 1, 3);
+        Values.Insert(index - 1, new(value ?? "", type, false));
+
+
+        SolveSR();
+
     }
 
 
 
-
-
-
-
-
-
-    private bool Contains(string[] operators)
+    /// <summary>
+    /// Comprueba si hay indices para ciertos operadores
+    /// </summary>
+    /// <param name="operators">Operadores a buscar</param>
+    /// <param name="values">Valores</param>
+    private static int Continue(string[] operators, List<Eval> values)
     {
-        var have = Values.Where(T => T.Tipo.Description == "operator" && operators.Contains(T.Value)).Any();
-        return have;
+        int index = values.FindIndex(T => T.Tipo.Description == "operator" && operators.Contains(T.Value.ToString()));
+        return index;
     }
 
 
 
-
-
+    /// <summary>
+    /// Obtiene los valores
+    /// </summary>
+    /// <param name="index">Índice</param>
+    private (Eval? pre, Eval? ope, Eval? pos) GetValues(int index)
+    {
+        // Si no hay valores suficientes
+        if (index <= 0 || index >= Values.Count)
+        {
+            Instance.WriteError("Error de operadores");
+            return (null, null, null);
+        }
+        // Retorna elementos
+        return (Values[index - 1], Values[index], Values[index + 1]);
+    }
 
 
 
