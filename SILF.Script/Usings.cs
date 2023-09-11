@@ -8,3 +8,4 @@ global using SILF.Script.Enums;
 global using System.Diagnostics;
 global using SILF.Script.Elements;
 global using System.Text.RegularExpressions;
+global using SILF.Script.Elements.Expressions;
