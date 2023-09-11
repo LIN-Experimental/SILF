@@ -13,6 +13,9 @@ internal class ScriptInterpreter
     public static Eval Interprete(Instance instance, Context context, string line, short level = 0)
     {
 
+        // Preparador
+        line = line.Normalize().Trim();
+
         // Es una variable
         var isVar = Actions.Fields.IsVar(line);
 
@@ -31,11 +34,11 @@ internal class ScriptInterpreter
             if (value.IsVoid)
             {
                 instance.WriteError("El resultado de la expresión es void.");
-                return new("",new(), true);
+                return new("", new(), true);
             }
 
 
-            var type = instance.Tipos.Where(T => T.tipo == isVar.type).FirstOrDefault();
+            var type = instance.Tipos.Where(T => T.Description == isVar.type).FirstOrDefault();
             var field = new Field(isVar.name, value.Value, type, Isolation.ReadAndWrite);
 
             var can = context.SetField(field);
@@ -50,7 +53,7 @@ internal class ScriptInterpreter
         // Es numero
         else if (Actions.Options.IsNumber(line))
         {
-            var numberType = instance.Tipos.Where(T => T.tipo == "number").FirstOrDefault();
+            var numberType = instance.Tipos.Where(T => T.Description == "number").FirstOrDefault();
             return new Eval(line, numberType);
         }
 
@@ -63,12 +66,12 @@ internal class ScriptInterpreter
         // Es Booleano
         else if (Actions.Options.IsBool(line))
         {
-            var boolType = instance.Tipos.Where(T => T.tipo == "bool").FirstOrDefault();
+            var boolType = instance.Tipos.Where(T => T.Description == "bool").FirstOrDefault();
             return new Eval(line, boolType);
         }
 
         // Es asignación
-        else if (Actions.Fields.IsAssing(line, out var nombre, out var operador, out var expresion))
+        else if (Actions.Fields.IsAssignment(line, out var nombre, out var operador, out var expresión))
         {
 
             var field = context.GetField(nombre);
@@ -79,7 +82,7 @@ internal class ScriptInterpreter
                 return new("", new(), true);
             }
 
-            var eval = Interprete(instance, context, expresion, 1);
+            var eval = Interprete(instance, context, expresión, 1);
 
 
             field.Value = eval.Value;
@@ -88,9 +91,8 @@ internal class ScriptInterpreter
         }
 
 
-        else if (level == 1)
+        else if (level == 1 && !line.EndsWith(')'))
         {
-
 
             var getValue = context.GetField(line.Trim());
 
@@ -98,6 +100,37 @@ internal class ScriptInterpreter
                 return new("", new(), true);
 
             return new Eval(getValue.Value, getValue.Tipo, false);
+
+
+        }
+
+        // 
+        else if (line.StartsWith('(') && line.EndsWith(')'))
+        {
+            line = line.Remove(0, 1);
+            line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
+            line = Microsoft.VisualBasic.Strings.StrReverse(line);
+
+            var result = MicroRunner.Runner(instance, context, line, 1);
+            return result;
+        }
+
+
+
+        // Ejecutar funciones
+        else if (Actions.Fields.IsFunction(line, out nombre, out string @params))
+        {
+            instance.WriteWarning($"Ejecutando '{nombre}' con '{@params}'");
+
+            if (nombre == "print")
+            {
+
+                var eval = MicroRunner.Runner(instance, context, @params, 1);
+
+                instance.Write(eval.Value.ToString() + $"<{eval.Tipo.Description}>");
+                return new("", new(), true);
+
+            }
 
 
         }

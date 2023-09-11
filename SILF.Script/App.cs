@@ -7,7 +7,7 @@ public class App
     /// <summary>
     /// Instancia de SILF
     /// </summary>
-    private Instance Instance { get; set; }
+    private Instance? Instance { get; set; }
 
 
 
@@ -16,7 +16,7 @@ public class App
     /// </summary>
     private IConsole? Console { get; set; }
 
-
+    public Environments Environment { get; private set; }
 
     /// <summary>
     /// Código a ejecutar
@@ -29,20 +29,21 @@ public class App
     /// Nueva app SILF
     /// </summary>
     /// <param name="code">Código a ejecutar.</param>
-    public App(string code, IConsole? console = null)
+    public App(string code, IConsole? console = null, Environments environment = Environments.Release)
     {
         this.Code = code ?? "";
         this.Console = console;
+        this.Environment = environment;
     }
 
 
     public void Run()
     {
-        Instance = new(Console);
+        Instance = new(Console, Environment);
         var x = Code.Split('\n');
 
         Context context = new();
-        foreach(var code in x)
+        foreach (var code in x)
         {
             Runners.ScriptInterpreter.Interprete(Instance, context, code, 0);
         }

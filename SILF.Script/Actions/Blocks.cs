@@ -102,7 +102,7 @@ internal class Blocks
         // Separación de los bloques.
         {
 
-            Tipo tipo = instance.Tipos.Where(T => T.tipo == "operator").FirstOrDefault();
+            Tipo tipo = instance.Tipos.Where(T => T.Description == "operator").FirstOrDefault();
 
             int counter = 0;
             bool isString = false;

@@ -1,14 +1,16 @@
 ﻿namespace SILF.Script;
 
 
-public class Instance
+internal class Instance
 {
 
     /// <summary>
     /// Consola de debug
     /// </summary>
-    private IConsole Console { get; set; }
+    private IConsole? Console { get; set; }
 
+
+    public Environments Environment { get; private set; }
 
 
     /// <summary>
@@ -37,9 +39,10 @@ public class Instance
     /// Nueva estancia de la app.
     /// </summary>
     /// <param name="console">IConsole</param>
-    public Instance(IConsole console)
+    public Instance(IConsole? console, Environments environment)
     {
         this.Console = console;
+        this.Environment = environment;
     }
 
 
@@ -49,7 +52,7 @@ public class Instance
     /// Escribe sobre la consola.
     /// </summary>
     /// <param name="result">Resultado.</param>
-    public void Write(string result) => Console.InsertLine(result, LogLevel.None);
+    public void Write(string result) => Console?.InsertLine(result, LogLevel.None);
 
 
 
@@ -57,7 +60,7 @@ public class Instance
     /// Escribe sobre la consola.
     /// </summary>
     /// <param name="result">Resultado.</param>
-    public void WriteError(string result) => Console.InsertLine(result, LogLevel.Error);
+    public void WriteError(string result) => Console?.InsertLine(result, LogLevel.Error);
 
 
 
@@ -65,7 +68,7 @@ public class Instance
     /// Escribe sobre la consola.
     /// </summary>
     /// <param name="result">Resultado.</param>
-    public void WriteWarning(string result) => Console.InsertLine(result, LogLevel.Warning);
+    public void WriteWarning(string result) => Console?.InsertLine(result, LogLevel.Warning);
 
 
 }

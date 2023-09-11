@@ -21,7 +21,7 @@ internal class MicroRunner
         foreach (var bloque in bloques)
         {
 
-            if (bloque.Tipo.tipo == "operator")
+            if (bloque.Tipo.Description == "operator")
             {
                 evals.Add(bloque);
                 continue;

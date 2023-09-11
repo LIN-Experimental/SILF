@@ -28,11 +28,11 @@ internal class PEMDAS
     /// </summary>
     public void Solve()
     {
-    //    A();  //Operadores aritmeticos
-    //    N();  //Resuelve Nulos
-    //    E();  //Exponentes
+        //    A();  //Operadores aritmeticos
+        //    N();  //Resuelve Nulos
+        //    E();  //Exponentes
         MD(); //Multiplicacion y Divicion
-       // P();  //%
+              // P();  //%
         AS(); //Adiccion y sustraccion
         //L_OY(); //Logico & y |
         //T(); // Terniarios
@@ -52,7 +52,7 @@ internal class PEMDAS
             return;
 
         // Obtiene la ubicación.
-        int index = Values.FindIndex(T => T.Tipo.tipo == "operator" && operadores.Contains(T.Value.ToString()));
+        int index = Values.FindIndex(T => T.Tipo.Description == "operator" && operadores.Contains(T.Value.ToString()));
 
 
         // Evals
@@ -66,7 +66,7 @@ internal class PEMDAS
 
 
         // Suma
-        if (pre.Tipo.tipo == "number" && pos.Tipo.tipo == "number")
+        if (pre.Tipo.Description == "number" && pos.Tipo.Description == "number")
         {
             pre.Value = pre.Value.ToString().Replace(".", ",");
             pos.Value = pos.Value.ToString().Replace(".", ",");
@@ -136,14 +136,15 @@ internal class PEMDAS
         }
 
         {
-            Values.RemoveRange(index, 3);
+            Values.RemoveRange(index-1, 3);
+            Values.Insert(index - 1, new(valor, finalType, false));
         }
 
         //Recursividas de la funcion
         MD();
     }
 
- 
+
 
     private void AS()
     {
@@ -156,7 +157,7 @@ internal class PEMDAS
             return;
 
         // Obtiene la ubicación.
-        int index = Values.FindIndex(T => T.Tipo.tipo == "operator" && operadores.Contains(T.Value.ToString()));
+        int index = Values.FindIndex(T => T.Tipo.Description == "operator" && operadores.Contains(T.Value.ToString()));
 
 
         // Evals
@@ -170,75 +171,95 @@ internal class PEMDAS
 
 
         // Suma
-        if (pre.Tipo.tipo == "number" && pos.Tipo.tipo == "number")
+        if (pre.Tipo.Description == "number" && pos.Tipo.Description == "number")
         {
             pre.Value = pre.Value.ToString().Replace(".", ",");
             pos.Value = pos.Value.ToString().Replace(".", ",");
 
 
-            switch (ope.Value.ToString())
+            if (Instance.Environment == Environments.PreRun)
             {
-                case "+":
-                    {
-
-                        double vl1 = 0;
-                        double vl2 = 0;
-
-                        //Trata de convertir el valor
-                        if (double.TryParse(pre.Value.ToString(), out vl1) && double.TryParse(pos.Value.ToString(), out vl2))
-                        {
-                            //Proceso
-                            string total = (vl1 + vl2).ToString();
-                            valor = total;
-                            finalType = pre.Tipo;
-                        }
-
-                        // Si no se pudo convertir
-                        else
-                        {
-                            valor = "";
-                        }
-
-                        break;
-                    }
-
-
-                case "-":
-                    {
-
-                        double vl1 = 0;
-                        double vl2 = 0;
-
-                        //Trata de convertir el valor
-                        if (double.TryParse(pre.Value.ToString(), out vl1) && double.TryParse(pos.Value.ToString(), out vl2))
-                        {
-                            //Proceso
-                            string total = (vl1 - vl2).ToString();
-                            valor = total;
-                            finalType = pre.Tipo;
-                        }
-
-                        // Si no se pudo convertir
-                        else
-                        {
-                            valor = "";
-                        }
-
-                        break;
-                    }
-
-
+                valor = "0";
+                finalType = pre.Tipo;
             }
+            else
+            {
+                switch (ope.Value.ToString())
+                {
+                    case "+":
+                        {
+
+                            double vl1 = 0;
+                            double vl2 = 0;
+
+                            //Trata de convertir el valor
+                            if (double.TryParse(pre.Value.ToString(), out vl1) && double.TryParse(pos.Value.ToString(), out vl2))
+                            {
+                                //Proceso
+                                string total = (vl1 + vl2).ToString();
+                                valor = total;
+                                finalType = pre.Tipo;
+                            }
+
+                            // Si no se pudo convertir
+                            else
+                            {
+                                valor = "";
+                            }
+
+                            break;
+                        }
+
+
+                    case "-":
+                        {
+
+                            double vl1 = 0;
+                            double vl2 = 0;
+
+                            //Trata de convertir el valor
+                            if (double.TryParse(pre.Value.ToString(), out vl1) && double.TryParse(pos.Value.ToString(), out vl2))
+                            {
+                                //Proceso
+                                string total = (vl1 - vl2).ToString();
+                                valor = total;
+                                finalType = pre.Tipo;
+                            }
+
+                            // Si no se pudo convertir
+                            else
+                            {
+                                valor = "";
+                            }
+
+                            break;
+                        }
+
+
+                }
+            }
+
+
 
         }
 
 
         // Concatenación
-        else if ((pre.Tipo.tipo == "string" || pos.Tipo.tipo == "string") & ope.Value.ToString() == "+")
+        else if ((pre.Tipo.Description == "string" || pos.Tipo.Description == "string") & ope.Value.ToString() == "+")
         {
 
-            valor = pre.Value.ToString() + pos.Value.ToString();
-            finalType = Instance.Tipos.Where(T => T.tipo == "string").FirstOrDefault();
+            if (Instance.Environment == Environments.PreRun)
+            {
+                valor = "";
+                finalType = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+            }
+            else
+            {
+                valor = pre.Value.ToString() + pos.Value.ToString();
+                finalType = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+            }
+
+
         }
 
         //Si no fue compatible
@@ -266,7 +287,7 @@ internal class PEMDAS
 
     private bool Contains(string[] operators)
     {
-        var have = Values.Where(T => T.Tipo.tipo == "operator" && operators.Contains(T.Value)).Any();
+        var have = Values.Where(T => T.Tipo.Description == "operator" && operators.Contains(T.Value)).Any();
         return have;
     }
 

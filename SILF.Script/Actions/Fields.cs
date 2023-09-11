@@ -29,7 +29,7 @@ internal class Fields
 
 
 
-    public static bool IsAssing(string line, out string nombre, out string operador, out string expresion)
+    public static bool IsAssignment(string line, out string nombre, out string operador, out string expression)
     {
         string patron = @"\b(\w+)\s+(\?\?=|\=)\s*([^;]+);"; // Patrón para buscar asignaciones de valores
 
@@ -37,16 +37,45 @@ internal class Fields
 
         if (coincidencia.Success)
         {
-            nombre = coincidencia.Groups[1].Value;
-            operador = coincidencia.Groups[2].Value;
-            expresion = coincidencia.Groups[3].Value.Trim();
+            nombre = coincidencia.Groups[1].Value.Trim();
+            operador = coincidencia.Groups[2].Value.Trim();
+            expression = coincidencia.Groups[3].Value.Trim();
             return true;
         }
 
         nombre = "";
         operador = "";
-        expresion = "";
+        expression = "";
         return false;
 
     }
+
+
+
+
+    public static bool IsFunction(string line,out string name, out string parámetros)
+    {
+        string patron = @"(\w+)\((.*)\)";
+
+        var coincidencia = Regex.Match(line, patron);
+
+        name = "";
+        parámetros = "";
+
+        if (coincidencia.Success)
+        {
+             name = coincidencia.Groups[1].Value;
+             parámetros = coincidencia.Groups[2].Value;
+            return true;
+        }
+
+        return false;
+
+    }
+
+
+
+
+
+
 }
