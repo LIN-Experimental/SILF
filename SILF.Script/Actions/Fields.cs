@@ -11,7 +11,7 @@ internal class Fields
     /// <param name="line">Linea a evaluar</param>
     public static (string type, string name, string expresion, bool success) IsVar(string line)
     {
-        string patron = @"\b\w+\s+\w+\s*=\s*\w+";
+        string patron = @"(\w+)\s+(\w+)\s*=\s*(.+)";
 
         var coincidencia = Regex.Match(line, patron);
 

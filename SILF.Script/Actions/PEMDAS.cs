@@ -248,7 +248,8 @@ internal class PEMDAS
         }
 
         {
-            Values.RemoveRange(index, 3);
+            Values.RemoveRange(index - 1, 3);
+            Values.Insert(index - 1, new(valor, finalType, false));
         }
 
         //Recursividas de la funcion

@@ -26,7 +26,7 @@ internal class ScriptInterpreter
                 return new("", new(), true);
             }
 
-            var value = Interprete(instance, context, isVar.expresion);
+            var value = MicroRunner.Runner(instance, context, isVar.expresion, 1);
 
             if (value.IsVoid)
             {
@@ -42,6 +42,8 @@ internal class ScriptInterpreter
 
             if (!can)
                 instance.WriteError("Variable duplicada.");
+
+            return new("", new(), true);
 
         }
 
@@ -86,6 +88,19 @@ internal class ScriptInterpreter
         }
 
 
+        else if (level == 1)
+        {
+
+
+            var getValue = context.GetField(line.Trim());
+
+            if (getValue == null)
+                return new("", new(), true);
+
+            return new Eval(getValue.Value, getValue.Tipo, false);
+
+
+        }
 
 
 

@@ -36,4 +36,16 @@ public class App
     }
 
 
+    public void Run()
+    {
+        Instance = new(Console);
+        var x = Code.Split('\n');
+
+        Context context = new();
+        foreach(var code in x)
+        {
+            Runners.ScriptInterpreter.Interprete(Instance, context, code, 0);
+        }
+    }
+
 }

@@ -108,7 +108,7 @@ internal class Blocks
             bool isString = false;
             string? fragment = null;
 
-            char[] operators = { '<', '>', '!', '=' };
+            char[] operators = { '<', '>', '!', '=', '+', '-', '/', '*' };
 
             // Separador por bloques
             for (int i = 0; i < value.Length; i++)
