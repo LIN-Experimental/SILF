@@ -58,9 +58,14 @@ internal class ScriptInterpreter
         }
 
         //Devuelve la cadena de string
-        else if (line.StartsWith('"') && line.EndsWith('"') && level == 1)
+        else if (Actions.Options.IsString(line) && level == 1)
         {
+            line = line.Remove(0, 1);
+            line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
+            line = Microsoft.VisualBasic.Strings.StrReverse(line);
 
+            var tipo = instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+            return new Eval(line, tipo);
         }
 
         // Es Booleano
@@ -82,7 +87,7 @@ internal class ScriptInterpreter
                 return new("", new(), true);
             }
 
-            var eval = Interprete(instance, context, expresión, 1);
+            var eval = MicroRunner.Runner(instance, context, expresión, 1);
 
 
             field.Value = eval.Value;
@@ -120,7 +125,7 @@ internal class ScriptInterpreter
         // Ejecutar funciones
         else if (Actions.Fields.IsFunction(line, out nombre, out string @params))
         {
-            instance.WriteWarning($"Ejecutando '{nombre}' con '{@params}'");
+
 
             if (nombre == "print")
             {
@@ -132,6 +137,7 @@ internal class ScriptInterpreter
 
             }
 
+            instance.WriteWarning($"Ejecutando '{nombre}' con '{@params}'");
 
         }
 

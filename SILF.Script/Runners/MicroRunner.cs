@@ -6,11 +6,11 @@ internal class MicroRunner
 
 
     /// <summary>
-    /// Runner
+    /// Runner.
     /// </summary>
-    /// <param name="instance">Instancia principal de la app</param>
-    /// <param name="context">Contexto</param>
-    /// <param name="expression">Expresión a evaluar</param>
+    /// <param name="instance">Instancia principal de la app.</param>
+    /// <param name="context">Contexto.</param>
+    /// <param name="expression">Expresión a evaluar.</param>
     /// <param name="level">Nivel de insolación.</param>
     public static Eval Runner(Instance instance, Context context, string expression, short level)
     {
@@ -26,7 +26,6 @@ internal class MicroRunner
                 evals.Add(bloque);
                 continue;
             }
-
 
             var result = ScriptInterpreter.Interprete(instance, context, bloque.Value.ToString() ?? "", level);
             evals.Add(result);

@@ -16,7 +16,14 @@ public class App
     /// </summary>
     private IConsole? Console { get; set; }
 
+
+
+    /// <summary>
+    /// Ambiente de la app
+    /// </summary>
     public Environments Environment { get; private set; }
+
+
 
     /// <summary>
     /// Código a ejecutar
@@ -37,16 +44,22 @@ public class App
     }
 
 
+
+    /// <summary>
+    /// Ejecuta la aplicación
+    /// </summary>
     public void Run()
     {
+        // Nueva estancia
         Instance = new(Console, Environment);
-        var x = Code.Split('\n');
+
+        // Lines
+        var lines = Code.Split('\n');
 
         Context context = new();
-        foreach (var code in x)
-        {
-            Runners.ScriptInterpreter.Interprete(Instance, context, code, 0);
-        }
+        foreach (var line in lines)
+            Runners.ScriptInterpreter.Interprete(Instance, context, line, 0);
+        
     }
 
 }

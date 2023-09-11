@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Actions;
+﻿using System.Text.RegularExpressions;
+
+namespace SILF.Script.Actions;
 
 
 internal class Fields
@@ -6,9 +8,9 @@ internal class Fields
 
 
     /// <summary>
-    /// Es una variable
+    /// Una expresión es la declaración de una variable.
     /// </summary>
-    /// <param name="line">Linea a evaluar</param>
+    /// <param name="line">Expresión</param>
     public static (string type, string name, string expresion, bool success) IsVar(string line)
     {
         string patron = @"(\w+)\s+(\w+)\s*=\s*(.+)";
@@ -29,17 +31,21 @@ internal class Fields
 
 
 
+    /// <summary>
+    /// Una expresión es la asignación a una variable
+    /// </summary>
+    /// <param name="line">Expresión</param>
     public static bool IsAssignment(string line, out string nombre, out string operador, out string expression)
     {
-        string patron = @"\b(\w+)\s+(\?\?=|\=)\s*([^;]+);"; // Patrón para buscar asignaciones de valores
+        string patron = @"^(\w+)\s*=\s*(.+)$"; // Patrón para buscar asignaciones de valores
 
         Match coincidencia = Regex.Match(line, patron);
 
         if (coincidencia.Success)
         {
-            nombre = coincidencia.Groups[1].Value.Trim();
-            operador = coincidencia.Groups[2].Value.Trim();
-            expression = coincidencia.Groups[3].Value.Trim();
+            nombre = coincidencia.Groups[1].Value;
+            expression = coincidencia.Groups[2].Value;
+            operador = "=";
             return true;
         }
 
@@ -52,7 +58,10 @@ internal class Fields
 
 
 
-
+    /// <summary>
+    /// Una expresión es la llamada a una función
+    /// </summary>
+    /// <param name="line">Expresión</param>
     public static bool IsFunction(string line,out string name, out string parámetros)
     {
         string patron = @"(\w+)\((.*)\)";
@@ -72,9 +81,6 @@ internal class Fields
         return false;
 
     }
-
-
-
 
 
 

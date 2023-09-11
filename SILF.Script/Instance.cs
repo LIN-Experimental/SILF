@@ -5,18 +5,16 @@ internal class Instance
 {
 
     /// <summary>
-    /// Consola de debug
+    /// Consola
     /// </summary>
     private IConsole? Console { get; set; }
 
 
-    public Environments Environment { get; private set; }
-
 
     /// <summary>
-    /// Lista de funciones.
+    /// Ambiente de la app
     /// </summary>
-    //private List<FuncionSILF> Functions = new();
+    public Environments Environment { get; private set; }
 
 
 
@@ -27,7 +25,6 @@ internal class Instance
     {
         new("string"),
         new("number"),
-        new("precision"),
         new("bool"),
         new("char"),
         new("operator")
