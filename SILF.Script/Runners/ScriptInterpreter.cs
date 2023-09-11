@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace SILF.Script.Runners;
+﻿namespace SILF.Script.Runners;
 
 
 internal class ScriptInterpreter
