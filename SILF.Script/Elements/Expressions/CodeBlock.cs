@@ -3,6 +3,7 @@
 
 internal class CodeBlock
 {
+
     /// <summary>
     /// Value
     /// </summary>
