@@ -39,6 +39,15 @@ internal class ScriptInterpreter
 
 
             var type = instance.Tipos.Where(T => T.Description == isVar.type).FirstOrDefault();
+
+
+            if(type != value.Tipo)
+            {
+                instance.WriteError($"El tipo <{value.Tipo.Description}> no puede ser convertido en <{type.Description}>.");
+                return new("", new(), true);
+            }
+
+
             var field = new Field(isVar.name, value.Value, type, Isolation.ReadAndWrite);
 
             var can = context.SetField(field);
