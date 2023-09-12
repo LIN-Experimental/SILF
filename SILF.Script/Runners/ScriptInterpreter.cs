@@ -18,9 +18,42 @@ internal class ScriptInterpreter
 
         // Es una variable
         var isVar = Actions.Fields.IsVar(line);
+        var isConst = Actions.Fields.IsConst(line);
 
         // Definición de variable
-        if (isVar.success)
+        if (isConst.success)
+        {
+
+            if (level != 0)
+            {
+                instance.WriteError("No puedes declarar constantes en este contexto.");
+                return new("", new(), true);
+            }
+
+            var value = MicroRunner.Runner(instance, context, isConst.expresion, 1);
+
+            if (value.IsVoid)
+            {
+                instance.WriteError("El resultado de la expresión es void.");
+                return new("", new(), true);
+            }
+
+
+
+
+            var field = new Field(isConst.name, value.Value, value.Tipo, Isolation.Read);
+
+            var can = context.SetField(field);
+
+            if (!can)
+                instance.WriteError("campo duplicada.");
+
+            return new("", new(), true);
+
+        }
+
+        // Definición de variable
+        else if (isVar.success)
         {
 
             if (level != 0)
@@ -40,8 +73,13 @@ internal class ScriptInterpreter
 
             var type = instance.Tipos.Where(T => T.Description == isVar.type).FirstOrDefault();
 
+            if (type.Description == null)
+            {
+                instance.WriteError($"El tipo <{isVar.type}> no existe.");
+                return new("", new(), true);
+            }
 
-            if(type != value.Tipo)
+            if (type != value.Tipo)
             {
                 instance.WriteError($"El tipo <{value.Tipo.Description}> no puede ser convertido en <{type.Description}>.");
                 return new("", new(), true);
@@ -66,7 +104,7 @@ internal class ScriptInterpreter
             return new Eval(line, numberType);
         }
 
-        //Devuelve la cadena de string
+        // Devuelve la cadena de string
         else if (Actions.Options.IsString(line) && level == 1)
         {
             line = line.Remove(0, 1);
@@ -92,7 +130,14 @@ internal class ScriptInterpreter
 
             if (field == null)
             {
-                instance.WriteError("No existe la variable.");
+                instance.WriteError("No existe el campo.");
+                return new("", new(), true);
+            }
+
+
+            if (field.Isolation != Isolation.ReadAndWrite & field.Isolation != Isolation.Write)
+            {
+                instance.WriteError($"El campo '{nombre}' no se puede se puede sobrescribir.");
                 return new("", new(), true);
             }
 
@@ -152,7 +197,7 @@ internal class ScriptInterpreter
 
 
 
-        instance.WriteError("Expression invalida");
+        instance.WriteError($"Expression invalida '{line}' en modo '{level}'");
         return new("", new(), true);
     }
 

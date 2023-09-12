@@ -21,4 +21,26 @@ internal class ScriptCompiler
     }
 
 
+
+    /// <summary>
+    /// Aplicar compilación de código.
+    /// </summary>
+    public CompileResult Compile(Instance instance)
+    {
+
+        CompileResult result = new();
+
+        string[] code = Code.Split('\n');
+
+        var functions = Functions.GetFunctions(instance, code);
+
+
+        result.Functions = functions;
+
+
+        return result;
+
+    }
+
+
 }

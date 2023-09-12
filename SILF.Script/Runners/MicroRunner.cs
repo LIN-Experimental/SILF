@@ -15,6 +15,7 @@ internal class MicroRunner
     public static Eval Runner(Instance instance, Context context, string expression, short level)
     {
 
+        // Obtiene la expresión separada
         var bloques = Actions.Blocks.GetOperators(expression, instance);
 
         List<Eval> evals = new();
@@ -29,13 +30,16 @@ internal class MicroRunner
 
             var result = ScriptInterpreter.Interprete(instance, context, bloque.Value.ToString() ?? "", level);
             evals.Add(result);
+
         }
 
 
-        Actions.PEMDAS calc = new Actions.PEMDAS(instance, evals);
-
+        Actions.PEMDAS calc = new (instance, evals);
 
         calc.Solve();
+
+        if (evals == null || evals.Count <= 0)
+            return new("", new(), true);
 
         return evals[0];
 

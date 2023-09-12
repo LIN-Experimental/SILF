@@ -30,6 +30,24 @@ internal class Fields
     }
 
 
+    public static (string name, string expresion, bool success) IsConst(string line)
+    {
+        string patron = @"const\s+(\w+)\s*=\s*(.+)";
+
+        var coincidencia = Regex.Match(line, patron);
+
+        if (coincidencia.Success)
+        {
+            string nombre = coincidencia.Groups[1].Value;
+            string valor = coincidencia.Groups[2].Value;
+            return (nombre, valor, true);
+        }
+
+        return (string.Empty, string.Empty, false);
+
+    }
+
+
 
     /// <summary>
     /// Una expresión es la asignación a una variable

@@ -53,13 +53,22 @@ public class App
         // Nueva estancia
         Instance = new(Console, Environment);
 
-        // Lines
-        var lines = Code.Split('\n');
+
+        var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
+
+        var main = build.GetMain();
+
+        if (main == null)
+        {
+            Console?.InsertLine("No se encontró la función 'main'", LogLevel.Error);
+            return;
+        }
 
         Context context = new();
-        foreach (var line in lines)
+        foreach (var line in main.CodeLines)
             Runners.ScriptInterpreter.Interprete(Instance, context, line, 0);
         
     }
+
 
 }
