@@ -12,7 +12,7 @@ internal class Functions
         tipo = "";
         nombre = "";
         parameters = new();
-        string pattern = @"function\s+(?<tipoRetorno>\w+)\s+(?<nombre>\w+)\((?<parametros>.+?)\)";
+        string pattern = @"function\s+(?<tipoRetorno>\w+)\s+(?<nombre>\w+)\s*\((?<parametros>.+?)?\)";
 
         Match match = Regex.Match(input, pattern);
 
@@ -54,8 +54,18 @@ internal class Functions
 
             foreach(var param in parameters)
             {
+
+                if (string.IsNullOrWhiteSpace(param))
+                    continue;
+
                 var paramType = instance.Tipos.Where(T => T.Description == param.Split(" ")[0]).FirstOrDefault();
-                var paramName = param.Split(" ")[1];
+                var paramName = param.Split(" ").ElementAtOrDefault(1);
+
+                if (paramName == null)
+                {
+                    instance.WriteError($"Parámetro sin nombre en la función '{name}'.");
+                    continue;
+                }
 
                 Parameter parameter = new(paramName, paramType);
                 function.Parameters.Add(parameter);
