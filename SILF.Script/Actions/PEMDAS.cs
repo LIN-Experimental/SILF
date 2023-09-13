@@ -92,8 +92,8 @@ internal class PEMDAS
             else
             {
                 // Valores numéricos
-                bool canN1 = decimal.TryParse(pre.Value.ToString()?.Replace(".", ","), out decimal number1);
-                bool canN2 = decimal.TryParse(pos.Value.ToString()?.Replace(".", ","), out decimal number2);
+                bool canN1 = decimal.TryParse(pre.Value.ToString()?.Replace(".", ","), out var number1);
+                bool canN2 = decimal.TryParse(pos.Value.ToString()?.Replace(".", ","), out var number2);
 
                 // No se pudo convertir.
                 if (!canN1 || !canN2)

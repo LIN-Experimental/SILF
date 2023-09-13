@@ -18,6 +18,10 @@ internal class ScriptInterpreter
         // Preparador
         line = line.Normalize().Trim();
 
+        // Si esta vacio
+        if (string.IsNullOrWhiteSpace(line))
+            return new("", new(), true);
+
         // Es una variable
         var isVar = Fields.IsVar(line);
         var isConst = Fields.IsConst(line);
@@ -50,7 +54,7 @@ internal class ScriptInterpreter
         else if (Options.IsNumber(line))
         {
             var numberType = instance.Tipos.Where(T => T.Description == "number").FirstOrDefault();
-            return new Eval(line, numberType);
+            return new Eval(instance.Environment == Environments.PreRun ? "0" : decimal.Parse(line).ToString(), numberType);
         }
 
         // Devuelve la cadena de string
@@ -162,10 +166,10 @@ internal class ScriptInterpreter
 
             }
 
+
             instance.WriteWarning($"Ejecutando '{nombre}' con '{@params}'");
 
         }
-
 
 
         instance.WriteError($"Expression invalida '{line}' en modo '{level}'");
