@@ -40,7 +40,7 @@ internal class PEMDAS
         //    N();  //Resuelve Nulos
         //    E();  //Exponentes
         SolveMD(); //Multiplicacion y Divicion
-              // P();  //%
+                   // P();  //%
         SolveSR(); //Adiccion y sustraccion
         //L_OY(); //Logico & y |
         //T(); // Terniarios
@@ -66,6 +66,13 @@ internal class PEMDAS
 
         // Valores
         var (pre, ope, pos) = GetValues(index);
+
+
+        if (pre == null || ope == null || pos == null)
+        {
+            Instance.WriteError("Error al realizar operaciones.");
+            return;
+        }
 
         // Valores finales
         object? value = null;
@@ -141,8 +148,10 @@ internal class PEMDAS
 
 
         // Eliminar los valores
-        Values.RemoveRange(index - 1, 3);
-        Values.Insert(index - 1, new(value ?? "", type, false));
+       
+            Values.RemoveRange(index - 1, 3);
+            Values.Insert(index - 1, new(value ?? "", type, false));
+        
 
 
         SolveMD();
@@ -168,6 +177,12 @@ internal class PEMDAS
 
         // Valores
         var (pre, ope, pos) = GetValues(index);
+
+        if (pre == null || ope == null || pos == null)
+        {
+            Instance.WriteError("Error al realizar operaciones.");
+            return;
+        }
 
         // Valores finales
         object? value = null;
@@ -260,8 +275,16 @@ internal class PEMDAS
 
 
         // Eliminar los valores
-        Values.RemoveRange(index - 1, 3);
-        Values.Insert(index - 1, new(value ?? "", type, false));
+        try
+        {
+            Values.RemoveRange(index - 1, 3);
+            Values.Insert(index - 1, new(value ?? "", type, false));
+        }
+        catch
+        {
+
+        }
+
 
 
         SolveSR();
@@ -296,7 +319,7 @@ internal class PEMDAS
             return (null, null, null);
         }
         // Retorna elementos
-        return (Values[index - 1], Values[index], Values[index + 1]);
+        return (Values.ElementAtOrDefault(index - 1), Values.ElementAtOrDefault(index) , Values.ElementAtOrDefault(index + 1));
     }
 
 

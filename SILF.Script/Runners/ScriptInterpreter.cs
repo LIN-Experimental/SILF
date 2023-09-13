@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Runners;
+﻿using SILF.Script.Validations;
+
+namespace SILF.Script.Runners;
 
 
 internal class ScriptInterpreter
@@ -17,37 +19,17 @@ internal class ScriptInterpreter
         line = line.Normalize().Trim();
 
         // Es una variable
-        var isVar = Actions.Fields.IsVar(line);
-        var isConst = Actions.Fields.IsConst(line);
+        var isVar = Fields.IsVar(line);
+        var isConst = Fields.IsConst(line);
 
         // Definición de variable
         if (isConst.success)
         {
 
-            if (level != 0)
-            {
-                instance.WriteError("No puedes declarar constantes en este contexto.");
-                return new("", new(), true);
-            }
+            // Crea la constante
+            bool canCreate = Actions.Fields.CreateConst(instance, context, isConst.name, isConst.expresion);
 
-            var value = MicroRunner.Runner(instance, context, isConst.expresion, 1);
-
-            if (value.IsVoid)
-            {
-                instance.WriteError("El resultado de la expresión es void.");
-                return new("", new(), true);
-            }
-
-
-
-
-            var field = new Field(isConst.name, value.Value, value.Tipo, Isolation.Read);
-
-            var can = context.SetField(field);
-
-            if (!can)
-                instance.WriteError("campo duplicada.");
-
+            // Respuesta
             return new("", new(), true);
 
         }
@@ -56,74 +38,49 @@ internal class ScriptInterpreter
         else if (isVar.success)
         {
 
-            if (level != 0)
-            {
-                instance.WriteError("No puedes declarar variables en este contexto.");
-                return new("", new(), true);
-            }
+            // Crea la constante
+            bool canCreate = Actions.Fields.CreateVar(instance, context, isVar.name, isVar.type, isVar.expresion);
 
-            var value = MicroRunner.Runner(instance, context, isVar.expresion, 1);
-
-            if (value.IsVoid)
-            {
-                instance.WriteError("El resultado de la expresión es void.");
-                return new("", new(), true);
-            }
-
-
-            var type = instance.Tipos.Where(T => T.Description == isVar.type).FirstOrDefault();
-
-            if (type.Description == null)
-            {
-                instance.WriteError($"El tipo <{isVar.type}> no existe.");
-                return new("", new(), true);
-            }
-
-            if (type != value.Tipo)
-            {
-                instance.WriteError($"El tipo <{value.Tipo.Description}> no puede ser convertido en <{type.Description}>.");
-                return new("", new(), true);
-            }
-
-
-            var field = new Field(isVar.name, value.Value, type, Isolation.ReadAndWrite);
-
-            var can = context.SetField(field);
-
-            if (!can)
-                instance.WriteError("Variable duplicada.");
-
+            // Respuesta
             return new("", new(), true);
 
         }
 
         // Es numero
-        else if (Actions.Options.IsNumber(line))
+        else if (Options.IsNumber(line))
         {
             var numberType = instance.Tipos.Where(T => T.Description == "number").FirstOrDefault();
             return new Eval(line, numberType);
         }
 
         // Devuelve la cadena de string
-        else if (Actions.Options.IsString(line) && level == 1)
+        else if (Options.IsString(line) && level == 1)
         {
+
+            var tipo = instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+            if (instance.Environment == Environments.PreRun)
+            {
+                return new Eval("", tipo);
+            }
+
+
             line = line.Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line);
 
-            var tipo = instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+
             return new Eval(line, tipo);
         }
 
         // Es Booleano
-        else if (Actions.Options.IsBool(line))
+        else if (Options.IsBool(line))
         {
             var boolType = instance.Tipos.Where(T => T.Description == "bool").FirstOrDefault();
             return new Eval(line, boolType);
         }
 
         // Es asignación
-        else if (Actions.Fields.IsAssignment(line, out var nombre, out var operador, out var expresión))
+        else if (Fields.IsAssignment(line, out var nombre, out var operador, out var expresión))
         {
 
             var field = context.GetField(nombre);
@@ -149,21 +106,23 @@ internal class ScriptInterpreter
             return new("", new(), true);
         }
 
-
+        // Elementos (Variables, constantes)
         else if (level == 1 && !line.EndsWith(')'))
         {
 
             var getValue = context.GetField(line.Trim());
 
             if (getValue == null)
+            {
+                instance.WriteError($"No existe el elemento '{line.Trim()}'");
                 return new("", new(), true);
+            }
 
-            return new Eval(getValue.Value, getValue.Tipo, false);
-
+            return new Eval((instance.Environment == Environments.PreRun) ? "" : getValue.Value, getValue.Tipo, false);
 
         }
 
-        // 
+        // Paréntesis
         else if (line.StartsWith('(') && line.EndsWith(')'))
         {
             line = line.Remove(0, 1);
@@ -174,10 +133,8 @@ internal class ScriptInterpreter
             return result;
         }
 
-
-
         // Ejecutar funciones
-        else if (Actions.Fields.IsFunction(line, out nombre, out string @params))
+        else if (Fields.IsFunction(line, out nombre, out string @params))
         {
 
 
@@ -186,8 +143,18 @@ internal class ScriptInterpreter
 
                 var eval = MicroRunner.Runner(instance, context, @params, 1);
 
-                instance.Write(eval.Value.ToString() + $"<{eval.Tipo.Description}>");
+                instance.Write(eval.Value.ToString());
                 return new("", new(), true);
+
+            }
+
+            else if (nombre == "type")
+            {
+
+                var eval = MicroRunner.Runner(instance, context, @params, 1);
+
+                string tipodes = eval.Tipo.Description;
+                return new($"<{tipodes}>", new("string"));
 
             }
 
@@ -199,6 +166,7 @@ internal class ScriptInterpreter
 
         instance.WriteError($"Expression invalida '{line}' en modo '{level}'");
         return new("", new(), true);
+
     }
 
 

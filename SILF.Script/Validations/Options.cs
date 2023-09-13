@@ -1,4 +1,4 @@
-﻿namespace SILF.Script.Actions;
+﻿namespace SILF.Script.Validations;
 
 
 internal class Options

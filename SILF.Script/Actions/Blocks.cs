@@ -134,7 +134,7 @@ internal class Blocks
                 else if ((operators.Contains(carácter)) & !isString & counter == 0)
                 {
                     string @operator = carácter.ToString();
-                    if (value[i + 1] == '=')
+                    if (value.ElementAtOrDefault(i + 1) == '=')
                     {
                         i++;
                         @operator += '=';

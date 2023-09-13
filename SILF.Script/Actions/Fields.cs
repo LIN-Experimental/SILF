@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using SILF.Script.Runners;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SILF.Script.Actions;
 
@@ -7,96 +8,164 @@ internal class Fields
 {
 
 
-    /// <summary>
-    /// Una expresión es la declaración de una variable.
-    /// </summary>
-    /// <param name="line">Expresión</param>
-    public static (string type, string name, string expresion, bool success) IsVar(string line)
+    private static bool IsValidName(string nombre)
     {
-        string patron = @"(\w+)\s+(\w+)\s*=\s*(.+)";
-
-        var coincidencia = Regex.Match(line, patron);
-
-        if (coincidencia.Success)
+        // Comprueba si la cadena está vacía o es nula.
+        if (string.IsNullOrEmpty(nombre))
         {
-            string tipo = coincidencia.Groups[1].Value;
-            string nombre = coincidencia.Groups[2].Value;
-            string valor = coincidencia.Groups[3].Value;
-            return (tipo, nombre, valor, true);
+            return false;
         }
 
-        return (string.Empty, string.Empty, string.Empty, false);
+        // Comprueba si el nombre contiene caracteres inválidos.
+        if (nombre.Any(c => !char.IsLetterOrDigit(c) && c != '_'))
+        {
+            return false;
+        }
 
+        // Comprueba si el nombre es una palabra clave de C#.
+        if (EsPalabraClaveCSharp(nombre))
+        {
+            return false;
+        }
+
+        // Si todas las comprobaciones pasan, el nombre es válido.
+        return true;
     }
 
 
-    public static (string name, string expresion, bool success) IsConst(string line)
+    static bool EsPalabraClaveCSharp(string nombre)
     {
-        string patron = @"const\s+(\w+)\s*=\s*(.+)";
+        // Lista de palabras clave de C# (puedes ampliarla según sea necesario).
+        string[] palabrasClave = { "function", "let", "const" };
 
-        var coincidencia = Regex.Match(line, patron);
-
-        if (coincidencia.Success)
-        {
-            string nombre = coincidencia.Groups[1].Value;
-            string valor = coincidencia.Groups[2].Value;
-            return (nombre, valor, true);
-        }
-
-        return (string.Empty, string.Empty, false);
-
+        // Comprueba si el nombre está en la lista de palabras clave.
+        return palabrasClave.Contains(nombre);
     }
 
 
-
-    /// <summary>
-    /// Una expresión es la asignación a una variable
-    /// </summary>
-    /// <param name="line">Expresión</param>
-    public static bool IsAssignment(string line, out string nombre, out string operador, out string expression)
+    public static Tipo? GetTipo(Instance instance, string tipo)
     {
-        string patron = @"^(\w+)\s*=\s*(.+)$"; // Patrón para buscar asignaciones de valores
+        var type = instance.Tipos.Where(T => T.Description == tipo);
 
-        Match coincidencia = Regex.Match(line, patron);
+        if (type.Any())
+            return type.ElementAt(0);
 
-        if (coincidencia.Success)
-        {
-            nombre = coincidencia.Groups[1].Value;
-            expression = coincidencia.Groups[2].Value;
-            operador = "=";
-            return true;
-        }
-
-        nombre = "";
-        operador = "";
-        expression = "";
-        return false;
-
+        return null;
     }
 
 
 
+
     /// <summary>
-    /// Una expresión es la llamada a una función
+    /// Crear nueva variable
     /// </summary>
-    /// <param name="line">Expresión</param>
-    public static bool IsFunction(string line,out string name, out string parámetros)
+    /// <param name="instance">Instancia de la app</param>
+    /// <param name="context">Contexto</param>
+    /// <param name="expression">Expression</param>
+    public static bool CreateVar(Instance instance, Context context, string name, string type, string expression)
     {
-        string patron = @"(\w+)\((.*)\)";
 
-        var coincidencia = Regex.Match(line, patron);
+        // Validar Nombre
+        bool isValidName = IsValidName(name);
 
-        name = "";
-        parámetros = "";
-
-        if (coincidencia.Success)
+        if (!isValidName)
         {
-             name = coincidencia.Groups[1].Value;
-             parámetros = coincidencia.Groups[2].Value;
-            return true;
+            instance.WriteError($"El nombre '{name}' es invalido.");
+            return false;
         }
 
-        return false;
+        // Validar Tipo
+        Tipo? tipo = null;
+
+        // Tipo explicito
+        if (type != "let")
+        {
+
+            // 
+            tipo = GetTipo(instance, type);
+
+            if (tipo == null)
+            {
+                instance.WriteError($"El tipo '{type}' es invalido.");
+                return false;
+            }
+
+        }
+
+        // Obtiene el valor
+        var value = MicroRunner.Runner(instance, context, expression, 1);
+
+        if (value.IsVoid)
+        {
+            instance.WriteError($"El valor de la variable '{name}' no puede ser void");
+            return false;
+        }
+
+        if (value.Tipo != tipo && tipo != null)
+        {
+            instance.WriteError($"El tipo <{value.Tipo.Description}> no puede ser convertido en <{tipo.Value.Description}>.");
+            return false;
+        }
+
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? "" : value.Value, value.Tipo, Isolation.ReadAndWrite);
+
+        var can = context.SetField(field);
+
+        if (!can)
+        {
+            instance.WriteError("campo duplicada.");
+            return false;
+        }
+
+
+        return true;
+
+    }
+
+
+
+    /// <summary>
+    /// Crear nueva constante
+    /// </summary>
+    /// <param name="instance">Instancia de la app</param>
+    /// <param name="context">Contexto</param>
+    /// <param name="expression">Expression</param>
+    public static bool CreateConst(Instance instance, Context context, string name, string expression)
+    {
+
+        // Validar Nombre
+        bool isValidName = IsValidName(name);
+
+        if (!isValidName)
+        {
+            instance.WriteError($"El nombre '{name}' es invalido.");
+            return false;
+        }
+
+
+        // Obtiene el valor
+        var value = MicroRunner.Runner(instance, context, expression, 1);
+
+        if (value.IsVoid)
+        {
+            instance.WriteError($"El valor de la constante '{name}' no puede ser void");
+            return false;
+        }
+
+
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? "" : value.Value, value.Tipo, Isolation.Read);
+
+        var can = context.SetField(field);
+
+        if (!can)
+        {
+            instance.WriteError("campo duplicada.");
+            return false;
+        }
+
+
+        return true;
+
 
     }
 

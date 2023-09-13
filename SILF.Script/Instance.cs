@@ -49,7 +49,11 @@ internal class Instance
     /// Escribe sobre la consola.
     /// </summary>
     /// <param name="result">Resultado.</param>
-    public void Write(string result) => Console?.InsertLine(result, LogLevel.None);
+    public void Write(string result)
+    {
+        if (Environment != Environments.PreRun)
+            Console?.InsertLine(result, LogLevel.None);
+    }
 
 
 
@@ -65,7 +69,11 @@ internal class Instance
     /// Escribe sobre la consola.
     /// </summary>
     /// <param name="result">Resultado.</param>
-    public void WriteWarning(string result) => Console?.InsertLine(result, LogLevel.Warning);
+    public void WriteWarning(string result)
+    {
+        if (Environment != Environments.PreRun)
+            Console?.InsertLine(result, LogLevel.Warning);
+    }
 
 
 }
