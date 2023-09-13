@@ -87,7 +87,7 @@ internal class ScriptInterpreter
 
             if (field == null)
             {
-                instance.WriteError("No existe el campo.");
+                instance.WriteError($"No existe el campo '{nombre}'.");
                 return new("", new(), true);
             }
 
@@ -99,7 +99,11 @@ internal class ScriptInterpreter
             }
 
             var eval = MicroRunner.Runner(instance, context, expresión, 1);
-
+            if (field.Tipo != eval.Tipo)
+            {
+                instance.WriteError($"No se puede convertir <{eval.Tipo.Description}> en <{field.Tipo.Description}>");
+                return new("", new(), true);
+            }
 
             field.Value = eval.Value;
 

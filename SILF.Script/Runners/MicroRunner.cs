@@ -38,7 +38,7 @@ internal class MicroRunner
 
         calc.Solve();
 
-        if (evals == null || evals.Count <= 0)
+        if (evals == null || evals.Count != 1)
             return new("", new(), true);
 
         return evals[0];
