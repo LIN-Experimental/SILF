@@ -31,7 +31,8 @@ internal class Instance
         new("number"),
         new("bool"),
         new("char"),
-        new("operator")
+        new("operator"),
+        new("mutable")
     };
 
 

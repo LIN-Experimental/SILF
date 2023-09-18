@@ -65,7 +65,7 @@ internal class Fields
     {
 
         // Validar Nombre
-        bool isValidName = IsValidName(name);
+         bool isValidName = IsValidName(name);
 
         if (!isValidName)
         {
@@ -111,9 +111,9 @@ internal class Fields
                 return false;
             }
 
-            if (value.Tipo != tipo && tipo != null)
+            if (!Validations.Types.IsCompatible(instance, tipo.Value, value.Tipo))
             {
-                instance.WriteError($"El tipo <{value.Tipo.Description}> no puede ser convertido en <{tipo.Value.Description}>.");
+                instance.WriteError($"El tipo <{tipo.Value.Description}> no puede ser convertido en <{value.Tipo.Description}>.");
                 return false;
             }
 
@@ -134,7 +134,7 @@ internal class Fields
 
 
 
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? "" : value.Value, value.Tipo, Isolation.ReadAndWrite)
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo) : new Value(value.Value, value.Tipo), tipo.Value, Isolation.ReadAndWrite)
         {
             IsAssigned = assigned
         };
@@ -182,8 +182,17 @@ internal class Fields
             return false;
         }
 
+        if (value.Tipo.Description == "mutable")
+        {
+            instance.WriteError($"El valor de la constante '{name}' no puede ser mutable");
+            return false;
+        }
 
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? "" : value.Value, value.Tipo, Isolation.Read);
+
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo) : new(value.Value, value.Tipo), value.Tipo, Isolation.Read)
+        {
+            IsAssigned = true
+        };
 
         var can = context.SetField(field);
 

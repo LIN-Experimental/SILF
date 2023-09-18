@@ -10,13 +10,16 @@ internal class Field
     public string Name { get; set; }
 
 
+    /// <summary>
+    /// Si el elemento fue asignado
+    /// </summary>
     public bool IsAssigned { get; set; }
 
 
     /// <summary>
     /// Valor de la variable
     /// </summary>
-    public object Value { get; set; }
+    public Value Value { get; set; }
 
 
     /// <summary>
@@ -35,7 +38,7 @@ internal class Field
     /// <summary>
     /// Constructor
     /// </summary>
-    public Field(string name, object value, Tipo tipo, Isolation isolation = Isolation.ReadAndWrite)
+    public Field(string name, Value value, Tipo tipo, Isolation isolation = Isolation.ReadAndWrite)
     {
         this.Name = name;
         this.Value = value;

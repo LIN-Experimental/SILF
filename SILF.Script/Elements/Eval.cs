@@ -11,6 +11,9 @@ internal class Eval
 
 
 
+    /// <summary>
+    /// Tipo resultante
+    /// </summary>
     public Tipo Tipo { get; set; }
 
 
@@ -29,6 +32,14 @@ internal class Eval
     {
         this.Value = value;
         this.Tipo = tipo;
+        this.IsVoid = isVoid;
+    }
+
+
+    public Eval(bool isVoid = false)
+    {
+        this.Value = "";
+        this.Tipo = new();
         this.IsVoid = isVoid;
     }
 

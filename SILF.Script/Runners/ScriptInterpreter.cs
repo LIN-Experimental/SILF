@@ -14,7 +14,7 @@ internal class ScriptInterpreter
     /// <param name="line">Linea.</param>
     public static Eval Interprete(Instance instance, Context context, string line, short level = 0)
     {
-       
+
         // Si la app esta detenida
         if (!instance.IsRunning)
             return new("", new());
@@ -104,37 +104,47 @@ internal class ScriptInterpreter
             return new Eval(line, boolType);
         }
 
-        // Es asignación
+        // Es una asignación
         else if (Fields.IsAssignment(line, out var nombre, out var operador, out var expresión))
         {
 
-            var field = context[nombre];
+            // Obtiene el campo
+            Field? field = context[nombre];
 
+            // Si no existe
             if (field == null)
             {
                 instance.WriteError($"No existe el campo '{nombre}'.");
                 return new("", new(), true);
             }
 
-
+            // Si no se puede sobrescribir
             if (field.Isolation != Isolation.ReadAndWrite & field.Isolation != Isolation.Write)
             {
                 instance.WriteError($"El campo '{nombre}' no se puede se puede sobrescribir.");
                 return new("", new(), true);
             }
 
-            var eval = MicroRunner.Runner(instance, context, expresión, 1);
-            if (field.Tipo != eval.Tipo)
+            // Tipo esperado
+            Tipo presentType = field.Tipo;
+
+            // Evaluación de las expresiones
+            Eval evaluation = MicroRunner.Runner(instance, context, expresión, 1);
+
+            // Si no son compatibles
+            if (!Types.IsCompatible(instance, presentType, evaluation.Tipo))
             {
-                instance.WriteError($"No se puede convertir <{eval.Tipo.Description}> en <{field.Tipo.Description}>");
+                instance.WriteError($"No se puede convertir <{evaluation.Tipo.Description}> en <{presentType.Description}>");
                 return new("", new(), true);
             }
 
-            field.Value = eval.Value;
+            // Asigna el valor
+            field.Value = new(evaluation.Value, evaluation.Tipo);
             field.IsAssigned = true;
 
             return new("", new(), true);
         }
+
 
         // Elementos (Variables, constantes)
         else if (level == 1 && !line.EndsWith(')'))
@@ -155,7 +165,11 @@ internal class ScriptInterpreter
             }
 
 
-            return new Eval((instance.Environment == Environments.PreRun) ? "" : getValue.Value, getValue.Tipo, false);
+            return new Eval(false)
+            {
+                Tipo = (instance.Environment == Environments.PreRun) ? getValue.Tipo : getValue.Value.Tipo,
+                Value = (instance.Environment == Environments.PreRun) ? "" : getValue.Value.Element,
+            };
 
         }
 
@@ -191,6 +205,18 @@ internal class ScriptInterpreter
                 var eval = MicroRunner.Runner(instance, context, @params, 1);
 
                 string tipodes = eval.Tipo.Description;
+                return new($"<{tipodes}>", new("string"));
+
+            }
+
+
+            else if (nombre == "typeof")
+            {
+
+
+                var f = context[@params.Trim()];
+
+                string tipodes = f?.Tipo.Description ?? "null";
                 return new($"<{tipodes}>", new("string"));
 
             }
