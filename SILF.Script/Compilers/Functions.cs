@@ -34,8 +34,11 @@ internal class Functions
     public static List<Function> GetFunctions(Instance instance, IEnumerable<string> code)
     {
 
+        List<string> superior = new();
         List<Function> functions = new();
         Function? function = null;
+        bool isSuperior = true;
+
 
         foreach (var line in code)
         {
@@ -44,10 +47,18 @@ internal class Functions
 
             if (!isMatch)
             {
+
+                if (isSuperior)
+                {
+                    superior.Add(line);
+                    continue;
+                }
+
                 function?.CodeLines.Add(line);
                 continue;
             }
 
+            isSuperior = false;
             var normalType = instance.Tipos.Where(T => T.Description == tipo).FirstOrDefault();
             function = new(name, normalType);
             functions.Add(function);
@@ -75,6 +86,22 @@ internal class Functions
 
         }
 
+
+
+        var main = functions.Where(T => T.Name == "main").Any();
+
+        if (!main && superior.Count > 0)
+        {
+            var mainFunc = new Function("main", new())
+            {
+                CodeLines = superior
+            };
+            functions.Add(mainFunc);
+        }
+        else if (!main)
+        {
+            instance.WriteError("No hay función main al compilar");
+        }
 
         return functions;
 

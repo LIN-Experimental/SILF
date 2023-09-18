@@ -53,7 +53,6 @@ public class App
         // Nueva estancia
         Instance = new(Console, Environment);
 
-
         var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
 
         var main = build.GetMain();
@@ -67,7 +66,7 @@ public class App
         Context context = new();
         foreach (var line in main.CodeLines)
             Runners.ScriptInterpreter.Interprete(Instance, context, line, 0);
-        
+
     }
 
 

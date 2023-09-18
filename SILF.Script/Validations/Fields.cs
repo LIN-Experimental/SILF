@@ -28,6 +28,28 @@ internal class Fields
     }
 
 
+    /// <summary>
+    /// Una expresión es la declaración de una variable.
+    /// </summary>
+    /// <param name="line">Expresión</param>
+    public static (string type, string name, bool success) IsNotValuableVar(string line)
+    {
+        string patron = @"(\w+)\s+(\w+)";
+
+        var coincidencia = Regex.Match(line, patron);
+
+        if (coincidencia.Success)
+        {
+            string tipo = coincidencia.Groups[1].Value;
+            string nombre = coincidencia.Groups[2].Value;
+            return (tipo, nombre, true);
+        }
+
+        return (string.Empty, string.Empty, false);
+
+    }
+
+
     public static (string name, string expresion, bool success) IsConst(string line)
     {
         string patron = @"const\s+(\w+)\s*=\s*(.+)";

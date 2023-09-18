@@ -10,6 +10,9 @@ internal class Field
     public string Name { get; set; }
 
 
+    public bool IsAssigned { get; set; }
+
+
     /// <summary>
     /// Valor de la variable
     /// </summary>

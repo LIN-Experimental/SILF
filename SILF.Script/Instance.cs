@@ -11,6 +11,10 @@ internal class Instance
 
 
 
+    public bool IsRunning { get; set; } = true;
+
+
+
     /// <summary>
     /// Ambiente de la app
     /// </summary>
@@ -61,7 +65,12 @@ internal class Instance
     /// Escribe sobre la consola.
     /// </summary>
     /// <param name="result">Resultado.</param>
-    public void WriteError(string result) => Console?.InsertLine(result, LogLevel.Error);
+    public void WriteError(string result)
+    {
+        IsRunning = false;
+        Console?.InsertLine(result, LogLevel.Error);
+    }
+
 
 
 

@@ -4,6 +4,14 @@
 internal class Context
 {
 
+
+    /// <summary>
+    /// Contexto Base
+    /// </summary>
+    public Context? BaseContext { get; set; }
+
+
+
     /// <summary>
     /// Lista de campos
     /// </summary>
@@ -21,6 +29,9 @@ internal class Context
                      where F.Name.ToLower() == name.ToLower()
                      select F).FirstOrDefault();
 
+        // Si hay un contexto base
+        field ??= BaseContext?.GetField(name);
+
         return field;
     }
 
@@ -35,12 +46,19 @@ internal class Context
         var exitField = GetField(field.Name);
 
         if (exitField == null)
-        { 
+        {
             Fields.Add(field);
             return true;
         }
 
         return false;
+    }
+
+
+
+    public Field? this[string name]
+    {
+        get => GetField(name);
     }
 
 

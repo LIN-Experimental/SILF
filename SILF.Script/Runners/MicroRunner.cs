@@ -14,6 +14,9 @@ internal class MicroRunner
     /// <param name="level">Nivel de insolación.</param>
     public static Eval Runner(Instance instance, Context context, string expression, short level)
     {
+        // Si la app esta detenida
+        if (!instance.IsRunning)
+            return new("", new());
 
         // Obtiene la expresión separada
         var bloques = Actions.Blocks.GetOperators(expression, instance);

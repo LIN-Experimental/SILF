@@ -14,16 +14,24 @@ internal class ScriptInterpreter
     /// <param name="line">Linea.</param>
     public static Eval Interprete(Instance instance, Context context, string line, short level = 0)
     {
+       
+        // Si la app esta detenida
+        if (!instance.IsRunning)
+            return new("", new());
 
         // Preparador
         line = line.Normalize().Trim();
 
-        // Si esta vacio
+        // Si esta vacío
         if (string.IsNullOrWhiteSpace(line))
             return new("", new(), true);
 
         // Es una variable
         var isVar = Fields.IsVar(line);
+
+        // Es una variable
+        var isUnsigned = Fields.IsNotValuableVar(line);
+
         var isConst = Fields.IsConst(line);
 
         // Definición de variable
@@ -44,6 +52,19 @@ internal class ScriptInterpreter
 
             // Crea la constante
             bool canCreate = Actions.Fields.CreateVar(instance, context, isVar.name, isVar.type, isVar.expresion);
+
+            // Respuesta
+            return new("", new(), true);
+
+        }
+
+
+        // Definición de variable
+        else if (isUnsigned.success)
+        {
+
+            // Crea la constante
+            bool canCreate = Actions.Fields.CreateVar(instance, context, isUnsigned.name, isUnsigned.type, null);
 
             // Respuesta
             return new("", new(), true);
@@ -87,7 +108,7 @@ internal class ScriptInterpreter
         else if (Fields.IsAssignment(line, out var nombre, out var operador, out var expresión))
         {
 
-            var field = context.GetField(nombre);
+            var field = context[nombre];
 
             if (field == null)
             {
@@ -110,6 +131,7 @@ internal class ScriptInterpreter
             }
 
             field.Value = eval.Value;
+            field.IsAssigned = true;
 
             return new("", new(), true);
         }
@@ -118,13 +140,20 @@ internal class ScriptInterpreter
         else if (level == 1 && !line.EndsWith(')'))
         {
 
-            var getValue = context.GetField(line.Trim());
+            var getValue = context[line.Trim()];
 
             if (getValue == null)
             {
                 instance.WriteError($"No existe el elemento '{line.Trim()}'");
                 return new("", new(), true);
             }
+
+            else if (!getValue.IsAssigned)
+            {
+                instance.WriteError($"La variable '{line.Trim()}' no ha sido asignada.");
+                return new("", new(), true);
+            }
+
 
             return new Eval((instance.Environment == Environments.PreRun) ? "" : getValue.Value, getValue.Tipo, false);
 

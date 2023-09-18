@@ -1,5 +1,4 @@
 ﻿using SILF.Script.Runners;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SILF.Script.Actions;
 
@@ -62,7 +61,7 @@ internal class Fields
     /// <param name="instance">Instancia de la app</param>
     /// <param name="context">Contexto</param>
     /// <param name="expression">Expression</param>
-    public static bool CreateVar(Instance instance, Context context, string name, string type, string expression)
+    public static bool CreateVar(Instance instance, Context context, string name, string type, string? expression)
     {
 
         // Validar Nombre
@@ -92,22 +91,53 @@ internal class Fields
 
         }
 
+        if (type == "let" && expression == null)
+        {
+            instance.WriteError($"Las variables con tipo implícito se tienen que asignar");
+            return false;
+        }
+
         // Obtiene el valor
-        var value = MicroRunner.Runner(instance, context, expression, 1);
+        Eval? value = null;
+        bool assigned = true;
 
-        if (value.IsVoid)
+        if (expression != null)
         {
-            instance.WriteError($"El valor de la variable '{name}' no puede ser void");
-            return false;
+            value = MicroRunner.Runner(instance, context, expression, 1);
+
+            if (value.IsVoid)
+            {
+                instance.WriteError($"El valor de la variable '{name}' no puede ser void");
+                return false;
+            }
+
+            if (value.Tipo != tipo && tipo != null)
+            {
+                instance.WriteError($"El tipo <{value.Tipo.Description}> no puede ser convertido en <{tipo.Value.Description}>.");
+                return false;
+            }
+
+        }
+        else
+        {
+            assigned = false;
+            var desType = instance.Tipos.Where(T => T.Description == type).FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(desType.Description))
+            {
+                instance.WriteError($"El tipo <{type}> no se encontró o aun no esta definido.");
+                return false;
+            }
+
+            value = new("", desType);
         }
 
-        if (value.Tipo != tipo && tipo != null)
-        {
-            instance.WriteError($"El tipo <{value.Tipo.Description}> no puede ser convertido en <{tipo.Value.Description}>.");
-            return false;
-        }
 
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? "" : value.Value, value.Tipo, Isolation.ReadAndWrite);
+
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? "" : value.Value, value.Tipo, Isolation.ReadAndWrite)
+        {
+            IsAssigned = assigned
+        };
 
         var can = context.SetField(field);
 
