@@ -7,7 +7,7 @@ internal class Fields
 {
 
 
-    private static bool IsValidName(string nombre)
+    public static bool IsValidName(string nombre)
     {
         // Comprueba si la cadena está vacía o es nula.
         if (string.IsNullOrEmpty(nombre))

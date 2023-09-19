@@ -251,7 +251,7 @@ internal class ScriptInterpreter
 
         else if (line.Split(" ")[0] == "return")
         {
-           line = line.Remove(0, "return".Length);
+            line = line.Remove(0, "return".Length);
 
             Eval eval = MicroRunner.Runner(instance, context, funcContext, line, 1);
 
