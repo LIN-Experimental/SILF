@@ -107,31 +107,40 @@ internal class Fields
     /// <param name="line">Expresión</param>
     public static bool IsFunction(string line, out string name, out string parámetros)
     {
-        line = line.Trim();
-        string patron = @"(\w+)\(([^)]*)\)";
-
-        var coincidencia = Regex.Match(line, patron);
-
-        name = "";
-        parámetros = "";
-
-        if (coincidencia.Success)
+        try
         {
-            name = coincidencia.Groups[1].Value;
+            line = line.Trim();
+
+            name = "";
+            parámetros = "";
+
+            var i = line.IndexOf('(');
+
+            if (i <= 0)
+                return false;
+
+            name = line[..i];
 
             if (!Actions.Fields.IsValidName(name))
                 return false;
 
-            line = Microsoft.VisualBasic.Strings.StrReverse(line);
-            line = line.Remove(0, 1);
-            line = Microsoft.VisualBasic.Strings.StrReverse(line);
-            line = line.Remove(0, name.Count() + 1);
+            line = line.Remove(0, i);
+
+            line = line[1..(line.Length - 1)];
 
             parámetros = line;
+
+
+
             return true;
         }
+        catch
+        {
+            name = "";
+            parámetros = "";
+            return false;
+        }
 
-        return false;
 
     }
 

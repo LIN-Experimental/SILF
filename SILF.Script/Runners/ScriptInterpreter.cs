@@ -16,8 +16,8 @@ internal class ScriptInterpreter
     {
 
         // Si la app esta detenida
-        if (!instance.IsRunning)
-            return new("", new());
+        if (!instance.IsRunning || funcContext.IsReturning)
+            return new(false);
 
         // Preparador
         line = line.Normalize().Trim();
@@ -192,7 +192,7 @@ internal class ScriptInterpreter
             if (nombre == "print")
             {
 
-                var eval = MicroRunner.Runner(instance, context, funcContext, @params, 1);
+                Eval eval = MicroRunner.Runner(instance, context, funcContext, @params, 1);
 
                 instance.Write(eval.Value.ToString());
                 return new("", new(), true);
@@ -221,29 +221,39 @@ internal class ScriptInterpreter
             }
 
 
-            var func = instance.Functions.Where(T => T.Name == nombre).FirstOrDefault();
 
-            if (func == null)
+            // Funciones definidas por el usuario.
+            Function? function = (from F in instance.Functions
+                                  where F.Name == nombre
+                                  select F).FirstOrDefault();
+
+            // Si la función no existe.
+            if (function == null)
             {
                 instance.WriteError($"No se encontró la función '{nombre}'");
                 return new(true);
             }
 
-
-            var newContext = new Context();
-            var newFuncContext = FuncContext.GenerateContext(func);
-
-            foreach (var codeLine in func.CodeLines)
+            // Si es Pre-Run
+            if (instance.Environment == Environments.PreRun)
             {
+                return new("", function.Type, (function.Type.Description == "" || function.Type.Description == null));
+            }
+
+            // Contextos nuevos.
+            Context newContext = new();
+            FuncContext newFuncContext = FuncContext.GenerateContext(function);
+
+            // Interprete de líneas.
+            foreach (var codeLine in function.CodeLines)
                 Interprete(instance, newContext, newFuncContext, codeLine, 0);
-            }
 
+            // Si la función no retorno nada o es void
             if (newFuncContext.IsVoid || !newFuncContext.IsReturning)
-            {
                 return new(true);
-            }
 
 
+            // Nueva evaluación.
             return new Eval(newFuncContext.Value.Element, newFuncContext.Value.Tipo);
 
         }
@@ -251,23 +261,42 @@ internal class ScriptInterpreter
 
         else if (line.Split(" ")[0] == "return")
         {
+
+            // Caso del return
             line = line.Remove(0, "return".Length);
 
+            // Si el tipo esperado es void y hay una expresión
+            if (funcContext.IsVoid && line.Trim() != "")
+            {
+                funcContext.IsReturning = true;
+                instance.WriteError($"Return void no puede tener expresiones");
+                return new(true);
+            }
+
+            // Si el tipo el void
+            else if (funcContext.IsVoid)
+            {
+                funcContext.IsReturning = true;
+                return new(true);
+            }
+
+            // Evalúa
             Eval eval = MicroRunner.Runner(instance, context, funcContext, line, 1);
 
+            // Cambia los estados.
             funcContext.IsReturning = true;
 
-            if (!funcContext.IsVoid)
+            // Tipo es incompatible
+            if (!Types.IsCompatible(instance, funcContext.WaitType, eval.Tipo))
             {
-                if (!Types.IsCompatible(instance, funcContext.WaitType, eval.Tipo))
-                {
-                    instance.WriteError($"Return invalido");
-                    return new(true);
-                }
-
-                funcContext.Value.Element = eval.Value;
+                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType.Description}> no puede retornar valores del tipo <{eval.Tipo.Description}>.");
+                return new(true);
             }
+
+            // Valores
+            funcContext.Value.Element = eval.Value;
             return new(true);
+
         }
 
         instance.WriteError($"Expression invalida '{line}' en modo '{level}'");

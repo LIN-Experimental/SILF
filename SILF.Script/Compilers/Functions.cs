@@ -61,6 +61,12 @@ internal class Functions
             isSuperior = false;
             var normalType = instance.Tipos.Where(T => T.Description == tipo).FirstOrDefault();
             function = new(name, normalType);
+
+            if (tipo == "void")
+            {
+                function.Type = new();
+            }
+
             functions.Add(function);
 
             foreach(var param in parameters)

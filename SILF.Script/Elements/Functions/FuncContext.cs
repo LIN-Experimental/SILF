@@ -4,6 +4,8 @@
 internal class FuncContext
 {
 
+    public string Name { get; set; }
+
     public Value Value { get; set; }
 
     public Tipo WaitType { get; set; }
@@ -25,7 +27,8 @@ internal class FuncContext
             IsReturning = false,
             IsVoid = function.Type.Description == "",
             WaitType = function.Type,
-            Value = new("")
+            Value = new(""),
+            Name = function.Name
         };
     }
 
