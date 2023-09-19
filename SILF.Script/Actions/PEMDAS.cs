@@ -44,6 +44,7 @@ internal class PEMDAS
         SolveSR(); //Adiccion y sustraccion
         //L_OY(); //Logico & y |
         //T(); // Terniarios
+        SolveLL(); // Unarios
     }
 
 
@@ -148,10 +149,10 @@ internal class PEMDAS
 
 
         // Eliminar los valores
-       
-            Values.RemoveRange(index - 1, 3);
-            Values.Insert(index - 1, new(value ?? "", type, false));
-        
+
+        Values.RemoveRange(index - 1, 3);
+        Values.Insert(index - 1, new(value ?? "", type, false));
+
 
 
         SolveMD();
@@ -294,6 +295,96 @@ internal class PEMDAS
 
 
     /// <summary>
+    /// Soluciona sumas y restas.
+    /// </summary>
+    private void SolveLL()
+    {
+        // Operadores
+        string[] operators = { "!" };
+
+        // Índice
+        int index = Continue(operators, Values);
+
+        // Si no hay indices
+        if (index < 0)
+            return;
+
+        // Valores
+        var (ope, pos) = GetTwoValues(index);
+
+        if (pos == null || ope == null)
+        {
+            Instance.WriteError("Error al realizar operaciones.");
+            return;
+        }
+
+        // Valores finales
+        object? value = null;
+        Tipo type = new();
+
+        // Operaciones
+        if (pos.Tipo.Description == "bool")
+        {
+
+
+            // Segun el operador
+            switch (ope.Value.ToString())
+            {
+
+                // Suma
+                case "!":
+                    {
+
+                        if (pos.Value.ToString() == "false" || pos.Value.ToString() == "0")
+                        {
+                            value = "1";
+                        }
+                        else
+                        {
+                            value = "0";
+                        }
+
+                        type = pos.Tipo;
+
+                        break;
+                    }
+
+            }
+
+
+        }
+
+       
+
+        // Si el operador no es compatible
+        else
+        {
+            // Error
+            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pos.Tipo.Description}>");
+
+        }
+
+
+        // Eliminar los valores
+        try
+        {
+            Values.RemoveRange(index , 2);
+            Values.Insert(index , new(value ?? "", type, false));
+        }
+        catch
+        {
+
+        }
+
+
+
+        SolveLL();
+
+    }
+
+
+
+    /// <summary>
     /// Comprueba si hay indices para ciertos operadores
     /// </summary>
     /// <param name="operators">Operadores a buscar</param>
@@ -319,7 +410,25 @@ internal class PEMDAS
             return (null, null, null);
         }
         // Retorna elementos
-        return (Values.ElementAtOrDefault(index - 1), Values.ElementAtOrDefault(index) , Values.ElementAtOrDefault(index + 1));
+        return (Values.ElementAtOrDefault(index - 1), Values.ElementAtOrDefault(index), Values.ElementAtOrDefault(index + 1));
+    }
+
+
+
+    /// <summary>
+    /// Obtiene los valores
+    /// </summary>
+    /// <param name="index">Índice</param>
+    private (Eval? pre, Eval? ope) GetTwoValues(int index)
+    {
+        // Si no hay valores suficientes
+        if (index < 0 || index >= Values.Count)
+        {
+            Instance.WriteError("Error de operadores");
+            return (null, null);
+        }
+        // Retorna elementos
+        return (Values.ElementAtOrDefault(index ), Values.ElementAtOrDefault(index + 1));
     }
 
 

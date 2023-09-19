@@ -101,6 +101,12 @@ internal class ScriptInterpreter
         else if (Options.IsBool(line))
         {
             var boolType = instance.Tipos.Where(T => T.Description == "bool").FirstOrDefault();
+
+            if (line == "true")
+                line = "1";
+            else if (line == "false")
+                line = "0";
+
             return new Eval(line, boolType);
         }
 
