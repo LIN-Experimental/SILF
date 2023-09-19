@@ -32,7 +32,7 @@ internal class Fields
     /// Una expresión es la declaración de una variable.
     /// </summary>
     /// <param name="line">Expresión</param>
-    public static (string type, string name, bool success) IsNotValuableVar(string line)
+    public static (string type, string name, bool success) IsNotValuableVar(Instance instance, string line)
     {
         string patron = @"(\w+)\s+(\w+)";
 
@@ -41,6 +41,11 @@ internal class Fields
         if (coincidencia.Success)
         {
             string tipo = coincidencia.Groups[1].Value;
+
+            var exist = instance.Tipos.Where(T => T.Description == tipo).Any();
+            if (!exist)
+                return ("", "", false);
+
             string nombre = coincidencia.Groups[2].Value;
             return (tipo, nombre, true);
         }

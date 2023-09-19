@@ -10,6 +10,9 @@ internal class Instance
     private IConsole? Console { get; set; }
 
 
+    public List<Function> Functions { get; set; }
+
+
 
     public bool IsRunning { get; set; } = true;
 

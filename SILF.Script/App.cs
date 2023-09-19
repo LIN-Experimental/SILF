@@ -50,6 +50,7 @@ public class App
     /// </summary>
     public void Run()
     {
+
         // Nueva estancia
         Instance = new(Console, Environment);
 
@@ -62,10 +63,13 @@ public class App
             Console?.InsertLine("No se encontró la función 'main'", LogLevel.Error);
             return;
         }
+        Instance.Functions = build.Functions;
 
         Context context = new();
+        FuncContext funContext = FuncContext.GenerateContext(main);
+
         foreach (var line in main.CodeLines)
-            Runners.ScriptInterpreter.Interprete(Instance, context, line, 0);
+            Runners.ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
 
     }
 

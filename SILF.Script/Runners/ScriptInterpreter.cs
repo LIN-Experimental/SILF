@@ -12,7 +12,7 @@ internal class ScriptInterpreter
     /// </summary>
     /// <param name="instance">Instancia de SILF.</param>
     /// <param name="line">Linea.</param>
-    public static Eval Interprete(Instance instance, Context context, string line, short level = 0)
+    public static Eval Interprete(Instance instance, Context context, FuncContext funcContext, string line, short level = 0)
     {
 
         // Si la app esta detenida
@@ -30,7 +30,7 @@ internal class ScriptInterpreter
         var isVar = Fields.IsVar(line);
 
         // Es una variable
-        var isUnsigned = Fields.IsNotValuableVar(line);
+        var isUnsigned = Fields.IsNotValuableVar(instance, line);
 
         var isConst = Fields.IsConst(line);
 
@@ -39,10 +39,10 @@ internal class ScriptInterpreter
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateConst(instance, context, isConst.name, isConst.expresion);
+            bool canCreate = Actions.Fields.CreateConst(instance, context, funcContext, isConst.name, isConst.expresion);
 
             // Respuesta
-            return new("", new(), true);
+            return new(true);
 
         }
 
@@ -51,10 +51,10 @@ internal class ScriptInterpreter
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateVar(instance, context, isVar.name, isVar.type, isVar.expresion);
+            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, isVar.name, isVar.type, isVar.expresion);
 
             // Respuesta
-            return new("", new(), true);
+            return new(true);
 
         }
 
@@ -64,10 +64,10 @@ internal class ScriptInterpreter
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateVar(instance, context, isUnsigned.name, isUnsigned.type, null);
+            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, isUnsigned.name, isUnsigned.type, null);
 
             // Respuesta
-            return new("", new(), true);
+            return new(true);
 
         }
 
@@ -129,7 +129,7 @@ internal class ScriptInterpreter
             Tipo presentType = field.Tipo;
 
             // Evaluación de las expresiones
-            Eval evaluation = MicroRunner.Runner(instance, context, expresión, 1);
+            Eval evaluation = MicroRunner.Runner(instance, context, funcContext, expresión, 1);
 
             // Si no son compatibles
             if (!Types.IsCompatible(instance, presentType, evaluation.Tipo))
@@ -180,7 +180,7 @@ internal class ScriptInterpreter
             line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line);
 
-            var result = MicroRunner.Runner(instance, context, line, 1);
+            var result = MicroRunner.Runner(instance, context, funcContext, line, 1);
             return result;
         }
 
@@ -192,7 +192,7 @@ internal class ScriptInterpreter
             if (nombre == "print")
             {
 
-                var eval = MicroRunner.Runner(instance, context, @params, 1);
+                var eval = MicroRunner.Runner(instance, context, funcContext, @params, 1);
 
                 instance.Write(eval.Value.ToString());
                 return new("", new(), true);
@@ -202,13 +202,12 @@ internal class ScriptInterpreter
             else if (nombre == "type")
             {
 
-                var eval = MicroRunner.Runner(instance, context, @params, 1);
+                var eval = MicroRunner.Runner(instance, context, funcContext, @params, 1);
 
                 string tipodes = eval.Tipo.Description;
                 return new($"<{tipodes}>", new("string"));
 
             }
-
 
             else if (nombre == "typeof")
             {
@@ -222,13 +221,57 @@ internal class ScriptInterpreter
             }
 
 
-            instance.WriteWarning($"Ejecutando '{nombre}' con '{@params}'");
+            var func = instance.Functions.Where(T => T.Name == nombre).FirstOrDefault();
+
+            if (func == null)
+            {
+                instance.WriteError($"No se encontró la función '{nombre}'");
+                return new(true);
+            }
+
+
+            var newContext = new Context();
+            var newFuncContext = FuncContext.GenerateContext(func);
+
+            foreach (var codeLine in func.CodeLines)
+            {
+                Interprete(instance, newContext, newFuncContext, codeLine, 0);
+            }
+
+            if (newFuncContext.IsVoid || !newFuncContext.IsReturning)
+            {
+                return new(true);
+            }
+
+
+            return new Eval(newFuncContext.Value.Element, newFuncContext.Value.Tipo);
 
         }
 
 
+        else if (line.Split(" ")[0] == "return")
+        {
+           line = line.Remove(0, "return".Length);
+
+            Eval eval = MicroRunner.Runner(instance, context, funcContext, line, 1);
+
+            funcContext.IsReturning = true;
+
+            if (!funcContext.IsVoid)
+            {
+                if (!Types.IsCompatible(instance, funcContext.WaitType, eval.Tipo))
+                {
+                    instance.WriteError($"Return invalido");
+                    return new(true);
+                }
+
+                funcContext.Value.Element = eval.Value;
+            }
+            return new(true);
+        }
+
         instance.WriteError($"Expression invalida '{line}' en modo '{level}'");
-        return new("", new(), true);
+        return new(true);
 
     }
 

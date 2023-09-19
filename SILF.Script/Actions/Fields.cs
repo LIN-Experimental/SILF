@@ -61,11 +61,11 @@ internal class Fields
     /// <param name="instance">Instancia de la app</param>
     /// <param name="context">Contexto</param>
     /// <param name="expression">Expression</param>
-    public static bool CreateVar(Instance instance, Context context, string name, string type, string? expression)
+    public static bool CreateVar(Instance instance, Context context, FuncContext funcContext, string name, string type, string? expression)
     {
 
         // Validar Nombre
-         bool isValidName = IsValidName(name);
+        bool isValidName = IsValidName(name);
 
         if (!isValidName)
         {
@@ -101,15 +101,18 @@ internal class Fields
         Eval? value = null;
         bool assigned = true;
 
+
         if (expression != null)
         {
-            value = MicroRunner.Runner(instance, context, expression, 1);
+            value = MicroRunner.Runner(instance, context,funcContext, expression, 1);
 
             if (value.IsVoid)
             {
                 instance.WriteError($"El valor de la variable '{name}' no puede ser void");
                 return false;
             }
+
+            tipo ??= value.Tipo;
 
             if (!Validations.Types.IsCompatible(instance, tipo.Value, value.Tipo))
             {
@@ -160,7 +163,7 @@ internal class Fields
     /// <param name="instance">Instancia de la app</param>
     /// <param name="context">Contexto</param>
     /// <param name="expression">Expression</param>
-    public static bool CreateConst(Instance instance, Context context, string name, string expression)
+    public static bool CreateConst(Instance instance, Context context,FuncContext funcContext, string name, string expression)
     {
 
         // Validar Nombre
@@ -174,7 +177,7 @@ internal class Fields
 
 
         // Obtiene el valor
-        var value = MicroRunner.Runner(instance, context, expression, 1);
+        var value = MicroRunner.Runner(instance, context, funcContext, expression, 1);
 
         if (value.IsVoid)
         {

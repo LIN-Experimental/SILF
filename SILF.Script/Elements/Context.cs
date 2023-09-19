@@ -19,6 +19,9 @@ internal class Context
 
 
 
+    public bool IsReturn { get; set; } = false;
+
+
     /// <summary>
     /// Obtiene un campo
     /// </summary>

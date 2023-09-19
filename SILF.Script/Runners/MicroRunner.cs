@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Runners;
+﻿using SILF.Script.Elements.Functions;
+
+namespace SILF.Script.Runners;
 
 
 internal class MicroRunner
@@ -12,7 +14,7 @@ internal class MicroRunner
     /// <param name="context">Contexto.</param>
     /// <param name="expression">Expresión a evaluar.</param>
     /// <param name="level">Nivel de insolación.</param>
-    public static Eval Runner(Instance instance, Context context, string expression, short level)
+    public static Eval Runner(Instance instance, Context context, FuncContext funcContext, string expression, short level)
     {
         // Si la app esta detenida
         if (!instance.IsRunning)
@@ -31,7 +33,7 @@ internal class MicroRunner
                 continue;
             }
 
-            var result = ScriptInterpreter.Interprete(instance, context, bloque.Value.ToString() ?? "", level);
+            var result = ScriptInterpreter.Interprete(instance, context, funcContext, bloque.Value.ToString() ?? "", level);
             evals.Add(result);
 
         }

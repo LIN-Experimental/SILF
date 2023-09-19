@@ -34,7 +34,6 @@ internal class ScriptCompiler
 
         var functions = Functions.GetFunctions(instance, code);
 
-
         result.Functions = functions;
 
 
