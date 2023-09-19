@@ -295,6 +295,7 @@ internal class ScriptInterpreter
 
             // Valores
             funcContext.Value.Element = eval.Value;
+            funcContext.Value.Tipo = eval.Tipo;
             return new(true);
 
         }

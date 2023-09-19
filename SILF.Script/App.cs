@@ -51,6 +51,12 @@ public class App
     public void Run()
     {
 
+        if (Environment == Environments.PreRun)
+        {
+            RunTest();
+            return;
+        }
+
         // Nueva estancia
         Instance = new(Console, Environment);
 
@@ -70,6 +76,37 @@ public class App
 
         foreach (var line in main.CodeLines)
             Runners.ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
+
+    }
+
+
+    private void RunTest()
+    {
+        // Nueva estancia
+        Instance = new(Console, Environment);
+
+        var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
+
+        var main = build.GetMain();
+
+        if (main == null)
+        {
+            Console?.InsertLine("No se encontró la función 'main'", LogLevel.Error);
+            return;
+        }
+
+        Instance.Functions = build.Functions;
+
+        foreach (var function in Instance.Functions)
+        {
+            Context context = new();
+            FuncContext funContext = FuncContext.GenerateContext(function);
+
+            foreach (var line in function.CodeLines)
+                Runners.ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
+
+        }
+
 
     }
 
