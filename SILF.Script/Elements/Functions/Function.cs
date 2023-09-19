@@ -1,7 +1,7 @@
 ﻿namespace SILF.Script.Elements.Functions;
 
 
-internal class Function
+internal class Function : IFunction
 {
 
     public string Name { get; set; }
@@ -12,7 +12,6 @@ internal class Function
 
     public Tipo Type { get; set; }
 
-
     public Function(string name, Tipo tipo)
     {
         this.Name = name;
@@ -21,5 +20,27 @@ internal class Function
         this.Parameters = new();
     }
 
+
+
+    public FuncContext Run(Instance instance, List<ParameterValue> @params)
+    {
+
+        var context = new Context();
+
+
+        foreach (var param in @params)
+        {
+            context.SetField(new(param.Name, new(param.Value, param.Tipo), param.Tipo, Isolation.Read) { IsAssigned = true});
+        }
+
+        var func = FuncContext.GenerateContext(this);
+
+        // Interprete de líneas.
+        foreach (var line in CodeLines)
+            Runners.ScriptInterpreter.Interprete(instance, context, func, line, 0);
+
+        return func;
+
+    }
 
 }

@@ -1,7 +1,7 @@
 ﻿namespace SILF.Script.Elements.Functions;
 
 
-internal class FuncContext
+public class FuncContext
 {
 
     public string Name { get; set; }
@@ -20,7 +20,7 @@ internal class FuncContext
     /// Genera un nuevo contexto
     /// </summary>
     /// <param name="function">Función</param>
-    public static FuncContext GenerateContext(Function function)
+    public static FuncContext GenerateContext(IFunction function)
     {
         return new FuncContext()
         {

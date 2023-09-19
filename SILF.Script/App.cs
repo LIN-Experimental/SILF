@@ -69,7 +69,8 @@ public class App
             Console?.InsertLine("No se encontró la función 'main'", LogLevel.Error);
             return;
         }
-        Instance.Functions = build.Functions;
+        Instance.Functions = new();
+        Instance.Functions.AddRange(build.Functions);
 
         Context context = new();
         FuncContext funContext = FuncContext.GenerateContext(main);
@@ -95,15 +96,21 @@ public class App
             return;
         }
 
-        Instance.Functions = build.Functions;
+        Instance.Functions = new();
+        Instance.Functions.AddRange(build.Functions);
 
         foreach (var function in Instance.Functions)
         {
-            Context context = new();
-            FuncContext funContext = FuncContext.GenerateContext(function);
 
-            foreach (var line in function.CodeLines)
-                Runners.ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
+            if (function is Function baseFunction)
+            {
+                Context context = new();
+                FuncContext funContext = FuncContext.GenerateContext(baseFunction);
+
+                foreach (var line in baseFunction.CodeLines)
+                    Runners.ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
+            }
+
 
         }
 

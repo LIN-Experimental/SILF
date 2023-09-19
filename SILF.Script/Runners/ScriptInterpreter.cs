@@ -135,7 +135,16 @@ internal class ScriptInterpreter
             Tipo presentType = field.Tipo;
 
             // Evaluación de las expresiones
-            Eval evaluation = MicroRunner.Runner(instance, context, funcContext, expresión, 1);
+            List<Eval> evaluations = MicroRunner.Runner(instance, context, funcContext, expresión, 1);
+
+            if (evaluations.Count != 1)
+            {
+                instance.WriteError($"La asignación no puede tener tener mas de 1 (un) bloque.");
+                return new("", new(), true);
+            }
+
+            // Result
+            var evaluation = evaluations[0];
 
             // Si no son compatibles
             if (!Types.IsCompatible(instance, presentType, evaluation.Tipo))
@@ -186,8 +195,12 @@ internal class ScriptInterpreter
             line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line);
 
-            var result = MicroRunner.Runner(instance, context, funcContext, line, 1);
-            return result;
+            var results = MicroRunner.Runner(instance, context, funcContext, line, 1);
+
+            if (results.Count != 1)
+                return new(true);
+
+            return results[0];
         }
 
         // Ejecutar funciones
@@ -198,9 +211,13 @@ internal class ScriptInterpreter
             if (nombre == "print")
             {
 
-                Eval eval = MicroRunner.Runner(instance, context, funcContext, @params, 1);
+                List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, @params, 1);
 
-                instance.Write(eval.Value.ToString());
+                foreach (var eval in evals)
+                {
+                    instance.Write(eval.Value.ToString() ?? "");
+                }
+
                 return new("", new(), true);
 
             }
@@ -208,9 +225,15 @@ internal class ScriptInterpreter
             else if (nombre == "type")
             {
 
-                var eval = MicroRunner.Runner(instance, context, funcContext, @params, 1);
+                var evals = MicroRunner.Runner(instance, context, funcContext, @params, 1);
 
-                string tipodes = eval.Tipo.Description;
+                if (evals.Count != 1)
+                {
+                    instance.WriteError("Param requerido");
+                    return new();
+                }
+
+                string tipodes = evals[0].Tipo.Description;
                 return new($"<{tipodes}>", new("string"));
 
             }
@@ -229,9 +252,9 @@ internal class ScriptInterpreter
 
 
             // Funciones definidas por el usuario.
-            Function? function = (from F in instance.Functions
-                                  where F.Name == nombre
-                                  select F).FirstOrDefault();
+            IFunction? function = (from F in instance.Functions
+                                   where F.Name == nombre
+                                   select F).FirstOrDefault();
 
             // Si la función no existe.
             if (function == null)
@@ -246,21 +269,38 @@ internal class ScriptInterpreter
                 return new("", function.Type, (function.Type.Description == "" || function.Type.Description == null));
             }
 
-            // Contextos nuevos.
-            Context newContext = new();
-            FuncContext newFuncContext = FuncContext.GenerateContext(function);
 
-            // Interprete de líneas.
-            foreach (var codeLine in function.CodeLines)
-                Interprete(instance, newContext, newFuncContext, codeLine, 0);
+            var paramsExec = MicroRunner.Runner(instance, context, funcContext, @params, 1);
+
+
+
+
+
+            var mapping = new List<ParameterValue>();
+
+            foreach (var param in paramsExec)
+            {
+                mapping.Add(new("", param.Tipo, param.Value));
+            }
+
+            bool valid = Fields.ValidateParams(instance, function, mapping);
+
+            if (!valid)
+                return new(true);
+
+
+
+
+            FuncContext funcResult = function.Run(instance, mapping);
+
 
             // Si la función no retorno nada o es void
-            if (newFuncContext.IsVoid || !newFuncContext.IsReturning)
+            if (funcResult.IsVoid || !funcResult.IsReturning)
                 return new(true);
 
 
             // Nueva evaluación.
-            return new Eval(newFuncContext.Value.Element, newFuncContext.Value.Tipo);
+            return new Eval(funcResult.Value.Element, funcResult.Value.Tipo);
 
         }
 
@@ -287,7 +327,15 @@ internal class ScriptInterpreter
             }
 
             // Evalúa
-            Eval eval = MicroRunner.Runner(instance, context, funcContext, line, 1);
+            List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, line, 1);
+
+            if (evals.Count != 1)
+            {
+                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType.Description}> no puede retornar 2 bloques de codigo.");
+                return new(true);
+            }
+
+            var eval = evals[0];
 
             // Cambia los estados.
             funcContext.IsReturning = true;

@@ -5,6 +5,47 @@ internal class Fields
 {
 
 
+
+
+
+
+
+
+    public static bool ValidateParams(Instance instance, IFunction function, List<ParameterValue> @params)
+    {
+
+        if (function.Parameters.Count != @params.Count)
+        {
+            instance.WriteError("Parámetros insuficientes");
+            return false;
+        }
+
+
+        for (int i = 0; i < function.Parameters.Count; i++)
+        {
+            var param = function.Parameters[i];
+            var paramValue = @params[i];
+
+            bool isCompatible = Validations.Types.IsCompatible(instance, param.Tipo, paramValue.Tipo);
+
+            if (!isCompatible)
+            {
+                instance.WriteError($"El parámetro '{param.Name}' de La función '{function.Name}' no puede tomar valores del tipo <{paramValue.Tipo.Description}>.");
+                return false;
+            }
+
+            paramValue.Name = param.Name;
+
+        }
+
+        return true;
+
+    }
+
+
+
+
+
     /// <summary>
     /// Una expresión es la declaración de una variable.
     /// </summary>

@@ -1,4 +1,6 @@
-﻿using SILF.Script.Runners;
+﻿using SILF.Script.Elements;
+using SILF.Script.Runners;
+using System.ComponentModel.DataAnnotations;
 
 namespace SILF.Script.Actions;
 
@@ -104,7 +106,16 @@ internal class Fields
 
         if (expression != null)
         {
-            value = MicroRunner.Runner(instance, context,funcContext, expression, 1);
+           var values = MicroRunner.Runner(instance, context,funcContext, expression, 1);
+
+
+            if (values.Count != 1)
+            {
+                instance.WriteError($"No MMM");
+                return false;
+            }
+             value = values[0];
+
 
             if (value.IsVoid)
             {
@@ -177,7 +188,14 @@ internal class Fields
 
 
         // Obtiene el valor
-        var value = MicroRunner.Runner(instance, context, funcContext, expression, 1);
+        var values = MicroRunner.Runner(instance, context, funcContext, expression, 1);
+
+        if (values.Count != 1)
+        {
+            instance.WriteError($"No MMM");
+            return false;
+        }
+        var value = values[0];
 
         if (value.IsVoid)
         {

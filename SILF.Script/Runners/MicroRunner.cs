@@ -1,6 +1,4 @@
-﻿using SILF.Script.Elements.Functions;
-
-namespace SILF.Script.Runners;
+﻿namespace SILF.Script.Runners;
 
 
 internal class MicroRunner
@@ -14,43 +12,61 @@ internal class MicroRunner
     /// <param name="context">Contexto.</param>
     /// <param name="expression">Expresión a evaluar.</param>
     /// <param name="level">Nivel de insolación.</param>
-    public static Eval Runner(Instance instance, Context context, FuncContext funcContext, string expression, short level)
+    public static List<Eval> Runner(Instance instance, Context context, FuncContext funcContext, string expression, short level)
     {
         // Si la app esta detenida
         if (!instance.IsRunning)
-            return new("", new());
+            return new();
 
         // Obtiene la expresión separada
-        var bloques = Actions.Blocks.GetOperators(expression, instance);
+        var bloques = Actions.Blocks.Separar(expression);
 
-        List<Eval> evals = new();
+        // Si no hay bloques
+        if (bloques.Count <= 0)
+            return new();
+
+        // Resultados
+        List<Eval> final = new();
+
         foreach (var bloque in bloques)
         {
 
-            if (bloque.Tipo.Description == "operator")
+            List<Eval> evals = new();
+
+            // Obtiene la expresión separada
+            var expressions = Actions.Blocks.GetOperators(bloque.Value, instance);
+
+            // Recorre
+            foreach (var ex in expressions)
             {
-                evals.Add(bloque);
-                continue;
+
+                if (ex.Tipo.Description == "operator")
+                {
+                    evals.Add(ex);
+                    continue;
+                }
+
+                var result = ScriptInterpreter.Interprete(instance, context, funcContext, ex.Value.ToString() ?? "", level);
+                evals.Add(result);
+
             }
 
-            var result = ScriptInterpreter.Interprete(instance, context, funcContext, bloque.Value.ToString() ?? "", level);
-            evals.Add(result);
+            // Solucionador PEMDAS
+            Actions.PEMDAS calcs = new(instance, evals);
 
+            calcs.Solve();
+
+            evals ??= new();
+            if (evals.Count != 1)
+                evals.Add(new(true));
+
+            final.Add(evals[0]);
         }
 
 
-        Actions.PEMDAS calc = new (instance, evals);
-
-        calc.Solve();
-
-        if (evals == null || evals.Count != 1)
-            return new("", new(), true);
-
-        return evals[0];
-
+        return final;
 
     }
-
 
 
 }

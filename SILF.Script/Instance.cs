@@ -1,7 +1,7 @@
 ﻿namespace SILF.Script;
 
 
-internal class Instance
+public class Instance
 {
 
     /// <summary>
@@ -10,7 +10,7 @@ internal class Instance
     private IConsole? Console { get; set; }
 
 
-    public List<Function> Functions { get; set; }
+    public List<IFunction> Functions { get; set; }
 
 
 

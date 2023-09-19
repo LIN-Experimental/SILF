@@ -4,9 +4,12 @@
 public interface IFunction
 {
 
-    /// <summary>
-    /// Método que se ejecuta al recibir un resultado.
-    /// </summary>
-    public object InsertLine(Enums.LogLevel logLevel);
+    public Tipo Type { get; set; }
+
+    public string Name { get; set; }
+
+    public List<Parameter> Parameters { get; set; }
+
+    public FuncContext Run(Instance instance, List<ParameterValue> values);
 
 }

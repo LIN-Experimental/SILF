@@ -1,7 +1,7 @@
 ﻿namespace SILF.Script.Elements;
 
 
-internal class Value
+public class Value
 {
 
 
