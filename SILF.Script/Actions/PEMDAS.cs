@@ -36,6 +36,8 @@ internal class PEMDAS
     /// </summary>
     public void Solve()
     {
+        
+        SolveLL(); // Unarios
         //    A();  //Operadores aritmeticos
         //    N();  //Resuelve Nulos
         //    E();  //Exponentes
@@ -44,7 +46,7 @@ internal class PEMDAS
         SolveSR(); //Adiccion y sustraccion
         //L_OY(); //Logico & y |
         //T(); // Terniarios
-        SolveLL(); // Unarios
+        
     }
 
 
