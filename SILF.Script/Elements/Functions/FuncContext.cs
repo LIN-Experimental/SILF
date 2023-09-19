@@ -25,7 +25,7 @@ internal class FuncContext
         return new FuncContext()
         {
             IsReturning = false,
-            IsVoid = function.Type.Description == "",
+            IsVoid = (function.Type.Description == "" || function.Type.Description == null),
             WaitType = function.Type,
             Value = new(""),
             Name = function.Name
