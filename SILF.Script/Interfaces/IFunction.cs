@@ -4,7 +4,7 @@
 public interface IFunction
 {
 
-    public Tipo Type { get; set; }
+    public Tipo? Type { get; set; }
 
     public string Name { get; set; }
 

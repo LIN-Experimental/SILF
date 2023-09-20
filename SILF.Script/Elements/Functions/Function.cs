@@ -10,9 +10,9 @@ internal class Function : IFunction
 
     public List<Parameter> Parameters { get; set; }
 
-    public Tipo Type { get; set; }
+    public Tipo? Type { get; set; }
 
-    public Function(string name, Tipo tipo)
+    public Function(string name, Tipo? tipo)
     {
         this.Name = name;
         this.Type = tipo;

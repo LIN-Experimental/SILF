@@ -1,47 +1,14 @@
-﻿using SILF.Script.Elements;
-using SILF.Script.Runners;
-using System.ComponentModel.DataAnnotations;
-
-namespace SILF.Script.Actions;
+﻿namespace SILF.Script.Actions;
 
 
 internal class Fields
 {
 
 
-    public static bool IsValidName(string nombre)
-    {
-        // Comprueba si la cadena está vacía o es nula.
-        if (string.IsNullOrEmpty(nombre))
-        {
-            return false;
-        }
-
-        // Comprueba si el nombre contiene caracteres inválidos.
-        if (nombre.Any(c => !char.IsLetterOrDigit(c) && c != '_'))
-        {
-            return false;
-        }
-
-        // Comprueba si el nombre es una palabra clave de C#.
-        if (EsPalabraClaveCSharp(nombre))
-        {
-            return false;
-        }
-
-        // Si todas las comprobaciones pasan, el nombre es válido.
-        return true;
-    }
 
 
-    static bool EsPalabraClaveCSharp(string nombre)
-    {
-        // Lista de palabras clave de C# (puedes ampliarla según sea necesario).
-        string[] palabrasClave = { "function", "let", "const" };
 
-        // Comprueba si el nombre está en la lista de palabras clave.
-        return palabrasClave.Contains(nombre);
-    }
+
 
 
     public static Tipo? GetTipo(Instance instance, string tipo)
@@ -67,7 +34,7 @@ internal class Fields
     {
 
         // Validar Nombre
-        bool isValidName = IsValidName(name);
+        bool isValidName = Validations.Options.IsValidName(name);
 
         if (!isValidName)
         {
@@ -106,7 +73,7 @@ internal class Fields
 
         if (expression != null)
         {
-           var values = MicroRunner.Runner(instance, context,funcContext, expression, 1);
+            var values = MicroRunner.Runner(instance, context, funcContext, expression, 1);
 
 
             if (values.Count != 1)
@@ -114,7 +81,7 @@ internal class Fields
                 instance.WriteError($"No MMM");
                 return false;
             }
-             value = values[0];
+            value = values[0];
 
 
             if (value.IsVoid)
@@ -127,7 +94,7 @@ internal class Fields
 
             if (!Validations.Types.IsCompatible(instance, tipo.Value, value.Tipo))
             {
-                instance.WriteError($"El tipo <{tipo.Value.Description}> no puede ser convertido en <{value.Tipo.Description}>.");
+                instance.WriteError($"El tipo <{tipo.Value}> no puede ser convertido en <{value.Tipo}>.");
                 return false;
             }
 
@@ -148,7 +115,7 @@ internal class Fields
 
 
 
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo) : new Value(value.Value, value.Tipo), tipo.Value, Isolation.ReadAndWrite)
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo.Value) : new Value(value.Value, value.Tipo.Value), tipo.Value, Isolation.ReadAndWrite)
         {
             IsAssigned = assigned
         };
@@ -174,11 +141,11 @@ internal class Fields
     /// <param name="instance">Instancia de la app</param>
     /// <param name="context">Contexto</param>
     /// <param name="expression">Expression</param>
-    public static bool CreateConst(Instance instance, Context context,FuncContext funcContext, string name, string expression)
+    public static bool CreateConst(Instance instance, Context context, FuncContext funcContext, string name, string expression)
     {
 
         // Validar Nombre
-        bool isValidName = IsValidName(name);
+        bool isValidName = Validations.Options.IsValidName(name);
 
         if (!isValidName)
         {
@@ -203,14 +170,14 @@ internal class Fields
             return false;
         }
 
-        if (value.Tipo.Description == "mutable")
+        if (value.Tipo.Value.Description == "mutable")
         {
             instance.WriteError($"El valor de la constante '{name}' no puede ser mutable");
             return false;
         }
 
 
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo) : new(value.Value, value.Tipo), value.Tipo, Isolation.Read)
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo.Value) : new(value.Value, value.Tipo.Value), value.Tipo.Value, Isolation.Read)
         {
             IsAssigned = true
         };

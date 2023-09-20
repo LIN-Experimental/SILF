@@ -10,10 +10,17 @@ public class Instance
     private IConsole? Console { get; set; }
 
 
+
+    /// <summary>
+    /// Lista de funciones
+    /// </summary>
     public List<IFunction> Functions { get; set; }
 
 
 
+    /// <summary>
+    /// Si la app esta ejecutando
+    /// </summary>
     public bool IsRunning { get; set; } = true;
 
 
@@ -28,7 +35,7 @@ public class Instance
     /// <summary>
     /// Lista de tipos
     /// </summary>
-    public List<Tipo> Tipos = new()
+    public TypesHub Tipos = new()
     {
         new("string"),
         new("number"),
@@ -48,6 +55,7 @@ public class Instance
     {
         this.Console = console;
         this.Environment = environment;
+        this.Functions = new();
     }
 
 

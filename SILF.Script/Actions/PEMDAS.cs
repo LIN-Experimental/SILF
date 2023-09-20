@@ -82,13 +82,13 @@ internal class PEMDAS
         Tipo type = new();
 
         // Operaciones
-        if (pre.Tipo.Description == "number" && pos.Tipo.Description == "number")
+        if (pre.Tipo.Value.Description == "number" && pos.Tipo.Value.Description == "number")
         {
             // Si es preRun
             if (Instance.Environment == Environments.PreRun)
             {
                 value = "0";
-                type = pre.Tipo;
+                type = pre.Tipo.Value;
             }
 
             // Valores
@@ -117,7 +117,7 @@ internal class PEMDAS
 
                             // Proceso
                             value = total;
-                            type = pre.Tipo;
+                            type = pre.Tipo.Value;
 
                             break;
                         }
@@ -131,7 +131,7 @@ internal class PEMDAS
 
                             // Proceso
                             value = total;
-                            type = pre.Tipo;
+                            type = pre.Tipo.Value;
 
                             break;
                         }
@@ -145,7 +145,7 @@ internal class PEMDAS
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pre.Tipo.Description}> y <{pos.Tipo.Description}>");
+            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pre.Tipo}> y <{pos.Tipo}>");
 
         }
 
@@ -192,13 +192,13 @@ internal class PEMDAS
         Tipo type = new();
 
         // Operaciones
-        if (pre.Tipo.Description == "number" && pos.Tipo.Description == "number")
+        if (pre.Tipo.Value.Description == "number" && pos.Tipo.Value.Description == "number")
         {
             // Si es preRun
             if (Instance.Environment == Environments.PreRun)
             {
                 value = "0";
-                type = pre.Tipo;
+                type = pre.Tipo.Value;
             }
 
             // Valores
@@ -227,7 +227,7 @@ internal class PEMDAS
 
                             // Proceso
                             value = total;
-                            type = pre.Tipo;
+                            type = pre.Tipo.Value;
 
                             break;
                         }
@@ -241,7 +241,7 @@ internal class PEMDAS
 
                             // Proceso
                             value = total;
-                            type = pre.Tipo;
+                            type = pre.Tipo.Value;
 
                             break;
                         }
@@ -252,7 +252,7 @@ internal class PEMDAS
         }
 
         // Concatenar
-        else if ((pre.Tipo.Description == "string" || pos.Tipo.Description == "string") & ope.Value.ToString() == "+")
+        else if ((pre.Tipo.Value.Description == "string" || pos.Tipo.Value.Description == "string") & ope.Value.ToString() == "+")
         {
 
             if (Instance.Environment == Environments.PreRun)
@@ -272,7 +272,7 @@ internal class PEMDAS
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pre.Tipo.Description}> y <{pos.Tipo.Description}>");
+            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pre.Tipo}> y <{pos.Tipo}>");
 
         }
 
@@ -325,7 +325,7 @@ internal class PEMDAS
         Tipo type = new();
 
         // Operaciones
-        if (pos.Tipo.Description == "bool")
+        if (pos.Tipo.Value.Description == "bool")
         {
 
 
@@ -346,7 +346,7 @@ internal class PEMDAS
                             value = "0";
                         }
 
-                        type = pos.Tipo;
+                        type = pos.Tipo.Value;
 
                         break;
                     }
@@ -362,7 +362,7 @@ internal class PEMDAS
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pos.Tipo.Description}>");
+            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pos.Tipo}>");
 
         }
 
@@ -393,7 +393,7 @@ internal class PEMDAS
     /// <param name="values">Valores</param>
     private static int Continue(string[] operators, List<Eval> values)
     {
-        int index = values.FindIndex(T => T.Tipo.Description == "operator" && operators.Contains(T.Value.ToString()));
+        int index = values.FindIndex(T => T.Tipo.HasValue && T.Tipo.Value.Description == "operator" && operators.Contains(T.Value.ToString()));
         return index;
     }
 

@@ -29,4 +29,9 @@ public readonly record struct Tipo
     public readonly string Description => _description;
 
 
+    public override string ToString()
+    {
+        return Description;
+    }
+
 }

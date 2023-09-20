@@ -14,7 +14,7 @@ internal class Eval
     /// <summary>
     /// Tipo resultante
     /// </summary>
-    public Tipo Tipo { get; set; }
+    public Tipo? Tipo { get; set; }
 
 
     /// <summary>
@@ -28,7 +28,7 @@ internal class Eval
     /// Nueva evaluación.
     /// </summary>
     /// <param name="value">valor</param>
-    public Eval(object value, Tipo tipo, bool isVoid = false)
+    public Eval(object value, Tipo? tipo, bool isVoid = false)
     {
         this.Value = value;
         this.Tipo = tipo;

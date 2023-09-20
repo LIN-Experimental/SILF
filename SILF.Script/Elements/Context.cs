@@ -26,7 +26,7 @@ internal class Context
     /// Obtiene un campo
     /// </summary>
     /// <param name="name">Nombre</param>
-    public Field? GetField(string name)
+    private Field? GetField(string name)
     {
         var field = (from F in Fields
                      where F.Name.ToLower() == name.ToLower()

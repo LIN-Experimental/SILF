@@ -32,7 +32,7 @@ internal class ScriptCompiler
 
         string[] code = Code.Split('\n');
 
-        var functions = Functions.GetFunctions(instance, code);
+        var functions = Builders.FunctionBuilder.GetFunctions(instance, code);
 
         result.Functions = functions;
 

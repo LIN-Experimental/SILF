@@ -1,6 +1,4 @@
-﻿using SILF.Script.Validations;
-
-namespace SILF.Script.Runners;
+﻿namespace SILF.Script.Runners;
 
 
 internal class ScriptInterpreter
@@ -24,22 +22,19 @@ internal class ScriptInterpreter
 
         // Si esta vacío
         if (string.IsNullOrWhiteSpace(line))
-            return new("", new(), true);
+            return new(true);
 
-        // Es una variable
-        var isVar = Fields.IsVar(line);
+
 
         // Es una variable
         var isUnsigned = Fields.IsNotValuableVar(instance, line);
 
-        var isConst = Fields.IsConst(line);
-
-        // Definición de variable
-        if (isConst.success)
+        // Definición de constante
+        if (Expressions.Fields.IsConst(line, out var constante))
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateConst(instance, context, funcContext, isConst.name, isConst.expresion);
+            bool canCreate = Actions.Fields.CreateConst(instance, context, funcContext, constante.Name, constante.Expression);
 
             // Respuesta
             return new(true);
@@ -47,17 +42,16 @@ internal class ScriptInterpreter
         }
 
         // Definición de variable
-        else if (isVar.success)
+        else if (Expressions.Fields.IsVar(line, out var variable))
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, isVar.name, isVar.type, isVar.expresion);
+            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, variable.Name, variable.Type, variable.Expression);
 
             // Respuesta
             return new(true);
 
         }
-
 
         // Definición de variable
         else if (isUnsigned.success)
@@ -149,17 +143,16 @@ internal class ScriptInterpreter
             // Si no son compatibles
             if (!Types.IsCompatible(instance, presentType, evaluation.Tipo))
             {
-                instance.WriteError($"No se puede convertir <{evaluation.Tipo.Description}> en <{presentType.Description}>");
+                instance.WriteError($"No se puede convertir <{evaluation.Tipo}> en <{presentType.Description}>");
                 return new("", new(), true);
             }
 
             // Asigna el valor
-            field.Value = new(evaluation.Value, evaluation.Tipo);
+            field.Value = new(evaluation.Value, evaluation.Tipo.Value);
             field.IsAssigned = true;
 
             return new("", new(), true);
         }
-
 
         // Elementos (Variables, constantes)
         else if (level == 1 && !line.EndsWith(')'))
@@ -204,7 +197,7 @@ internal class ScriptInterpreter
         }
 
         // Ejecutar funciones
-        else if (Fields.IsFunction(line, out nombre, out string @params))
+        else if (Expressions.Functions.IsFunction(line, out nombre, out string @params))
         {
 
 
@@ -233,8 +226,15 @@ internal class ScriptInterpreter
                     return new();
                 }
 
-                string tipodes = evals[0].Tipo.Description;
-                return new($"<{tipodes}>", new("string"));
+                if (!(evals[0].Tipo == null))
+                {
+                    instance.WriteError("NN");
+                    return new();
+                }
+
+
+                string tipoDes = evals[0].Tipo.Value.Description;
+                return new($"<{tipoDes}>", new("string"));
 
             }
 
@@ -244,8 +244,8 @@ internal class ScriptInterpreter
 
                 var f = context[@params.Trim()];
 
-                string tipodes = f?.Tipo.Description ?? "null";
-                return new($"<{tipodes}>", new("string"));
+                string tipoDes = f?.Tipo.Description ?? "null";
+                return new($"<{tipoDes}>", new("string"));
 
             }
 
@@ -266,7 +266,7 @@ internal class ScriptInterpreter
             // Si es Pre-Run
             if (instance.Environment == Environments.PreRun)
             {
-                return new("", function.Type, (function.Type.Description == "" || function.Type.Description == null));
+                return new("", function.Type, (!function.Type.HasValue));
             }
 
 
@@ -280,10 +280,10 @@ internal class ScriptInterpreter
 
             foreach (var param in paramsExec)
             {
-                mapping.Add(new("", param.Tipo, param.Value));
+                mapping.Add(new("", param.Tipo.Value, param.Value));
             }
 
-            bool valid = Fields.ValidateParams(instance, function, mapping);
+            bool valid = Actions.Parameters.ValidateParams(instance, function, mapping);
 
             if (!valid)
                 return new(true);
@@ -331,7 +331,7 @@ internal class ScriptInterpreter
 
             if (evals.Count != 1)
             {
-                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType.Description}> no puede retornar 2 bloques de codigo.");
+                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar 2 bloques de código.");
                 return new(true);
             }
 
@@ -343,13 +343,13 @@ internal class ScriptInterpreter
             // Tipo es incompatible
             if (!Types.IsCompatible(instance, funcContext.WaitType, eval.Tipo))
             {
-                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType.Description}> no puede retornar valores del tipo <{eval.Tipo.Description}>.");
+                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar valores del tipo <{eval.Tipo}>.");
                 return new(true);
             }
 
             // Valores
             funcContext.Value.Element = eval.Value;
-            funcContext.Value.Tipo = eval.Tipo;
+            funcContext.Value.Tipo = eval.Tipo.Value;
             return new(true);
 
         }

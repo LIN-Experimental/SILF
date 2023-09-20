@@ -40,7 +40,7 @@ internal class MicroRunner
             foreach (var ex in expressions)
             {
 
-                if (ex.Tipo.Description == "operator")
+                if (ex.Tipo.Value.Description == "operator")
                 {
                     evals.Add(ex);
                     continue;

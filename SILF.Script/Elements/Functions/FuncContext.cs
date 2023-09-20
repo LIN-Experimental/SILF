@@ -8,11 +8,11 @@ public class FuncContext
 
     public Value Value { get; set; }
 
-    public Tipo WaitType { get; set; }
+    public Tipo? WaitType { get; set; }
 
     public bool IsReturning { get; set; }
 
-    public bool IsVoid { get; set; }
+    public bool IsVoid => WaitType == null;
 
 
 
@@ -25,7 +25,6 @@ public class FuncContext
         return new FuncContext()
         {
             IsReturning = false,
-            IsVoid = (function.Type.Description == "" || function.Type.Description == null),
             WaitType = function.Type,
             Value = new(""),
             Name = function.Name
