@@ -283,7 +283,7 @@ internal class ScriptInterpreter
                 mapping.Add(new("", param.Tipo.Value, param.Value));
             }
 
-            bool valid = Actions.Parameters.ValidateParams(instance, function, mapping);
+            bool valid = Actions.Parameters.BuildParams(instance, function, mapping);
 
             if (!valid)
                 return new(true);

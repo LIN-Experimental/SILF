@@ -11,7 +11,7 @@ internal class Parameters
     /// <param name="instance">Instancia de la app</param>
     /// <param name="function">Función</param>
     /// <param name="params">Parámetros.</param>
-    public static bool ValidateParams(Instance instance, IFunction function, List<ParameterValue> @params)
+    public static bool BuildParams(Instance instance, IFunction function, List<ParameterValue> @params)
     {
 
         // Si no hay la misma cantidad de parámetros (bloques).
@@ -49,5 +49,6 @@ internal class Parameters
         return true;
 
     }
+
 
 }

@@ -26,6 +26,13 @@ public class App
 
 
     /// <summary>
+    /// Funciones default de C#
+    /// </summary>
+    public List<IFunction> Functions { get; set; } = new();
+
+
+
+    /// <summary>
     /// Código a ejecutar
     /// </summary>
     private readonly string Code;
@@ -41,6 +48,17 @@ public class App
         this.Code = code ?? "";
         this.Console = console;
         this.Environment = environment;
+    }
+
+
+
+    /// <summary>
+    /// Agrega funciones default de C# a SILF.Core
+    /// </summary>
+    /// <param name="functions">Funciones base</param>
+    public void AddDefaultFunctions(IEnumerable<IFunction> functions)
+    {
+        Functions.AddRange(functions);
     }
 
 
@@ -70,13 +88,18 @@ public class App
             return;
         }
         Instance.Functions = new();
+
+        // Funciones del compilador
         Instance.Functions.AddRange(build.Functions);
+
+        // Funciones externas
+        Instance.Functions.AddRange(Functions);
 
         Context context = new();
         FuncContext funContext = FuncContext.GenerateContext(main);
 
         foreach (var line in main.CodeLines)
-            Runners.ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
+            ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
 
     }
 
