@@ -41,8 +41,9 @@ internal static class Options
     public static bool IsString(string input)
     {
         string pattern = @"^""[^""]*""$";
+        string pattern2 = @"^'[^']*'$";
 
-        return Regex.IsMatch(input, pattern);
+        return Regex.IsMatch(input, pattern) || Regex.IsMatch(input, pattern2);
     }
 
 

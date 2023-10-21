@@ -43,7 +43,7 @@ internal class Blocks
                     counter -= 1;
 
                 // Entrada o salida de proceso de string
-                else if (carácter == '"')
+                else if (carácter == '"' || carácter == '\'')
                     isString = !isString;
 
                 // Nuevo bloque 
@@ -126,7 +126,7 @@ internal class Blocks
                     counter -= 1;
 
                 // Entrada o salida de proceso de string
-                else if (carácter == '"')
+                else if (carácter == '"' || carácter == '\'')
                     isString = !isString;
 
 
