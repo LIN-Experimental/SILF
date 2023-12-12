@@ -41,6 +41,73 @@ internal class ScriptInterpreter
 
         }
 
+
+        else if (line.Split(" ")[0] == "previous" && level == 1)
+        {
+
+            // Caso del previous.
+            line = line.Remove(0, "previous".Length);
+
+            // Nombre de la variable.
+            var valuable = line.Trim();
+
+            // Obtiene el valor.
+            try
+            {
+
+                var @var = context[valuable];
+
+                if (@var == null)
+                {
+                    instance.WriteError($"No existe el elemento '{valuable}' en este contexto.");
+                    return new("", new(), true);
+                }
+
+
+                var value = @var.Values.SkipLast(1).LastOrDefault();
+
+                if (value != null)
+                    return new Eval(value.Element, value.Tipo);
+
+                else
+                    return new Eval(var.Value.Element, var.Value.Tipo);
+
+            }
+            catch (Exception)
+            {
+                instance.WriteError($"Errores al obtener el historial de '{valuable}'.");
+            }
+        }
+
+        else if (line.Split(" ")[0] == "clear" && level == 0)
+        {
+
+            line = line.Remove(0, "clear".Length);
+
+            var valuable = line.Trim();
+
+            try
+            {
+
+                var var = context[valuable];
+
+                if (var == null)
+                {
+                    instance.WriteError($"No existe el elemento '{valuable}' en este contexto.");
+                    return new("", new(), true);
+                }
+
+                var.Values.RemoveRange(0, var.Values.Count - 1);
+
+                return new(true);
+
+            }
+            catch (Exception)
+            {
+                instance.WriteError($"Errores al obtener el historial de '{valuable}'.");
+            }
+        }
+
         // Definición de variable
         else if (Expressions.Fields.IsVar(line, out var variable))
         {
@@ -353,6 +420,14 @@ internal class ScriptInterpreter
             return new(true);
 
         }
+
+
+
+
+
+
+
+
 
         instance.WriteError($"Expression invalida '{line}' en modo '{level}'");
         return new(true);

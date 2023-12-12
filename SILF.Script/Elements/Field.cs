@@ -19,7 +19,14 @@ internal class Field
     /// <summary>
     /// Valor de la variable
     /// </summary>
-    public Value Value { get; set; }
+    public List<Value> Values { get; set; } = new();
+
+
+
+    /// <summary>
+    /// Valor de la variable
+    /// </summary>
+    public Value Value { get => Values.LastOrDefault(); set=> Values.Add(value); }
 
 
     /// <summary>
@@ -41,7 +48,7 @@ internal class Field
     public Field(string name, Value value, Tipo tipo, Isolation isolation = Isolation.ReadAndWrite)
     {
         this.Name = name;
-        this.Value = value;
+        this.Value = (value);
         this.Tipo = tipo;
         this.Isolation = isolation;
     }
