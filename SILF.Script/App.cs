@@ -87,13 +87,13 @@ public class App
             Console?.InsertLine("No se encontró la función 'main'", LogLevel.Error);
             return;
         }
-        Instance.Functions = new();
-
-        // Funciones del compilador
-        Instance.Functions.AddRange(build.Functions);
-
-        // Funciones externas
-        Instance.Functions.AddRange(Functions);
+        Instance.Functions =
+        [
+            // Funciones del compilador
+            .. build.Functions,
+            // Funciones externas
+            .. Functions,
+        ];
 
         Context context = new();
         FuncContext funContext = FuncContext.GenerateContext(main);

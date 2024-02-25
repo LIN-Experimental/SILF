@@ -93,6 +93,10 @@ print(previous name) // Alex
 Esta palabra no sobreescribe el valor actual.
 
 
+> [!CAUTION]
+> Esta función puede provocar volcados de memoria, use esta caracteristica con precaución.
+
+
 ### Clear
 
 La palabra clave ```clear``` permite borrar el historial de una variable, esto para ahorrar y liberar memoria.
@@ -116,3 +120,7 @@ Otras características del lenguaje son:
 - Scope en variables.
 - Ciclos
 - Condicionales
+
+
+> [!WARNING]
+> Este es un lenguaje de programación enfocado en un nicho especifico.
