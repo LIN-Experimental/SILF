@@ -25,7 +25,6 @@ internal class ScriptInterpreter
             return new(true);
 
 
-
         // Es una variable
         var isUnsigned = Fields.IsNotValuableVar(instance, line);
 
@@ -64,6 +63,12 @@ internal class ScriptInterpreter
                 }
 
 
+                if (!instance.UseCache)
+                {
+                    instance.WriteWarning($"El uso de variables en cache esta deshabilitado por lo cual se devolverá el valor actual de la variable '{valuable}'");
+                }
+
+
                 var value = @var.Values.SkipLast(1).LastOrDefault();
 
                 if (value != null)
@@ -71,6 +76,40 @@ internal class ScriptInterpreter
 
                 else
                     return new Eval(var.Value.Element, var.Value.Tipo);
+
+            }
+            catch (Exception)
+            {
+                instance.WriteError($"Errores al obtener el historial de '{valuable}'.");
+            }
+        }
+
+
+        else if (line.Split(" ")[0] == "sizeof" && level == 1)
+        {
+
+            // Caso del previous.
+             line = line.Remove(0, "sizeof".Length);
+
+            // Nombre de la variable.
+            var valuable = line.Trim();
+
+            // Obtiene el valor.
+            try
+            {
+
+                var @var = context[valuable];
+
+                if (@var == null)
+                {
+                    instance.WriteError($"No existe el elemento '{valuable}' en este contexto.");
+                    return new("", new(), true);
+                }
+
+
+                var tamaño = var.GetInt();
+
+                return new Eval(tamaño, new("number"), false);
 
             }
             catch (Exception)
@@ -242,8 +281,8 @@ internal class ScriptInterpreter
 
             return new Eval(false)
             {
-                Tipo = (instance.Environment == Environments.PreRun) ? getValue.Tipo : getValue.Value.Tipo,
-                Value = (instance.Environment == Environments.PreRun) ? "" : getValue.Value.Element,
+                Tipo = (instance.Environment == Environments.PreRun) ? getValue.Tipo : getValue.Value?.Tipo,
+                Value = (instance.Environment == Environments.PreRun) ? "" : getValue.Value?.Element,
             };
 
         }

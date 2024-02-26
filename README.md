@@ -112,6 +112,24 @@ print(previous name) // 'Juan', ya que no existe un historial.
 Esta palabra no sobreescribe el valor actual.
 
 
+
+### sizeof
+
+La palabra clave ```sizeof``` permite obtener el tamaño en bytes que ocupa una variable
+
+```java
+string name = "Alex"
+name = "Juan"
+print(sizeof name) // 206 (Modo cache) 52 (Sin cahe)
+```
+
+```sizeof``` obtiene el tamaño completo del objeto actual y de los objetos guardados en el cache.
+
+
+> [!CAUTION]
+> Es importante que valide usando ```sizeof``` si es realmente beneficioso usar el modo cache.
+
+
 # Otras características
 
 Otras características del lenguaje son:

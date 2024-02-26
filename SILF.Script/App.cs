@@ -38,16 +38,20 @@ public class App
     private readonly string Code;
 
 
+    private bool UseCache { get; set; } = false;
+
+
 
     /// <summary>
     /// Nueva app SILF
     /// </summary>
     /// <param name="code">Código a ejecutar.</param>
-    public App(string code, IConsole? console = null, Environments environment = Environments.Release)
+    public App(string code, IConsole? console = null, Environments environment = Environments.Release, bool useCache = false)
     {
         this.Code = code ?? "";
         this.Console = console;
         this.Environment = environment;
+        this.UseCache = useCache;
     }
 
 
@@ -76,7 +80,7 @@ public class App
         }
 
         // Nueva estancia
-        Instance = new(Console, Environment);
+        Instance = new(Console, Environment, UseCache);
 
         var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
 
@@ -107,7 +111,7 @@ public class App
     private void RunTest()
     {
         // Nueva estancia
-        Instance = new(Console, Environment);
+        Instance = new(Console, Environment, UseCache);
 
         var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
 
@@ -119,8 +123,7 @@ public class App
             return;
         }
 
-        Instance.Functions = new();
-        Instance.Functions.AddRange(build.Functions);
+        Instance.Functions = [.. build.Functions];
 
         foreach (var function in Instance.Functions)
         {

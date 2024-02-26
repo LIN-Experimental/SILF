@@ -115,7 +115,7 @@ internal class Fields
 
 
 
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo.Value) : new Value(value.Value, value.Tipo.Value), tipo.Value, Isolation.ReadAndWrite)
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo.Value) : new Value(value.Value, value.Tipo.Value), tipo.Value, instance, Isolation.ReadAndWrite)
         {
             IsAssigned = assigned
         };
@@ -177,7 +177,7 @@ internal class Fields
         }
 
 
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo.Value) : new(value.Value, value.Tipo.Value), value.Tipo.Value, Isolation.Read)
+        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo.Value) : new(value.Value, value.Tipo.Value), value.Tipo.Value, instance, Isolation.Read)
         {
             IsAssigned = true
         };

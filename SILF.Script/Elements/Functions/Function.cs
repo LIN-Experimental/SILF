@@ -30,7 +30,7 @@ internal class Function : IFunction
 
         foreach (var param in @params)
         {
-            context.SetField(new(param.Name, new(param.Value, param.Tipo), param.Tipo, Isolation.Read) { IsAssigned = true});
+            context.SetField(new(param.Name, new(param.Value, param.Tipo), param.Tipo, instance, Isolation.Read) { IsAssigned = true });
         }
 
         var func = FuncContext.GenerateContext(this);

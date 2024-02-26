@@ -26,6 +26,13 @@ public class Instance
 
 
     /// <summary>
+    /// Si la app ejecutara variables en cache.
+    /// </summary>
+    public bool UseCache { get; set; } = false;
+
+
+
+    /// <summary>
     /// Ambiente de la app
     /// </summary>
     public Environments Environment { get; private set; }
@@ -51,11 +58,12 @@ public class Instance
     /// Nueva estancia de la app.
     /// </summary>
     /// <param name="console">IConsole</param>
-    public Instance(IConsole? console, Environments environment)
+    public Instance(IConsole? console, Environments environment, bool useCache)
     {
         this.Console = console;
         this.Environment = environment;
         this.Functions = new();
+        this.UseCache = useCache;
     }
 
 

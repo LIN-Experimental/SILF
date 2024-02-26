@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Elements;
+﻿using System.Text.Json;
+
+namespace SILF.Script.Elements;
 
 
 internal class Field
@@ -19,14 +21,24 @@ internal class Field
     /// <summary>
     /// Valor de la variable
     /// </summary>
-    public List<Value> Values { get; set; } = new();
+    public List<Value?> Values { get; set; } = new();
 
 
 
     /// <summary>
     /// Valor de la variable
     /// </summary>
-    public Value Value { get => Values.LastOrDefault(); set=> Values.Add(value); }
+    public Value? Value
+    {
+        get => Values.LastOrDefault();
+        set
+        {
+            if (!Instance?.UseCache ?? false)
+                Values.Clear();
+
+            Values.Add(value);
+        }
+    }
 
 
     /// <summary>
@@ -41,16 +53,47 @@ internal class Field
     public Isolation Isolation { get; set; }
 
 
+    public Instance Instance { get; set; }
+
+
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public Field(string name, Value value, Tipo tipo, Isolation isolation = Isolation.ReadAndWrite)
+    public Field(string name, Value value, Tipo tipo, Instance instance, Isolation isolation = Isolation.ReadAndWrite)
     {
         this.Name = name;
         this.Value = (value);
         this.Tipo = tipo;
         this.Isolation = isolation;
+        this.Instance = instance;
+
+
+
+    }
+
+
+
+    /// <summary>
+    /// Obtener el tamaño en bytes del campo.
+    /// </summary>
+    public int GetInt()
+    {
+
+        if (Instance.Environment == Environments.PreRun)
+            return 0;
+
+        int total = 0;
+        foreach (var item in Values)
+        {
+            // Serializar el objeto a JSON
+            string json = JsonSerializer.Serialize(Values);
+
+            // Calcular el tamaño del JSON en bytes
+            total += Encoding.UTF8.GetBytes(json).Length;
+        }
+
+        return total;
     }
 
 
