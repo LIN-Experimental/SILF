@@ -67,9 +67,9 @@ La interpolación de cadenas permite concatenar varias cadenas / objetos sin la 
 
 ```java
 string name = "world"
-print("Hello ${name}")
-print("Hello £{name}")
-print("Hello ¥{name}")
+print($"Hello {name}")
+print(£"Hello {name}")
+print(¥"Hello {name}")
 ```
 
 Puede usar ```$```, ```£``` o ```¥```.
