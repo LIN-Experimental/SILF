@@ -133,6 +133,15 @@ public class App
                 Context context = new();
                 FuncContext funContext = FuncContext.GenerateContext(baseFunction);
 
+                foreach (var var in function.Parameters)
+                {
+                    context.SetField(new(var.Name, new("", var.Tipo), var.Tipo, Instance, Isolation.ReadAndWrite)
+                    {
+                        IsAssigned = true
+                    });
+                }
+
+
                 foreach (var line in baseFunction.CodeLines)
                     Runners.ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
             }

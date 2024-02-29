@@ -89,7 +89,7 @@ internal class ScriptInterpreter
         {
 
             // Caso del previous.
-             line = line.Remove(0, "sizeof".Length);
+            line = line.Remove(0, "sizeof".Length);
 
             // Nombre de la variable.
             var valuable = line.Trim();
@@ -117,6 +117,7 @@ internal class ScriptInterpreter
                 instance.WriteError($"Errores al obtener el historial de '{valuable}'.");
             }
         }
+
 
         else if (line.Split(" ")[0] == "clear" && level == 0)
         {
@@ -147,6 +148,7 @@ internal class ScriptInterpreter
             }
         }
 
+
         // Definición de variable
         else if (Expressions.Fields.IsVar(line, out var variable))
         {
@@ -158,6 +160,7 @@ internal class ScriptInterpreter
             return new(true);
 
         }
+
 
         // Definición de variable
         else if (isUnsigned.success)
@@ -176,6 +179,58 @@ internal class ScriptInterpreter
         {
             var numberType = instance.Tipos.Where(T => T.Description == "number").FirstOrDefault();
             return new Eval(instance.Environment == Environments.PreRun ? "0" : decimal.Parse(line).ToString(), numberType);
+        }
+
+        // Devuelve la cadena de string
+        else if (Options.IsInterpoladString(line) && level == 1)
+        {
+
+            var tipo = instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+
+
+
+
+            line = line.Remove(0, 2);
+            line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
+            line = Microsoft.VisualBasic.Strings.StrReverse(line);
+
+
+            var se = Actions.Strings.SepararPorLlaves(line);
+
+            string final = "";
+
+            foreach (var group in se)
+            {
+                if (!group.StartsWith("{"))
+                {
+                    final += group;
+                    continue;
+                }
+
+                // Interpretar
+                string grupo = group;
+                grupo = grupo.Remove(0, 1);
+                grupo = Microsoft.VisualBasic.Strings.StrReverse(grupo).Remove(0, 1);
+                grupo = Microsoft.VisualBasic.Strings.StrReverse(grupo);
+
+
+                List<Eval> evaluations = MicroRunner.Runner(instance, context, funcContext, grupo, 1);
+
+                if (evaluations.Count != 1)
+                {
+                    instance.WriteError($"No se puede obtener el valor de la expresión '{grupo}'");
+                    return new(true);
+                }
+
+                if (instance.Environment != Environments.PreRun)
+                {
+                    final += evaluations[0].Value.ToString();
+                }
+
+            }
+
+
+            return new Eval(final, tipo);
         }
 
         // Devuelve la cadena de string
@@ -369,16 +424,10 @@ internal class ScriptInterpreter
                 return new(true);
             }
 
-            // Si es Pre-Run
-            if (instance.Environment == Environments.PreRun)
-            {
-                return new("", function.Type, (!function.Type.HasValue));
-            }
+
 
 
             var paramsExec = MicroRunner.Runner(instance, context, funcContext, @params, 1);
-
-
 
 
 
@@ -404,6 +453,12 @@ internal class ScriptInterpreter
             if (funcResult.IsVoid || !funcResult.IsReturning)
                 return new(true);
 
+
+            // Si es Pre-Run
+            if (instance.Environment == Environments.PreRun)
+            {
+                return new("", function.Type, (!function.Type.HasValue));
+            }
 
             // Nueva evaluación.
             return new Eval(funcResult.Value.Element, funcResult.Value.Tipo);
