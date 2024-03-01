@@ -60,9 +60,9 @@ El índice inicia en número 0 al igual que otros lenguajes como Java, C#, C++ o
 
 SILF sigue el orden ```PEMDAS```.
 
-# Numeros complejos y decimales
+# Números complejos y decimales
 
-En SILF Script los numeros no enteros se deben escribir entre comillas usando el prefijo ```#```
+En SILF Script los números no enteros se deben escribir entre comillas usando el prefijo ```#```
 
 ```java
 number price = #"22,9"
@@ -99,11 +99,11 @@ print(name) // Juan
 print(previous name) // Alex
 ```
 
-Esta palabra no sobreescribe el valor actual.
+Esta palabra no sobrescribe el valor actual.
 
 
 > [!CAUTION]
-> Esta función puede provocar volcados de memoria, use esta caracteristica con precaución.
+> Esta función puede provocar volcados de memoria, use esta característica con precaución.
 
 
 ### Clear
@@ -118,7 +118,7 @@ print(name) // Juan
 print(previous name) // 'Juan', ya que no existe un historial.
 ```
 
-Esta palabra no sobreescribe el valor actual.
+Esta palabra no sobrescribe el valor actual.
 
 
 
@@ -138,7 +138,7 @@ print(sizeof name) // 206 (Modo cache) 52 (Sin cahe)
 > [!CAUTION]
 > Es importante que valide usando ```sizeof``` si es realmente beneficioso usar el modo cache.
 
-### Metodos de clases
+### Métodos de clases
 
 SILF Script es compatible con la notación de punto.
 
@@ -147,6 +147,9 @@ string name = "Alex "
 print(name.upper()) // ALEX
 print(name.lower()) // alex
 ```
+
+> [!CAUTION]
+> Los métodos se pueden usar cargando la librería de ```SILF Framework``` al elemento app.
 
 
 # Otras características
