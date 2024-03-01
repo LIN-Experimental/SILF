@@ -147,6 +147,7 @@ public class App
         [
             // Funciones del compilador
             .. build.Functions,
+
             // Funciones externas
             .. Functions,
         ];
