@@ -12,7 +12,7 @@ public class FuncContext
 
     public bool IsReturning { get; set; }
 
-    public bool IsVoid => WaitType == null;
+    public bool IsVoid => WaitType == null || WaitType.Value.Description.Trim() == "";
 
 
 

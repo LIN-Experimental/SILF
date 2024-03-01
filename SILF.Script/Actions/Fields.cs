@@ -127,7 +127,7 @@ internal class Fields
 
         if (instance.Environment == Environments.PreRun)
         {
-            field.Value = SILFObjectBase.GetByName(value.Object.Tipo.Description);
+            field.Value = instance.Library.Get(value.Object.Tipo.Description);
         }
         else
         {
@@ -205,7 +205,7 @@ internal class Fields
 
         if (instance.Environment == Environments.PreRun)
         {
-            field.Value = SILFObjectBase.GetByName(value.Object.Tipo.Description);
+            field.Value = instance.Library.Get(value.Object.Tipo.Description);
         }
         else
         {

@@ -1,4 +1,6 @@
-﻿namespace SILF.Script;
+﻿using SILF.Script.Objects;
+
+namespace SILF.Script;
 
 
 public class Instance
@@ -15,6 +17,13 @@ public class Instance
     /// Lista de funciones
     /// </summary>
     public List<IFunction> Functions { get; set; }
+
+
+
+    /// <summary>
+    /// Lista de funciones
+    /// </summary>
+    internal Library Library { get; set; } = new();
 
 
 

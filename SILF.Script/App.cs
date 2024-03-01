@@ -1,4 +1,6 @@
-﻿namespace SILF.Script;
+﻿using SILF.Script.Objects;
+
+namespace SILF.Script;
 
 
 public class App
@@ -9,6 +11,11 @@ public class App
     /// </summary>
     private Instance? Instance { get; set; }
 
+
+    /// <summary>
+    /// Librería externa.
+    /// </summary>
+    public Library Library { get; set; } = new();
 
 
     /// <summary>
@@ -28,7 +35,7 @@ public class App
     /// <summary>
     /// Funciones default de C#
     /// </summary>
-    public List<IFunction> Functions { get; set; } = new();
+    public List<IFunction> Functions { get; set; } = [];
 
 
 
@@ -82,6 +89,11 @@ public class App
         // Nueva estancia
         Instance = new(Console, Environment, UseCache);
 
+        foreach (var x in Library.Objects)
+        {
+            Instance.Library.Load(x.Key.Description, x.Value);
+        }
+
         var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
 
         var main = build.GetMain();
@@ -91,6 +103,7 @@ public class App
             Console?.InsertLine("No se encontró la función 'main'", LogLevel.Error);
             return;
         }
+
         Instance.Functions =
         [
             // Funciones del compilador
@@ -113,6 +126,13 @@ public class App
         // Nueva estancia
         Instance = new(Console, Environment, UseCache);
 
+
+        foreach(var x in Library.Objects)
+        {
+            Instance.Library.Load(x.Key.Description, x.Value);
+        }
+
+
         var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
 
         var main = build.GetMain();
@@ -123,7 +143,14 @@ public class App
             return;
         }
 
-        Instance.Functions = [.. build.Functions];
+        Instance.Functions =
+        [
+            // Funciones del compilador
+            .. build.Functions,
+            // Funciones externas
+            .. Functions,
+        ];
+
 
         foreach (var function in Instance.Functions)
         {

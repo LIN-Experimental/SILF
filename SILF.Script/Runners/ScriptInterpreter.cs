@@ -28,14 +28,8 @@ internal class ScriptInterpreter
             return new(true);
 
 
-
-
         // Separar por punto.
         var separar = Actions.Blocks.Separar(line, '.');
-
-
-
-
 
 
 
@@ -117,7 +111,7 @@ internal class ScriptInterpreter
 
                     var mapping = new List<ParameterValue>
                     {
-                        new("s", new Tipo("string"), bs.GetValue())
+                        new(string.Empty, new Tipo(bs.Tipo.Description), bs.GetValue())
                     };
 
                     foreach (var param in paramsExec)
@@ -137,9 +131,8 @@ internal class ScriptInterpreter
                     FuncContext funcResult = function.Run(instance, mapping);
 
 
-
-
-                    bs = funcResult.Value;
+                    bs = instance.Library.Get(funcResult.Value.Tipo.Description);
+                    bs.SetValue(funcResult.Value.Value);
 
                     // Nueva evaluación.
                 }
@@ -167,14 +160,22 @@ internal class ScriptInterpreter
         // Es numero
         else if (Options.IsNumber(line))
         {
+
+            // Obtener un nuevo objeto.
+            var @object = instance.Library.Get(Library.Number);
+
+            // Si es modo PRE.
             if (instance.Environment == Environments.PreRun)
-            {
-                return new(new Objects.SILFNumberObject() { Value = 0 });
-            }
+                return new(@object);
 
-            decimal.TryParse(line, out decimal value);
+            // Convertir el numero.
+            _ = decimal.TryParse(line, out decimal value);
 
-            return new(new Objects.SILFNumberObject() { Value = value });
+            // Establecer el valor.
+            @object.SetValue(value);
+
+            // Retornar.
+            return new(@object);
 
         }
 
@@ -182,8 +183,8 @@ internal class ScriptInterpreter
         else if (Options.IsInterpoladString(line) && level == 1)
         {
 
-
-
+            // Obtener un nuevo objeto.
+            var @object = instance.Library.Get(Library.String);
 
             line = line.Remove(0, 2);
             line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
@@ -224,52 +225,58 @@ internal class ScriptInterpreter
 
             }
 
-            return new Eval(new Objects.SILFStringObject()
-            {
-                Value = final
-            });
+
+            @object.SetValue(final);
+
+            return new(@object);
+
         }
 
         // Devuelve la cadena de string
         else if (Options.IsString(line) && level == 1)
         {
+            // Obtener un nuevo objeto.
+            var @object = instance.Library.Get(Library.String);
 
             if (instance.Environment == Environments.PreRun)
-            {
-                return new Eval(new Objects.SILFStringObject());
-            }
+                return new Eval(@object);
+            
 
 
             line = line.Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line);
 
-            return new Eval(new Objects.SILFStringObject()
-            {
-                Value = line
-            });
+            @object.SetValue(line);
+
+            return new(@object);
+
         }
 
         // Devuelve la cadena de string
         else if (Options.IsComplexNumber(line) && level == 1)
         {
 
+            // Obtener un nuevo objeto.
+            var @object = instance.Library.Get(Library.Number);
+
             line = line.Remove(0, 2);
             line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line);
 
-            decimal.TryParse(line, out decimal final);
+            _=decimal.TryParse(line, out decimal final);
 
-            return new Eval(new Objects.SILFNumberObject()
-            {
-                Value = final,
-                Tipo = new("number")
-            });
+            @object.SetValue(final);
+            
+            return new Eval(@object);
         }
 
         // Es Booleano
         else if (Options.IsBool(line))
         {
+
+            // Obtener un nuevo objeto.
+            var @object = instance.Library.Get(Library.Bool);
 
             bool final = false;
             if (line == "true")
@@ -279,10 +286,9 @@ internal class ScriptInterpreter
                 bool.TryParse(line, out final);
 
 
-            return new Eval(new SILFBoolObject()
-            {
-                Value = final
-            });
+            @object.SetValue(final);
+
+            return new(@object);
 
         }
 
@@ -393,33 +399,6 @@ internal class ScriptInterpreter
 
             }
 
-            else if (nombre == "type")
-            {
-
-                var evals = MicroRunner.Runner(instance, context, funcContext, @params, 1);
-
-                if (evals.Count != 1)
-                {
-                    instance.WriteError("Param requerido");
-                    return new();
-                }
-
-                if (!(evals[0].Object.Tipo == null))
-                {
-                    instance.WriteError("NN");
-                    return new();
-                }
-
-
-                string tipoDes = evals[0].Object.Tipo.ToString();
-
-                return new(new SILFStringObject()
-                {
-                    Value = $"<{tipoDes}>"
-                });
-
-            }
-
             else if (nombre == "typeof")
             {
 
@@ -434,6 +413,7 @@ internal class ScriptInterpreter
                 });
 
             }
+
 
 
 
@@ -492,7 +472,7 @@ internal class ScriptInterpreter
 
         }
 
-
+        // Return.
         else if (line.Split(" ")[0] == "return")
         {
 
@@ -541,12 +521,6 @@ internal class ScriptInterpreter
             return new(true);
 
         }
-
-
-
-
-
-
 
 
 

@@ -33,7 +33,7 @@ internal class MicroRunner
         foreach (var bloque in bloques)
         {
 
-            List<Eval> evals = new();
+            List<Eval> evals = [];
 
             // Obtiene la expresión separada
             var expressions = Actions.Blocks.GetOperators(bloque.Value, instance);

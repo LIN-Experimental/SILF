@@ -33,7 +33,7 @@ internal class Function : IFunction
         foreach (var param in @params)
         {
 
-            var value = SILFObjectBase.GetByName(param.Tipo.Description);
+            var value =  instance.Library.Get(param.Tipo.Description);
 
             value.SetValue(param.Value);
 

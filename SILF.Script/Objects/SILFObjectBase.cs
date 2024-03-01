@@ -45,25 +45,4 @@ public class SILFObjectBase
 
 
 
-
-
-    public static SILFObjectBase GetByName(string type)
-    {
-
-        type = type.Trim().ToLower();
-
-        if (type == "string")
-            return new SILFStringObject();
-
-        if (type == "number")
-            return new SILFNumberObject();
-
-        if (type == "bool")
-            return new SILFBoolObject();
-
-
-        return new SILFNullObject();
-
-    }
-
 }
