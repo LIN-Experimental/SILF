@@ -60,6 +60,15 @@ El índice inicia en número 0 al igual que otros lenguajes como Java, C#, C++ o
 
 SILF sigue el orden ```PEMDAS```.
 
+# Numeros complejos y decimales
+
+En SILF Script los numeros no enteros se deben escribir entre comillas usando el prefijo ```#```
+
+```java
+number price = #"22,9"
+print(price)
+```
+
 
 # Interpolación de cadenas
 
@@ -128,6 +137,16 @@ print(sizeof name) // 206 (Modo cache) 52 (Sin cahe)
 
 > [!CAUTION]
 > Es importante que valide usando ```sizeof``` si es realmente beneficioso usar el modo cache.
+
+### Metodos de clases
+
+SILF Script es compatible con la notación de punto.
+
+```java
+string name = "Alex "
+print(name.upper()) // ALEX
+print(name.lower()) // alex
+```
 
 
 # Otras características
