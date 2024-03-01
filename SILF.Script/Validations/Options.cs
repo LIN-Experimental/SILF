@@ -61,6 +61,20 @@ internal static class Options
     }
 
 
+    /// <summary>
+    /// Una expresión es un string interpolado valido
+    /// </summary>
+    /// <param name="input">Expresión</param>
+    public static bool IsComplexNumber(string input)
+    {
+        string pattern = @"^[#]""[^""]*""$";
+        string pattern2 = @"^[#]'[^']'$";
+
+
+        return Regex.IsMatch(input, pattern) || Regex.IsMatch(input, pattern2);
+    }
+
+
 
     /// <summary>
     /// Devuelve si el nombre es valido

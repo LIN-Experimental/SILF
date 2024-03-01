@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Runners;
+﻿using SILF.Script.Objects;
+
+namespace SILF.Script.Runners;
 
 
 internal class ScriptInterpreter
@@ -17,12 +19,25 @@ internal class ScriptInterpreter
         if (!instance.IsRunning || funcContext.IsReturning)
             return new(false);
 
+
         // Preparador
         line = line.Normalize().Trim();
 
         // Si esta vacío
         if (string.IsNullOrWhiteSpace(line))
             return new(true);
+
+
+
+
+        // Separar por punto.
+        var separar = Actions.Blocks.Separar(line, '.');
+
+
+
+
+
+
 
 
         // Es una variable
@@ -41,113 +56,6 @@ internal class ScriptInterpreter
         }
 
 
-        else if (line.Split(" ")[0] == "previous" && level == 1)
-        {
-
-            // Caso del previous.
-            line = line.Remove(0, "previous".Length);
-
-            // Nombre de la variable.
-            var valuable = line.Trim();
-
-            // Obtiene el valor.
-            try
-            {
-
-                var @var = context[valuable];
-
-                if (@var == null)
-                {
-                    instance.WriteError($"No existe el elemento '{valuable}' en este contexto.");
-                    return new("", new(), true);
-                }
-
-
-                if (!instance.UseCache)
-                {
-                    instance.WriteWarning($"El uso de variables en cache esta deshabilitado por lo cual se devolverá el valor actual de la variable '{valuable}'");
-                }
-
-
-                var value = @var.Values.SkipLast(1).LastOrDefault();
-
-                if (value != null)
-                    return new Eval(value.Element, value.Tipo);
-
-                else
-                    return new Eval(var.Value.Element, var.Value.Tipo);
-
-            }
-            catch (Exception)
-            {
-                instance.WriteError($"Errores al obtener el historial de '{valuable}'.");
-            }
-        }
-
-
-        else if (line.Split(" ")[0] == "sizeof" && level == 1)
-        {
-
-            // Caso del previous.
-            line = line.Remove(0, "sizeof".Length);
-
-            // Nombre de la variable.
-            var valuable = line.Trim();
-
-            // Obtiene el valor.
-            try
-            {
-
-                var @var = context[valuable];
-
-                if (@var == null)
-                {
-                    instance.WriteError($"No existe el elemento '{valuable}' en este contexto.");
-                    return new("", new(), true);
-                }
-
-
-                var tamaño = var.GetInt();
-
-                return new Eval(tamaño, new("number"), false);
-
-            }
-            catch (Exception)
-            {
-                instance.WriteError($"Errores al obtener el historial de '{valuable}'.");
-            }
-        }
-
-
-        else if (line.Split(" ")[0] == "clear" && level == 0)
-        {
-
-            line = line.Remove(0, "clear".Length);
-
-            var valuable = line.Trim();
-
-            try
-            {
-
-                var var = context[valuable];
-
-                if (var == null)
-                {
-                    instance.WriteError($"No existe el elemento '{valuable}' en este contexto.");
-                    return new("", new(), true);
-                }
-
-                var.Values.RemoveRange(0, var.Values.Count - 1);
-
-                return new(true);
-
-            }
-            catch (Exception)
-            {
-                instance.WriteError($"Errores al obtener el historial de '{valuable}'.");
-            }
-        }
-
 
         // Definición de variable
         else if (Expressions.Fields.IsVar(line, out var variable))
@@ -158,6 +66,88 @@ internal class ScriptInterpreter
 
             // Respuesta
             return new(true);
+
+        }
+
+
+        else if (separar == null || separar.Count <= 0)
+            return new(true);
+
+
+
+        else if (separar.Count > 1)
+        {
+            SILFObjectBase? bs = null;
+            foreach (var bloque in separar)
+            {
+
+                if (bs == null)
+                {
+                    List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, bloque.Value, 1);
+                    bs = evals[0].Object;
+                }
+
+
+                else
+                {
+
+
+                    Expressions.Functions.IsFunction(bloque.Value, out string nombre, out string @params);
+
+
+
+                    // Funciones definidas por el usuario.
+                    IFunction? function = (from F in bs.Functions
+                                           where F.Name == nombre
+                                           select F).FirstOrDefault();
+
+                    // Si la función no existe.
+                    if (function == null)
+                    {
+                        //instance.WriteError($"No se encontró la función '{nombre}'");
+                        return new(true);
+                    }
+
+
+
+
+                    var paramsExec = MicroRunner.Runner(instance, context, funcContext, @params, level);
+
+
+
+                    var mapping = new List<ParameterValue>
+                    {
+                        new("s", new Tipo("string"), bs.GetValue())
+                    };
+
+                    foreach (var param in paramsExec)
+                    {
+                        mapping.Add(new("", param.Object.Tipo, param.Object.GetValue()));
+                    }
+
+                    bool valid = Actions.Parameters.BuildParams(instance, function, mapping);
+
+                    if (!valid)
+                    {
+                        return new(true);
+
+                    }
+
+
+                    FuncContext funcResult = function.Run(instance, mapping);
+
+
+
+
+                    bs = funcResult.Value;
+
+                    // Nueva evaluación.
+                }
+
+
+            }
+
+            return new(bs ?? SILFNullObject.Create());
 
         }
 
@@ -177,15 +167,20 @@ internal class ScriptInterpreter
         // Es numero
         else if (Options.IsNumber(line))
         {
-            var numberType = instance.Tipos.Where(T => T.Description == "number").FirstOrDefault();
-            return new Eval(instance.Environment == Environments.PreRun ? "0" : decimal.Parse(line).ToString(), numberType);
+            if (instance.Environment == Environments.PreRun)
+            {
+                return new(new Objects.SILFNumberObject() { Value = 0 });
+            }
+
+            decimal.TryParse(line, out decimal value);
+
+            return new(new Objects.SILFNumberObject() { Value = value });
+
         }
 
         // Devuelve la cadena de string
         else if (Options.IsInterpoladString(line) && level == 1)
         {
-
-            var tipo = instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
 
 
 
@@ -224,23 +219,24 @@ internal class ScriptInterpreter
 
                 if (instance.Environment != Environments.PreRun)
                 {
-                    final += evaluations[0].Value.ToString();
+                    final += evaluations[0].Object.GetValue();
                 }
 
             }
 
-
-            return new Eval(final, tipo);
+            return new Eval(new Objects.SILFStringObject()
+            {
+                Value = final
+            });
         }
 
         // Devuelve la cadena de string
         else if (Options.IsString(line) && level == 1)
         {
 
-            var tipo = instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
             if (instance.Environment == Environments.PreRun)
             {
-                return new Eval("", tipo);
+                return new Eval(new Objects.SILFStringObject());
             }
 
 
@@ -248,21 +244,46 @@ internal class ScriptInterpreter
             line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line);
 
+            return new Eval(new Objects.SILFStringObject()
+            {
+                Value = line
+            });
+        }
 
-            return new Eval(line, tipo);
+        // Devuelve la cadena de string
+        else if (Options.IsComplexNumber(line) && level == 1)
+        {
+
+            line = line.Remove(0, 2);
+            line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
+            line = Microsoft.VisualBasic.Strings.StrReverse(line);
+
+            decimal.TryParse(line, out decimal final);
+
+            return new Eval(new Objects.SILFNumberObject()
+            {
+                Value = final,
+                Tipo = new("number")
+            });
         }
 
         // Es Booleano
         else if (Options.IsBool(line))
         {
-            var boolType = instance.Tipos.Where(T => T.Description == "bool").FirstOrDefault();
 
+            bool final = false;
             if (line == "true")
-                line = "1";
-            else if (line == "false")
-                line = "0";
+                bool.TryParse(line, out final);
 
-            return new Eval(line, boolType);
+            else if (line == "false")
+                bool.TryParse(line, out final);
+
+
+            return new Eval(new SILFBoolObject()
+            {
+                Value = final
+            });
+
         }
 
         // Es una asignación
@@ -276,14 +297,14 @@ internal class ScriptInterpreter
             if (field == null)
             {
                 instance.WriteError($"No existe el campo '{nombre}'.");
-                return new("", new(), true);
+                return new(Objects.SILFNullObject.Create(), true);
             }
 
             // Si no se puede sobrescribir
             if (field.Isolation != Isolation.ReadAndWrite & field.Isolation != Isolation.Write)
             {
                 instance.WriteError($"El campo '{nombre}' no se puede se puede sobrescribir.");
-                return new("", new(), true);
+                return new(Objects.SILFNullObject.Create(), true);
             }
 
             // Tipo esperado
@@ -295,24 +316,24 @@ internal class ScriptInterpreter
             if (evaluations.Count != 1)
             {
                 instance.WriteError($"La asignación no puede tener tener mas de 1 (un) bloque.");
-                return new("", new(), true);
+                return new(Objects.SILFNullObject.Create(), true);
             }
 
             // Result
             var evaluation = evaluations[0];
 
             // Si no son compatibles
-            if (!Types.IsCompatible(instance, presentType, evaluation.Tipo))
+            if (!Types.IsCompatible(instance, presentType, evaluation.Object.Tipo))
             {
-                instance.WriteError($"No se puede convertir <{evaluation.Tipo}> en <{presentType.Description}>");
-                return new("", new(), true);
+                instance.WriteError($"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType.Description}>");
+                return new(Objects.SILFNullObject.Create(), true);
             }
 
             // Asigna el valor
-            field.Value = new(evaluation.Value, evaluation.Tipo.Value);
+            field.Value = evaluation.Object;
             field.IsAssigned = true;
 
-            return new("", new(), true);
+            return new(Objects.SILFNullObject.Create(), true);
         }
 
         // Elementos (Variables, constantes)
@@ -324,21 +345,17 @@ internal class ScriptInterpreter
             if (getValue == null)
             {
                 instance.WriteError($"No existe el elemento '{line.Trim()}'");
-                return new("", new(), true);
+                return new(Objects.SILFNullObject.Create(), true);
             }
 
             else if (!getValue.IsAssigned)
             {
                 instance.WriteError($"La variable '{line.Trim()}' no ha sido asignada.");
-                return new("", new(), true);
+                return new(Objects.SILFNullObject.Create(), true);
             }
 
 
-            return new Eval(false)
-            {
-                Tipo = (instance.Environment == Environments.PreRun) ? getValue.Tipo : getValue.Value?.Tipo,
-                Value = (instance.Environment == Environments.PreRun) ? "" : getValue.Value?.Element,
-            };
+            return new(getValue.Value);
 
         }
 
@@ -369,10 +386,10 @@ internal class ScriptInterpreter
 
                 foreach (var eval in evals)
                 {
-                    instance.Write(eval.Value.ToString() ?? "");
+                    instance.Write(eval.Object.GetValue()?.ToString() ?? "");
                 }
 
-                return new("", new(), true);
+                return new(Objects.SILFNullObject.Create(), true);
 
             }
 
@@ -387,15 +404,19 @@ internal class ScriptInterpreter
                     return new();
                 }
 
-                if (!(evals[0].Tipo == null))
+                if (!(evals[0].Object.Tipo == null))
                 {
                     instance.WriteError("NN");
                     return new();
                 }
 
 
-                string tipoDes = evals[0].Tipo.Value.Description;
-                return new($"<{tipoDes}>", new("string"));
+                string tipoDes = evals[0].Object.Tipo.ToString();
+
+                return new(new SILFStringObject()
+                {
+                    Value = $"<{tipoDes}>"
+                });
 
             }
 
@@ -406,7 +427,11 @@ internal class ScriptInterpreter
                 var f = context[@params.Trim()];
 
                 string tipoDes = f?.Tipo.Description ?? "null";
-                return new($"<{tipoDes}>", new("string"));
+
+                return new(new SILFStringObject()
+                {
+                    Value = $"<{tipoDes}>"
+                });
 
             }
 
@@ -435,7 +460,7 @@ internal class ScriptInterpreter
 
             foreach (var param in paramsExec)
             {
-                mapping.Add(new("", param.Tipo.Value, param.Value));
+                mapping.Add(new("", param.Object.Tipo, param.Object.GetValue()));
             }
 
             bool valid = Actions.Parameters.BuildParams(instance, function, mapping);
@@ -457,11 +482,13 @@ internal class ScriptInterpreter
             // Si es Pre-Run
             if (instance.Environment == Environments.PreRun)
             {
-                return new("", function.Type, (!function.Type.HasValue));
+
+                return new Eval();
+
             }
 
             // Nueva evaluación.
-            return new Eval(funcResult.Value.Element, funcResult.Value.Tipo);
+            return new Eval(funcResult.Value);
 
         }
 
@@ -502,15 +529,15 @@ internal class ScriptInterpreter
             funcContext.IsReturning = true;
 
             // Tipo es incompatible
-            if (!Types.IsCompatible(instance, funcContext.WaitType, eval.Tipo))
+            if (!Types.IsCompatible(instance, funcContext.WaitType, eval.Object.Tipo))
             {
-                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar valores del tipo <{eval.Tipo}>.");
+                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar valores del tipo <{eval.Object.Tipo}>.");
                 return new(true);
             }
 
             // Valores
-            funcContext.Value.Element = eval.Value;
-            funcContext.Value.Tipo = eval.Tipo.Value;
+            funcContext.Value.SetValue(eval.Object.GetValue());
+            funcContext.Value.Tipo = eval.Object.Tipo;
             return new(true);
 
         }

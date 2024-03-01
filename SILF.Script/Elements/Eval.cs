@@ -4,17 +4,8 @@
 internal class Eval
 {
 
-    /// <summary>
-    /// Expresión
-    /// </summary>
-    public object Value { get; set; } = string.Empty;
 
-
-
-    /// <summary>
-    /// Tipo resultante
-    /// </summary>
-    public Tipo? Tipo { get; set; }
+    public Objects.SILFObjectBase Object { get; set; }
 
 
     /// <summary>
@@ -28,18 +19,17 @@ internal class Eval
     /// Nueva evaluación.
     /// </summary>
     /// <param name="value">valor</param>
-    public Eval(object value, Tipo? tipo, bool isVoid = false)
+    public Eval(Objects.SILFObjectBase Object, bool isVoid = false)
     {
-        this.Value = value;
-        this.Tipo = tipo;
+        this.Object = Object;
         this.IsVoid = isVoid;
     }
 
 
+
     public Eval(bool isVoid = false)
     {
-        this.Value = "";
-        this.Tipo = new();
+        this.Object = new Objects.SILFNullObject();
         this.IsVoid = isVoid;
     }
 

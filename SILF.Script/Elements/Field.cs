@@ -21,14 +21,14 @@ internal class Field
     /// <summary>
     /// Valor de la variable
     /// </summary>
-    public List<Value?> Values { get; set; } = new();
+    public List<Objects.SILFObjectBase?> Values { get; set; } = new();
 
 
 
     /// <summary>
     /// Valor de la variable
     /// </summary>
-    public Value? Value
+    public Objects.SILFObjectBase? Value
     {
         get => Values.LastOrDefault();
         set
@@ -60,16 +60,21 @@ internal class Field
     /// <summary>
     /// Constructor
     /// </summary>
-    public Field(string name, Value value, Tipo tipo, Instance instance, Isolation isolation = Isolation.ReadAndWrite)
+    public Field(string name, Objects.SILFObjectBase value, Tipo tipo, Instance instance, Isolation isolation = Isolation.ReadAndWrite)
     {
         this.Name = name;
         this.Value = (value);
         this.Tipo = tipo;
         this.Isolation = isolation;
         this.Instance = instance;
+    }
 
 
-
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    public Field()
+    {
     }
 
 

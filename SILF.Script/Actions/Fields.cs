@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Actions;
+﻿using SILF.Script.Objects;
+
+namespace SILF.Script.Actions;
 
 
 internal class Fields
@@ -90,11 +92,11 @@ internal class Fields
                 return false;
             }
 
-            tipo ??= value.Tipo;
+            tipo ??= value.Object.Tipo;
 
-            if (!Validations.Types.IsCompatible(instance, tipo.Value, value.Tipo))
+            if (!Validations.Types.IsCompatible(instance, tipo.Value, value.Object.Tipo))
             {
-                instance.WriteError($"El tipo <{tipo.Value}> no puede ser convertido en <{value.Tipo}>.");
+                instance.WriteError($"El tipo <{tipo.Value}> no puede ser convertido en <{value.Object.Tipo}>.");
                 return false;
             }
 
@@ -110,15 +112,28 @@ internal class Fields
                 return false;
             }
 
-            value = new("", desType);
+            value = new( new Objects.SILFNullObject());
         }
 
 
-
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo.Value) : new Value(value.Value, value.Tipo.Value), tipo.Value, instance, Isolation.ReadAndWrite)
+        Field field = new()
         {
-            IsAssigned = assigned
+            Name = name,
+            Instance = instance,
+            IsAssigned = assigned,
+            Isolation = Isolation.ReadAndWrite,
+            Tipo = value.Object.Tipo
         };
+
+        if (instance.Environment == Environments.PreRun)
+        {
+            field.Value = SILFObjectBase.GetByName(value.Object.Tipo.Description);
+        }
+        else
+        {
+            field.Value = value.Object;
+        }
+
 
         var can = context.SetField(field);
 
@@ -170,17 +185,33 @@ internal class Fields
             return false;
         }
 
-        if (value.Tipo.Value.Description == "mutable")
+        if (value.Object.Tipo.Description == "mutable")
         {
             instance.WriteError($"El valor de la constante '{name}' no puede ser mutable");
             return false;
         }
 
 
-        var field = new Field(name, (instance.Environment == Environments.PreRun) ? new("", value.Tipo.Value) : new(value.Value, value.Tipo.Value), value.Tipo.Value, instance, Isolation.Read)
+
+
+        Field field = new()
         {
-            IsAssigned = true
+            Name = name,
+            Instance = instance,
+            IsAssigned = true,
+            Isolation = Isolation.ReadAndWrite,
+            Tipo = value.Object.Tipo
         };
+
+        if (instance.Environment == Environments.PreRun)
+        {
+            field.Value = SILFObjectBase.GetByName(value.Object.Tipo.Description);
+        }
+        else
+        {
+            field.Value = value.Object;
+        }
+
 
         var can = context.SetField(field);
 

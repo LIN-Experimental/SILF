@@ -135,7 +135,7 @@ public class App
 
                 foreach (var var in function.Parameters)
                 {
-                    context.SetField(new(var.Name, new("", var.Tipo), var.Tipo, Instance, Isolation.ReadAndWrite)
+                    context.SetField(new(var.Name, null, var.Tipo, Instance, Isolation.ReadAndWrite)
                     {
                         IsAssigned = true
                     });

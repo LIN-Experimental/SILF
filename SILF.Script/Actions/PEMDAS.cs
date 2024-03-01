@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Actions;
+﻿using SILF.Script.Objects;
+
+namespace SILF.Script.Actions;
 
 
 internal class PEMDAS
@@ -36,7 +38,7 @@ internal class PEMDAS
     /// </summary>
     public void Solve()
     {
-        
+
         SolveLL(); // Unarios
         //    A();  //Operadores aritmeticos
         //    N();  //Resuelve Nulos
@@ -44,9 +46,9 @@ internal class PEMDAS
         SolveMD(); //Multiplicacion y Divicion
                    // P();  //%
         SolveSR(); //Adiccion y sustraccion
-        //L_OY(); //Logico & y |
-        //T(); // Terniarios
-        
+                   //L_OY(); //Logico & y |
+                   //T(); // Terniarios
+
     }
 
 
@@ -82,21 +84,21 @@ internal class PEMDAS
         Tipo type = new();
 
         // Operaciones
-        if (pre.Tipo.Value.Description == "number" && pos.Tipo.Value.Description == "number")
+        if (pre.Object.Tipo.Description == "number" && pos.Object.Tipo.Description == "number")
         {
             // Si es preRun
             if (Instance.Environment == Environments.PreRun)
             {
                 value = "0";
-                type = pre.Tipo.Value;
+                type = pre.Object.Tipo;
             }
 
             // Valores
             else
             {
                 // Valores numéricos
-                bool canN1 = decimal.TryParse(pre.Value.ToString()?.Replace(".", ","), out var number1);
-                bool canN2 = decimal.TryParse(pos.Value.ToString()?.Replace(".", ","), out var number2);
+                bool canN1 = decimal.TryParse(pre.Object.GetValue().ToString()?.Replace(".", ","), out var number1);
+                bool canN2 = decimal.TryParse(pos.Object.GetValue().ToString()?.Replace(".", ","), out var number2);
 
                 // No se pudo convertir.
                 if (!canN1 || !canN2)
@@ -106,18 +108,18 @@ internal class PEMDAS
                 }
 
                 // Segun el operador
-                switch (ope.Value.ToString())
+                switch (ope.Object.GetValue().ToString())
                 {
 
                     // Multiplicación
                     case "*":
                         {
                             // Total
-                            string total = (number1 * number2).ToString();
+                            decimal total = (number1 * number2);
 
                             // Proceso
                             value = total;
-                            type = pre.Tipo.Value;
+                            type = pre.Object.Tipo;
 
                             break;
                         }
@@ -127,11 +129,11 @@ internal class PEMDAS
                         {
 
                             // Total
-                            string total = (number1 / number2).ToString();
+                            decimal total = (number1 / number2);
 
                             // Proceso
                             value = total;
-                            type = pre.Tipo.Value;
+                            type = pre.Object.Tipo;
 
                             break;
                         }
@@ -145,7 +147,7 @@ internal class PEMDAS
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pre.Tipo}> y <{pos.Tipo}>");
+            Instance.WriteError($"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pre.Object.Tipo}> y <{pos.Object.Tipo}>");
 
         }
 
@@ -153,8 +155,16 @@ internal class PEMDAS
         // Eliminar los valores
 
         Values.RemoveRange(index - 1, 3);
-        Values.Insert(index - 1, new(value ?? "", type, false));
 
+        Values.Insert(index - 1, new()
+        {
+            IsVoid = false,
+            Object = new()
+            {
+                Tipo = new("number"),
+                Value = value ?? 0
+            }
+        });
 
 
         SolveMD();
@@ -192,21 +202,22 @@ internal class PEMDAS
         Tipo type = new();
 
         // Operaciones
-        if (pre.Tipo.Value.Description == "number" && pos.Tipo.Value.Description == "number")
+        if (pre.Object.Tipo.Description == "number" && pos.Object.Tipo.Description == "number")
         {
+
             // Si es preRun
             if (Instance.Environment == Environments.PreRun)
             {
                 value = "0";
-                type = pre.Tipo.Value;
+                type = pre.Object.Tipo;
             }
 
             // Valores
             else
             {
                 // Valores numéricos
-                bool canN1 = decimal.TryParse(pre.Value.ToString()?.Replace(".", ","), out decimal number1);
-                bool canN2 = decimal.TryParse(pos.Value.ToString()?.Replace(".", ","), out decimal number2);
+                bool canN1 = decimal.TryParse(pre.Object.GetValue().ToString()?.Replace(".", ","), out decimal number1);
+                bool canN2 = decimal.TryParse(pos.Object.GetValue().ToString()?.Replace(".", ","), out decimal number2);
 
                 // No se pudo convertir.
                 if (!canN1 || !canN2)
@@ -216,18 +227,18 @@ internal class PEMDAS
                 }
 
                 // Segun el operador
-                switch (ope.Value.ToString())
+                switch (ope.Object.GetValue().ToString())
                 {
 
                     // Suma
                     case "+":
                         {
                             // Total
-                            string total = (number1 + number2).ToString();
+                            decimal total = (number1 + number2);
 
                             // Proceso
                             value = total;
-                            type = pre.Tipo.Value;
+                            type = pre.Object.Tipo;
 
                             break;
                         }
@@ -237,11 +248,11 @@ internal class PEMDAS
                         {
 
                             // Total
-                            string total = (number1 - number2).ToString();
+                            decimal total = (number1 - number2);
 
                             // Proceso
                             value = total;
-                            type = pre.Tipo.Value;
+                            type = pre.Object.Tipo;
 
                             break;
                         }
@@ -252,7 +263,7 @@ internal class PEMDAS
         }
 
         // Concatenar
-        else if ((pre.Tipo.Value.Description == "string" || pos.Tipo.Value.Description == "string") & ope.Value.ToString() == "+")
+        else if ((pre.Object.Tipo.Description == "string" || pos.Object.Tipo.Description == "string") & ope.Object.GetValue().ToString() == "+")
         {
 
             if (Instance.Environment == Environments.PreRun)
@@ -262,7 +273,7 @@ internal class PEMDAS
             }
             else
             {
-                value = pre.Value.ToString() + pos.Value.ToString();
+                value = pre.Object.GetValue()?.ToString() + pos.Object.GetValue()?.ToString();
                 type = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
             }
 
@@ -272,7 +283,7 @@ internal class PEMDAS
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pre.Tipo}> y <{pos.Tipo}>");
+            Instance.WriteError($"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pre.Object.Tipo}> y <{pos.Object.Tipo}>");
 
         }
 
@@ -281,7 +292,18 @@ internal class PEMDAS
         try
         {
             Values.RemoveRange(index - 1, 3);
-            Values.Insert(index - 1, new(value ?? "", type, false));
+
+
+            Values.Insert(index - 1, new()
+            {
+                IsVoid = false,
+                Object = new()
+                {
+                    Tipo = new(type.Description),
+                    Value = value ?? 0
+                }
+            });
+
         }
         catch
         {
@@ -321,32 +343,25 @@ internal class PEMDAS
         }
 
         // Valores finales
-        object? value = null;
+        bool value = false;
         Tipo type = new();
 
         // Operaciones
-        if (pos.Tipo.Value.Description == "bool")
+        if (pos.Object is SILFBoolObject posObject)
         {
 
 
             // Segun el operador
-            switch (ope.Value.ToString())
+            switch (ope.Object.GetValue().ToString())
             {
 
                 // Suma
                 case "!":
                     {
 
-                        if (pos.Value.ToString() == "false" || pos.Value.ToString() == "0")
-                        {
-                            value = "1";
-                        }
-                        else
-                        {
-                            value = "0";
-                        }
+                        bool final = !posObject.GetValue();
 
-                        type = pos.Tipo.Value;
+                        value = final;
 
                         break;
                     }
@@ -356,13 +371,13 @@ internal class PEMDAS
 
         }
 
-       
+
 
         // Si el operador no es compatible
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Value}' no es compatible para tipos <{pos.Tipo}>");
+            Instance.WriteError($"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pos.Object.Tipo}>");
 
         }
 
@@ -370,8 +385,17 @@ internal class PEMDAS
         // Eliminar los valores
         try
         {
-            Values.RemoveRange(index , 2);
-            Values.Insert(index , new(value ?? "", type, false));
+            Values.RemoveRange(index, 2);
+
+            Values.Insert(index, new()
+            {
+                IsVoid = false,
+                Object = new SILFBoolObject()
+                {
+                    Value = value
+                }
+            });
+
         }
         catch
         {
@@ -393,8 +417,17 @@ internal class PEMDAS
     /// <param name="values">Valores</param>
     private static int Continue(string[] operators, List<Eval> values)
     {
-        int index = values.FindIndex(T => T.Tipo.HasValue && T.Tipo.Value.Description == "operator" && operators.Contains(T.Value.ToString()));
+        try
+        {
+ int index = values.FindIndex(T => T.Object.Tipo.Description == "operator" && operators.Contains(T.Object?.GetValue()?.ToString() ?? ""));
         return index;
+        }
+        catch
+        {
+
+        }
+        return 0;
+       
     }
 
 
@@ -430,7 +463,7 @@ internal class PEMDAS
             return (null, null);
         }
         // Retorna elementos
-        return (Values.ElementAtOrDefault(index ), Values.ElementAtOrDefault(index + 1));
+        return (Values.ElementAtOrDefault(index), Values.ElementAtOrDefault(index + 1));
     }
 
 

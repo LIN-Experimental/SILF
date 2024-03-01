@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Runners;
+﻿using SILF.Script.Objects;
+
+namespace SILF.Script.Runners;
 
 
 internal class MicroRunner
@@ -40,9 +42,17 @@ internal class MicroRunner
             foreach (var ex in expressions)
             {
 
-                if (ex.Tipo.Value.Description == "operator")
+                if (ex.IsOperator)
                 {
-                    evals.Add(ex);
+                    evals.Add(new()
+                    {
+                        IsVoid = true,
+                        Object = new SILFObjectBase
+                        {
+                            Tipo = new("operator"),
+                            Value = ex.Value,
+                        }
+                    });
                     continue;
                 }
 

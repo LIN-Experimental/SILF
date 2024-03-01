@@ -1,4 +1,6 @@
-﻿namespace SILF.Script.Elements.Functions;
+﻿using SILF.Script.Objects;
+
+namespace SILF.Script.Elements.Functions;
 
 
 internal class Function : IFunction
@@ -30,7 +32,22 @@ internal class Function : IFunction
 
         foreach (var param in @params)
         {
-            context.SetField(new(param.Name, new(param.Value, param.Tipo), param.Tipo, instance, Isolation.Read) { IsAssigned = true });
+
+            var value = SILFObjectBase.GetByName(param.Tipo.Description);
+
+            value.SetValue(param.Value);
+
+            var field = new Field()
+            {
+                Instance = instance,
+                IsAssigned = true,
+                Isolation = Isolation.Read,
+                Name = param.Name,
+                Tipo = param.Tipo,
+                Value = value
+            };
+
+            context.SetField(field);
         }
 
         var func = FuncContext.GenerateContext(this);

@@ -16,9 +16,9 @@ public readonly record struct Tipo
     /// Generar nuevo tipo
     /// </summary>
     /// <param name="tipo">nombre del tipo</param>
-    public Tipo(string tipo)
+    public Tipo(string? tipo)
     {
-        _description = tipo.Trim().ToLower();
+        _description = tipo?.Trim()?.ToLower() ?? "";
     }
 
 

@@ -6,7 +6,7 @@ public class FuncContext
 
     public string Name { get; set; }
 
-    public Value Value { get; set; }
+    public Objects.SILFObjectBase Value { get; set; }
 
     public Tipo? WaitType { get; set; }
 
@@ -26,7 +26,7 @@ public class FuncContext
         {
             IsReturning = false,
             WaitType = function.Type,
-            Value = new(""),
+            Value = new Objects.SILFNullObject(),
             Name = function.Name
         };
     }
