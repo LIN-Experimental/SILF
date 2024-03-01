@@ -115,6 +115,8 @@ public class App
         Context context = new();
         FuncContext funContext = FuncContext.GenerateContext(main);
 
+        
+
         foreach (var line in main.CodeLines)
             ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
 

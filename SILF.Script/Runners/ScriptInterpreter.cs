@@ -240,7 +240,7 @@ internal class ScriptInterpreter
 
             if (instance.Environment == Environments.PreRun)
                 return new Eval(@object);
-            
+
 
 
             line = line.Remove(0, 1);
@@ -264,10 +264,10 @@ internal class ScriptInterpreter
             line = Microsoft.VisualBasic.Strings.StrReverse(line).Remove(0, 1);
             line = Microsoft.VisualBasic.Strings.StrReverse(line);
 
-            _=decimal.TryParse(line, out decimal final);
+            _ = decimal.TryParse(line, out decimal final);
 
             @object.SetValue(final);
-            
+
             return new Eval(@object);
         }
 
@@ -416,7 +416,6 @@ internal class ScriptInterpreter
 
 
 
-
             // Funciones definidas por el usuario.
             IFunction? function = (from F in instance.Functions
                                    where F.Name == nombre
@@ -448,7 +447,11 @@ internal class ScriptInterpreter
             if (!valid)
                 return new(true);
 
-
+            
+            if (instance.Environment == Environments.PreRun)
+            {
+                return new(instance.Library.Get(function.Type.Value.Description ?? "null"));
+            }
 
 
             FuncContext funcResult = function.Run(instance, mapping);
@@ -457,15 +460,7 @@ internal class ScriptInterpreter
             // Si la función no retorno nada o es void
             if (funcResult.IsVoid || !funcResult.IsReturning)
                 return new(true);
-
-
-            // Si es Pre-Run
-            if (instance.Environment == Environments.PreRun)
-            {
-
-                return new Eval();
-
-            }
+            
 
             // Nueva evaluación.
             return new Eval(funcResult.Value);
