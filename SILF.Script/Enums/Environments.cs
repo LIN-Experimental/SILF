@@ -3,9 +3,7 @@
 
 public enum Environments
 {
-
     Debug,
     Release,
     PreRun
-
 }

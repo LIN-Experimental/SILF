@@ -10,10 +10,9 @@ internal class ScriptCompiler(string code)
 
 
     /// <summary>
-    /// Código
+    /// Código.
     /// </summary>
     private readonly string Code = code;
-
 
 
     /// <summary>

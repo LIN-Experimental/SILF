@@ -9,4 +9,5 @@ public interface IConsole
     /// </summary>
     public void InsertLine(string result, LogLevel logLevel);
 
+
 }

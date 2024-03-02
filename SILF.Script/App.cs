@@ -3,8 +3,13 @@
 namespace SILF.Script;
 
 
-public class App
+/// <summary>
+/// Nueva app SILF
+/// </summary>
+/// <param name="code">Código a ejecutar.</param>
+public class App(string code, IConsole? console = null, Environments environment = Environments.Release)
 {
+
 
     /// <summary>
     /// Instancia de SILF
@@ -21,14 +26,14 @@ public class App
     /// <summary>
     /// Consola.
     /// </summary>
-    private IConsole? Console { get; set; }
+    private IConsole? Console { get; set; } = console;
 
 
 
     /// <summary>
     /// Ambiente de la app
     /// </summary>
-    public Environments Environment { get; private set; }
+    public Environments Environment { get; private set; } = environment;
 
 
 
@@ -42,24 +47,7 @@ public class App
     /// <summary>
     /// Código a ejecutar
     /// </summary>
-    private readonly string Code;
-
-
-    private bool UseCache { get; set; } = false;
-
-
-
-    /// <summary>
-    /// Nueva app SILF
-    /// </summary>
-    /// <param name="code">Código a ejecutar.</param>
-    public App(string code, IConsole? console = null, Environments environment = Environments.Release, bool useCache = false)
-    {
-        this.Code = code ?? "";
-        this.Console = console;
-        this.Environment = environment;
-        this.UseCache = useCache;
-    }
+    private readonly string Code = code ?? "";
 
 
 
@@ -87,11 +75,12 @@ public class App
         }
 
         // Nueva estancia
-        Instance = new(Console, Environment, UseCache);
+        Instance = new(Console, Environment);
 
         foreach (var x in Library.Objects)
         {
-            Instance.Library.Load(x.Key.Description, x.Value);
+            Instance.Library.Load(x.Key.Description, x.Value.Item1);
+            Instance.Library.Load(x.Key.Description, x.Value.Item2);
         }
 
         var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
@@ -123,15 +112,20 @@ public class App
     }
 
 
+
+    /// <summary>
+    /// Ejecutar en modo Test.
+    /// </summary>
     private void RunTest()
     {
         // Nueva estancia
-        Instance = new(Console, Environment, UseCache);
+        Instance = new(Console, Environment);
 
 
         foreach(var x in Library.Objects)
         {
-            Instance.Library.Load(x.Key.Description, x.Value);
+            Instance.Library.Load(x.Key.Description, x.Value.Item1);
+            Instance.Library.Load(x.Key.Description, x.Value.Item2);
         }
 
 

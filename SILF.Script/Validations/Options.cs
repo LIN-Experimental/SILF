@@ -11,8 +11,9 @@ internal static class Options
     /// <param name="expression">Expresión</param>
     public static bool IsNumber(string expression)
     {
-        bool isNumber = decimal.TryParse(expression, out _);
 
+        bool isNumber = decimal.TryParse(expression, out _);
+        
         return isNumber;
 
     }
@@ -69,6 +70,22 @@ internal static class Options
     {
         string pattern = @"^[#]""[^""]*""$";
         string pattern2 = @"^[#]'[^']'$";
+
+
+        return Regex.IsMatch(input, pattern) || Regex.IsMatch(input, pattern2);
+    }
+
+
+
+    /// <summary>
+    /// Una expresión es un string interpolado valido
+    /// </summary>
+    /// <param name="input">Expresión</param>
+    public static bool IsLotNumber(string input)
+    {
+
+        string pattern = @"^[%]""[0-9,.-]*""$";
+        string pattern2 = @"^[%]'[0-9,.-]*'$";
 
 
         return Regex.IsMatch(input, pattern) || Regex.IsMatch(input, pattern2);

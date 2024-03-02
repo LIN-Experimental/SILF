@@ -25,6 +25,13 @@ public class SILFObjectBase
 
 
 
+    /// <summary>
+    /// Propiedades.
+    /// </summary>
+    public List<IProperty> Properties { get; set; } = [];
+
+
+
 
     /// <summary>
     /// Obtener el valor.

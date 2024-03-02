@@ -29,7 +29,7 @@ internal class Functions
             string parametersCrude = match.Groups["parametros"].Value;
 
             // Dividir los parámetros en una lista si es necesario
-            parameters = parametersCrude.Split(new char[] { ',' }, StringSplitOptions.TrimEntries).ToList();
+            parameters = parametersCrude.Split(new char[] { ',' }).ToList();
             return true;
         }
         return false;

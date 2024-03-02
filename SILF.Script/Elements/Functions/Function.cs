@@ -33,9 +33,9 @@ internal class Function : IFunction
         foreach (var param in @params)
         {
 
-            var value =  instance.Library.Get(param.Tipo.Description);
+            var value =  instance.Library.Get(param.Objeto.Tipo.Description);
 
-            value.SetValue(param.Value);
+            value.SetValue(param.Objeto.Value);
 
             var field = new Field()
             {
@@ -43,7 +43,7 @@ internal class Function : IFunction
                 IsAssigned = true,
                 Isolation = Isolation.Read,
                 Name = param.Name,
-                Tipo = param.Tipo,
+                Tipo = param.Objeto.Tipo,
                 Value = value
             };
 

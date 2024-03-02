@@ -31,12 +31,12 @@ internal class Parameters
             ParameterValue parameterValue = @params[index];
 
             // Son compatibles los tipos
-            bool isCompatible = Validations.Types.IsCompatible(instance, parameter.Tipo, parameterValue.Tipo);
+            bool isCompatible = Validations.Types.IsCompatible(instance, parameter.Tipo, parameterValue.Objeto.Tipo);
 
             // Si no son compatibles
             if (!isCompatible)
             {
-                instance.WriteError($"El parámetro '{parameter.Name}' de La función '{function.Name}' no puede tomar valores del tipo <{parameterValue.Tipo.Description}>.");
+                instance.WriteError($"El parámetro '{parameter.Name}' de La función '{function.Name}' no puede tomar valores del tipo <{parameterValue.Objeto.Tipo.Description}>.");
                 return false;
             }
 

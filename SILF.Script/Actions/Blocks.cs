@@ -35,11 +35,11 @@ internal class Blocks
                 bool BD2 = false;
 
                 // "{" y "("
-                if ((carácter == '{' || carácter == '(') && !isString)
+                if ((carácter == '{' || carácter == '(' || carácter == '[') && !isString)
                     counter += 1;
 
                 // "}" y ")"
-                else if ((carácter == '}' | carácter == ')') && !isString)
+                else if ((carácter == '}' | carácter == ')' | carácter == ']') && !isString)
                     counter -= 1;
 
                 // Entrada o salida de proceso de string

@@ -18,27 +18,12 @@ internal class Field
     public bool IsAssigned { get; set; }
 
 
-    /// <summary>
-    /// Valor de la variable
-    /// </summary>
-    public List<Objects.SILFObjectBase?> Values { get; set; } = new();
-
 
 
     /// <summary>
     /// Valor de la variable
     /// </summary>
-    public Objects.SILFObjectBase? Value
-    {
-        get => Values.LastOrDefault();
-        set
-        {
-            if (!Instance?.UseCache ?? false)
-                Values.Clear();
-
-            Values.Add(value);
-        }
-    }
+    public Objects.SILFObjectBase? Value { get; set; }
 
 
     /// <summary>
@@ -88,15 +73,13 @@ internal class Field
         if (Instance.Environment == Environments.PreRun)
             return 0;
 
-        int total = 0;
-        foreach (var item in Values)
-        {
-            // Serializar el objeto a JSON
-            string json = JsonSerializer.Serialize(Values);
 
-            // Calcular el tamaño del JSON en bytes
-            total += Encoding.UTF8.GetBytes(json).Length;
-        }
+        // Serializar el objeto a JSON
+        string json = JsonSerializer.Serialize(Value);
+
+        // Calcular el tamaño del JSON en bytes
+        int total = Encoding.UTF8.GetBytes(json).Length;
+
 
         return total;
     }

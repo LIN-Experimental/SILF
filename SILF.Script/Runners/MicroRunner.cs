@@ -21,17 +21,17 @@ internal class MicroRunner
         {
             // Si la app esta detenida
             if (!instance.IsRunning)
-                return new();
+                return [];
 
             // Obtiene la expresión separada
             var bloques = Actions.Blocks.Separar(expression);
 
             // Si no hay bloques
             if (bloques.Count <= 0)
-                return new();
+                return [];
 
             // Resultados
-            List<Eval> final = new();
+            List<Eval> final = [];
 
             foreach (var bloque in bloques)
             {
@@ -69,7 +69,7 @@ internal class MicroRunner
 
                 calcs.Solve();
 
-                evals ??= new();
+                evals ??= [];
                 if (evals.Count != 1)
                     evals.Add(new(true));
 

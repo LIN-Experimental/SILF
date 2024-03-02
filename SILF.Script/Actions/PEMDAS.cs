@@ -60,7 +60,7 @@ internal class PEMDAS
     private void SolveMD()
     {
         // Operadores
-        string[] operators = { "*", "/" };
+        string[] operators = ["*", "/"];
 
         // Índice
         int index = Continue(operators, Values);
@@ -143,6 +143,47 @@ internal class PEMDAS
 
         }
 
+
+        // Operaciones
+        else if (pre.Object.Tipo.Description == Library.LotNumber && pos.Object.Tipo.Description == Library.LotNumber)
+        {
+
+            // Si es preRun
+            if (Instance.Environment == Environments.PreRun)
+            {
+                value = "0";
+                type = pre.Object.Tipo;
+            }
+
+            // Valores
+            else
+            {
+
+
+                // Segun el operador
+                switch (ope.Object.GetValue().ToString())
+                {
+
+                    // Suma
+                    case "*":
+                        {
+
+                            string final = ComplexMath.MultiplicarNumeros(pre.Object.GetValue().ToString(), pos.Object.GetValue().ToString());
+
+                            value = final;
+                            type = pre.Object.Tipo;
+
+                            break;
+                        }
+
+
+                }
+            }
+
+        }
+
+
+
         // Si el operador no es compatible
         else
         {
@@ -156,14 +197,14 @@ internal class PEMDAS
 
         Values.RemoveRange(index - 1, 3);
 
+
+        SILFObjectBase @base = Instance.Library.Get(type.Description);
+        @base.SetValue(value);
+
         Values.Insert(index - 1, new()
         {
             IsVoid = false,
-            Object = new()
-            {
-                Tipo = new("number"),
-                Value = value ?? 0
-            }
+            Object = @base,
         });
 
 
@@ -179,7 +220,7 @@ internal class PEMDAS
     private void SolveSR()
     {
         // Operadores
-        string[] operators = { "+", "-" };
+        string[] operators = ["+", "-"];
 
         // Índice
         int index = Continue(operators, Values);
@@ -262,6 +303,57 @@ internal class PEMDAS
 
         }
 
+
+        // Operaciones
+        else if (pre.Object.Tipo.Description == Library.LotNumber && pos.Object.Tipo.Description == Library.LotNumber)
+        {
+
+            // Si es preRun
+            if (Instance.Environment == Environments.PreRun)
+            {
+                value = "0";
+                type = pre.Object.Tipo;
+            }
+
+            // Valores
+            else
+            {
+
+                
+                // Segun el operador
+                switch (ope.Object.GetValue().ToString())
+                {
+
+                    // Suma
+                    case "+":
+                        {
+
+                            string final = ComplexMath.SumarNumeros(pre.Object.GetValue().ToString(), pos.Object.GetValue().ToString());
+
+                            value = final;
+                            type = pre.Object.Tipo;
+
+                            break;
+                        }
+
+                    // División
+                    case "-":
+                        {
+
+                            string final = ComplexMath.RestarNumeros(pre.Object.GetValue().ToString(), pos.Object.GetValue().ToString());
+
+                            value = final;
+                            type = pre.Object.Tipo;
+
+                            break;
+                        }
+
+                }
+            }
+
+        }
+
+
         // Concatenar
         else if ((pre.Object.Tipo.Description == "string" || pos.Object.Tipo.Description == "string") & ope.Object.GetValue().ToString() == "+")
         {
@@ -294,14 +386,13 @@ internal class PEMDAS
             Values.RemoveRange(index - 1, 3);
 
 
+            SILFObjectBase @base = Instance.Library.Get(type.Description);
+            @base.SetValue(value);
+
             Values.Insert(index - 1, new()
             {
                 IsVoid = false,
-                Object = new()
-                {
-                    Tipo = new(type.Description),
-                    Value = value ?? 0
-                }
+                Object = @base,
             });
 
         }
@@ -324,7 +415,7 @@ internal class PEMDAS
     private void SolveLL()
     {
         // Operadores
-        string[] operators = { "!" };
+        string[] operators = ["!"];
 
         // Índice
         int index = Continue(operators, Values);
@@ -419,15 +510,15 @@ internal class PEMDAS
     {
         try
         {
- int index = values.FindIndex(T => T.Object.Tipo.Description == "operator" && operators.Contains(T.Object?.GetValue()?.ToString() ?? ""));
-        return index;
+            int index = values.FindIndex(T => T.Object.Tipo.Description == "operator" && operators.Contains(T.Object?.GetValue()?.ToString() ?? ""));
+            return index;
         }
         catch
         {
 
         }
         return 0;
-       
+
     }
 
 
