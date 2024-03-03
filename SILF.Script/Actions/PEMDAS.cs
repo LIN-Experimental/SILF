@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script.Actions;
+﻿namespace SILF.Script.Actions;
 
 
 internal class PEMDAS
@@ -40,7 +38,7 @@ internal class PEMDAS
     {
 
         SolveLL(); // Unarios
-        //    A();  //Operadores aritmeticos
+        SolveA();  //Operadores aritméticos
         //    N();  //Resuelve Nulos
         //    E();  //Exponentes
         SolveMD(); //Multiplicacion y Divicion
@@ -382,7 +380,7 @@ internal class PEMDAS
 
 
                             var a = pre.Object.GetValue() as SILFArray;
-                            var b = pos.Object.GetValue() as SILFArray ;
+                            var b = pos.Object.GetValue() as SILFArray;
                             var c = new SILFArray();
 
                             c.AddRange(a);
@@ -394,7 +392,7 @@ internal class PEMDAS
                             break;
                         }
 
-                  
+
 
                 }
             }
@@ -459,6 +457,135 @@ internal class PEMDAS
 
 
     /// <summary>
+    /// Soluciona Aritméticos
+    /// </summary>
+    private void SolveA()
+    {
+        // Operadores
+        string[] operators = [">", "<"];
+
+        // Índice
+        int index = Continue(operators, Values);
+
+        // Si no hay indices
+        if (index < 0)
+            return;
+
+        // Valores
+        var (pre, ope, pos) = GetValues(index);
+
+        if (pre == null || ope == null || pos == null)
+        {
+            Instance.WriteError("CS003", "Error al realizar operaciones.");
+            return;
+        }
+
+        // Valores finales
+        object? value = null;
+        Tipo type = new();
+
+        // Operaciones
+        if (pre.Object.Tipo.Description == "number" && pos.Object.Tipo.Description == "number")
+        {
+
+            // Si es preRun
+            if (Instance.Environment == Environments.PreRun)
+            {
+                value = false;
+                type = new(Library.Bool);
+            }
+
+            // Valores
+            else
+            {
+                // Valores numéricos
+                bool canN1 = decimal.TryParse(pre.Object.GetValue().ToString()?.Replace(".", ","), out decimal number1);
+                bool canN2 = decimal.TryParse(pos.Object.GetValue().ToString()?.Replace(".", ","), out decimal number2);
+
+                // No se pudo convertir.
+                if (!canN1 || !canN2)
+                {
+                    Instance.WriteError("SC005", "Error de conversion numérica");
+                    return;
+                }
+
+                // Segun el operador
+                switch (ope.Object.GetValue().ToString())
+                {
+
+                    // Suma
+                    case ">":
+                        {
+                            // Total
+                            bool total = (number1 > number2);
+
+                            // Proceso
+                            value = total;
+                            type = new(Library.Bool);
+
+                            break;
+                        }
+
+                    // División
+                    case "<":
+                        {
+
+                            // Total
+                            bool total = (number1 < number2);
+
+                            // Proceso
+                            value = total;
+                            type = new(Library.Bool);
+
+                            break;
+                        }
+
+                }
+            }
+
+        }
+
+
+
+        // Si el operador no es compatible
+        else
+        {
+            // Error
+            Instance.WriteError("CS004", $"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pre.Object.Tipo}> y <{pos.Object.Tipo}>");
+
+        }
+
+
+        // Eliminar los valores
+        try
+        {
+            Values.RemoveRange(index - 1, 3);
+
+
+            SILFObjectBase @base = Instance.Library.Get(type.Description);
+            @base.SetValue(value);
+
+            Values.Insert(index - 1, new()
+            {
+                IsVoid = false,
+                Object = @base,
+            });
+
+        }
+        catch
+        {
+
+        }
+
+
+
+        SolveA();
+
+    }
+
+
+
+    /// <summary>
     /// Soluciona sumas y restas.
     /// </summary>
     private void SolveLL()
@@ -499,6 +626,12 @@ internal class PEMDAS
                 case "!":
                     {
 
+                        if (Instance.Environment == Environments.PreRun)
+                        {
+                            value = false;
+
+                            break;
+                        }
                         bool final = !posObject.GetValue();
 
                         value = final;
