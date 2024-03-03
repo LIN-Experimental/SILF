@@ -1,18 +1,18 @@
 ﻿namespace SILF.Script.Objects;
 
 
-public class SILFStringObject : SILFObjectBase
+public class SILFClassObject : SILFObjectBase
 {
+
 
 
     /// <summary>
     /// Nuevo objeto.
     /// </summary>
-    public SILFStringObject()
+    public SILFClassObject(string type)
     {
-        base.Tipo = new("string");
+        base.Tipo = new(type);
     }
-
 
 
     /// <summary>

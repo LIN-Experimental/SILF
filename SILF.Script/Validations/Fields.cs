@@ -28,8 +28,10 @@ internal class Fields
         {
             string tipo = coincidencia.Groups[1].Value;
 
-            var exist = instance.Tipos.Where(T => T.Description == tipo).Any();
-            if (!exist)
+
+            var type = instance.Library.Exist(tipo);
+
+            if (type == null)
                 return ("", "", false);
 
             string nombre = coincidencia.Groups[2].Value;

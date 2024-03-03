@@ -564,7 +564,6 @@ internal class ScriptInterpreter
 
             string command = $"{nombre}.get({@params})";
 
-
             var paramsExec = MicroRunner.Runner(instance, context, funcContext, command, 1);
 
             // Nueva evaluación.

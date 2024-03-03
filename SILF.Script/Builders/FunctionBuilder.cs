@@ -51,7 +51,9 @@ internal class FunctionBuilder
             isSuperior = false;
 
 
-            var normalType = instance.Tipos[tipo];
+           
+
+            var normalType =  instance.Library.Exist(tipo);
 
             if (normalType == null && tipo != "void")
             {
@@ -70,7 +72,7 @@ internal class FunctionBuilder
                 if (string.IsNullOrWhiteSpace(param))
                     continue;
 
-                var paramType = instance.Tipos[param.Split(" ")[0]];
+                var paramType = instance.Library.Exist(param.Split(" ")[0]);
                 var paramName = param.Split(" ").ElementAtOrDefault(1);
 
                 if (paramName == null)

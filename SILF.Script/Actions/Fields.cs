@@ -13,16 +13,6 @@ internal class Fields
 
 
 
-    public static Tipo? GetTipo(Instance instance, string tipo)
-    {
-        var type = instance.Tipos.Where(T => T.Description == tipo);
-
-        if (type.Any())
-            return type.ElementAt(0);
-
-        return null;
-    }
-
 
 
 
@@ -52,7 +42,7 @@ internal class Fields
         {
 
             // 
-            tipo = GetTipo(instance, type);
+            tipo = instance.Library.Exist(type);
 
             if (tipo == null)
             {
@@ -96,7 +86,7 @@ internal class Fields
 
             if (!Validations.Types.IsCompatible(instance, tipo.Value, value.Object.Tipo))
             {
-                instance.WriteError($"El tipo <{tipo.Value}> no puede ser convertido en <{value.Object.Tipo}>.");
+                instance.WriteError($"El tipo <{value.Object.Tipo}> no puede ser convertido en <{tipo.Value}>.");
                 return false;
             }
 
@@ -104,7 +94,7 @@ internal class Fields
         else
         {
             assigned = false;
-            var desType = instance.Tipos.Where(T => T.Description == type).FirstOrDefault();
+            var desType = new Tipo(type);
 
             if (string.IsNullOrWhiteSpace(desType.Description))
             {

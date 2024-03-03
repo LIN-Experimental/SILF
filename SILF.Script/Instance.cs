@@ -42,21 +42,6 @@ public class Instance
 
 
     /// <summary>
-    /// Lista de tipos
-    /// </summary>
-    public TypesHub Tipos = new()
-    {
-        new("string"),
-        new("number"),
-        new("bool"),
-        new("char"),
-        new("operator"),
-        new("mutable")
-    };
-
-
-
-    /// <summary>
     /// Nueva estancia de la app.
     /// </summary>
     /// <param name="console">IConsole</param>

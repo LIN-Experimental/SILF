@@ -5,14 +5,15 @@ public class Library
 {
 
 
-    /// <summary>
-    /// String.
-    /// </summary>
     public const string String = "string";
     public const string Number = "number";
-    public const string LotNumber = "lot_number";
+    public const string LotNumber = "big";
     public const string Bool = "bool";
     public const string List = "array";
+
+
+
+    private List<string> OtherTypes = [];
 
 
 
@@ -80,15 +81,15 @@ public class Library
         SILFObjectBase obj = new SILFNullObject();
 
         // Tipo string.
-        if (type == "string")
+        if (type == String)
             obj = new SILFStringObject();
 
         // Tipo numérico.
-        else if (type == "number")
+        else if (type == Number)
             obj = new SILFNumberObject();
 
         // Tipo booleano.
-        else if (type == "bool")
+        else if (type == Bool)
             obj = new SILFBoolObject();
 
         // Tipo numero grande.
@@ -103,6 +104,18 @@ public class Library
         else if (type == "null")
             obj = new SILFBoolObject();
 
+        else
+        {
+            var find = OtherTypes.Where(t => t == type).FirstOrDefault();
+
+            if (find != null)
+            {
+
+            }
+
+        }
+
+
 
         var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value);
 
@@ -113,6 +126,27 @@ public class Library
 
         // Null.
         return obj;
+
+    }
+
+
+
+    /// <summary>
+    /// Obtener un nuevo objeto.
+    /// </summary>
+    /// <param name="type">Tipo</param>
+    public Tipo? Exist(string type)
+    {
+
+        // Normalizar.
+        type = type.Trim().ToLower();
+
+        // Tipos
+        string[] localTypes = ["string", "number", "array", "big", "bool"];
+        string[] types = [.. localTypes, .. OtherTypes];
+
+        // Null.
+        return types.Where(t => t == type).Select(t => new Tipo(t)).FirstOrDefault();
 
     }
 

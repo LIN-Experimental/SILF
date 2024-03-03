@@ -361,12 +361,12 @@ internal class PEMDAS
             if (Instance.Environment == Environments.PreRun)
             {
                 value = "";
-                type = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+                type = new("string");
             }
             else
             {
                 value = pre.Object.GetValue()?.ToString() + pos.Object.GetValue()?.ToString();
-                type = Instance.Tipos.Where(T => T.Description == "string").FirstOrDefault();
+                type = new("string");
             }
 
         }
