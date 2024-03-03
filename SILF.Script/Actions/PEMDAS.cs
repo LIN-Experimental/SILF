@@ -75,7 +75,7 @@ internal class PEMDAS
 
         if (pre == null || ope == null || pos == null)
         {
-            Instance.WriteError("Error al realizar operaciones.");
+            Instance.WriteError("SC003", "Error al realizar operaciones.");
             return;
         }
 
@@ -103,7 +103,7 @@ internal class PEMDAS
                 // No se pudo convertir.
                 if (!canN1 || !canN2)
                 {
-                    Instance.WriteError("Error de conversion numérica");
+                    Instance.WriteError("CS005", "Error de conversion numérica");
                     return;
                 }
 
@@ -188,7 +188,7 @@ internal class PEMDAS
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pre.Object.Tipo}> y <{pos.Object.Tipo}>");
+            Instance.WriteError("SC004", $"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pre.Object.Tipo}> y <{pos.Object.Tipo}>");
 
         }
 
@@ -234,7 +234,7 @@ internal class PEMDAS
 
         if (pre == null || ope == null || pos == null)
         {
-            Instance.WriteError("Error al realizar operaciones.");
+            Instance.WriteError("CS003", "Error al realizar operaciones.");
             return;
         }
 
@@ -263,7 +263,7 @@ internal class PEMDAS
                 // No se pudo convertir.
                 if (!canN1 || !canN2)
                 {
-                    Instance.WriteError("Error de conversion numérica");
+                    Instance.WriteError("SC005", "Error de conversion numérica");
                     return;
                 }
 
@@ -319,7 +319,7 @@ internal class PEMDAS
             else
             {
 
-                
+
                 // Segun el operador
                 switch (ope.Object.GetValue().ToString())
                 {
@@ -375,7 +375,7 @@ internal class PEMDAS
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pre.Object.Tipo}> y <{pos.Object.Tipo}>");
+            Instance.WriteError("CS004", $"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pre.Object.Tipo}> y <{pos.Object.Tipo}>");
 
         }
 
@@ -429,7 +429,7 @@ internal class PEMDAS
 
         if (pos == null || ope == null)
         {
-            Instance.WriteError("Error al realizar operaciones.");
+            Instance.WriteError("CS003", "Error al realizar operaciones.");
             return;
         }
 
@@ -468,7 +468,7 @@ internal class PEMDAS
         else
         {
             // Error
-            Instance.WriteError($"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pos.Object.Tipo}>");
+            Instance.WriteError("CS004", $"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pos.Object.Tipo}>");
 
         }
 
@@ -515,7 +515,6 @@ internal class PEMDAS
         }
         catch
         {
-
         }
         return 0;
 
@@ -532,7 +531,7 @@ internal class PEMDAS
         // Si no hay valores suficientes
         if (index <= 0 || index >= Values.Count)
         {
-            Instance.WriteError("Error de operadores");
+            Instance.WriteError("SC003", "Error de operadores");
             return (null, null, null);
         }
         // Retorna elementos
@@ -550,7 +549,7 @@ internal class PEMDAS
         // Si no hay valores suficientes
         if (index < 0 || index >= Values.Count)
         {
-            Instance.WriteError("Error de operadores");
+            Instance.WriteError("SC003", "Error de operadores");
             return (null, null);
         }
         // Retorna elementos

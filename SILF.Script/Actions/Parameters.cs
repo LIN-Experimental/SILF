@@ -15,32 +15,32 @@ internal class Parameters
     {
 
         // Si no hay la misma cantidad de parámetros (bloques).
-       if (function.Parameters.Count != @params.Count)
+        if (function.Parameters.Count != @params.Count)
         {
-            instance.WriteError($"La función '{function.Name}' necesita {function.Parameters.Count} parámetros.");
+            instance.WriteError("SC001", $"La función '{function.Name}' necesita {function.Parameters.Count} parámetros.");
             return false;
         }
 
         // Armar los valores (Parámetros).
         for (int index = 0; index < function.Parameters.Count; index++)
         {
-            // Parámetro 
+            // Parámetro.
             Parameter parameter = function.Parameters[index];
 
-            // Valor
+            // Valor.
             ParameterValue parameterValue = @params[index];
 
-            // Son compatibles los tipos
+            // Son compatibles los tipos.
             bool isCompatible = Validations.Types.IsCompatible(instance, parameter.Tipo, parameterValue.Objeto.Tipo);
 
-            // Si no son compatibles
+            // Si no son compatibles.
             if (!isCompatible)
             {
-                instance.WriteError($"El parámetro '{parameter.Name}' de La función '{function.Name}' no puede tomar valores del tipo <{parameterValue.Objeto.Tipo.Description}>.");
+                instance.WriteError("SC002",$"El parámetro '{parameter.Name}' de La función '{function.Name}' no puede tomar valores del tipo <{parameterValue.Objeto.Tipo.Description}>.");
                 return false;
             }
 
-            // Remplaza el valor del nombre
+            // Remplaza el valor del nombre.
             parameterValue.Name = parameter.Name;
 
         }

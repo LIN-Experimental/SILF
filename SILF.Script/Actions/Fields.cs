@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script.Actions;
+﻿namespace SILF.Script.Actions;
 
 
 internal class Fields
@@ -30,7 +28,7 @@ internal class Fields
 
         if (!isValidName)
         {
-            instance.WriteError($"El nombre '{name}' es invalido.");
+            instance.WriteError("SC006", $"El nombre '{name}' es invalido.");
             return false;
         }
 
@@ -46,7 +44,7 @@ internal class Fields
 
             if (tipo == null)
             {
-                instance.WriteError($"El tipo '{type}' es invalido.");
+                instance.WriteError("SC007", $"El tipo '{type}' es invalido.");
                 return false;
             }
 
@@ -54,7 +52,7 @@ internal class Fields
 
         if (type == "let" && expression == null)
         {
-            instance.WriteError($"Las variables con tipo implícito se tienen que asignar");
+            instance.WriteError("SC008", $"Las variables con tipo implícito se tienen que asignar");
             return false;
         }
 
@@ -65,28 +63,31 @@ internal class Fields
 
         if (expression != null)
         {
+
             var values = MicroRunner.Runner(instance, context, funcContext, expression, 1);
 
 
-            if (values.Count != 1)
+            if (values.Count <= 0 ||values.Count > 1) 
             {
-                instance.WriteError($"No MMM");
+                instance.WriteError("SC009", $"Los valores deben de ser validos");
                 return false;
             }
+
             value = values[0];
 
 
             if (value.IsVoid)
             {
-                instance.WriteError($"El valor de la variable '{name}' no puede ser void");
+                instance.WriteError("SC010", $"El valor de la variable '{name}' no puede ser void");
                 return false;
             }
+
 
             tipo ??= value.Object.Tipo;
 
             if (!Validations.Types.IsCompatible(instance, tipo.Value, value.Object.Tipo))
             {
-                instance.WriteError($"El tipo <{value.Object.Tipo}> no puede ser convertido en <{tipo.Value}>.");
+                instance.WriteError("SC011",$"El tipo <{value.Object.Tipo}> no puede ser convertido en <{tipo.Value}>.");
                 return false;
             }
 
@@ -98,11 +99,11 @@ internal class Fields
 
             if (string.IsNullOrWhiteSpace(desType.Description))
             {
-                instance.WriteError($"El tipo <{type}> no se encontró o aun no esta definido.");
+                instance.WriteError("SC012", $"El tipo <{type}> no se encontró o aun no esta definido.");
                 return false;
             }
 
-            value = new( new Objects.SILFNullObject());
+            value = new(new Objects.SILFNullObject());
         }
 
 
@@ -129,7 +130,7 @@ internal class Fields
 
         if (!can)
         {
-            instance.WriteError("campo duplicada.");
+            instance.WriteError("SC013","campo duplicada.");
             return false;
         }
 
@@ -154,7 +155,7 @@ internal class Fields
 
         if (!isValidName)
         {
-            instance.WriteError($"El nombre '{name}' es invalido.");
+            instance.WriteError("SC006", $"El nombre '{name}' es invalido.");
             return false;
         }
 
@@ -162,22 +163,25 @@ internal class Fields
         // Obtiene el valor
         var values = MicroRunner.Runner(instance, context, funcContext, expression, 1);
 
-        if (values.Count != 1)
+
+        if (values.Count <= 0 || values.Count > 1)
         {
-            instance.WriteError($"No MMM");
+            instance.WriteError("SC009", $"Los valores deben de ser validos");
             return false;
         }
+
+
         var value = values[0];
 
         if (value.IsVoid)
         {
-            instance.WriteError($"El valor de la constante '{name}' no puede ser void");
+            instance.WriteError("SC010", $"El valor de la constante '{name}' no puede ser void");
             return false;
         }
 
         if (value.Object.Tipo.Description == "mutable")
         {
-            instance.WriteError($"El valor de la constante '{name}' no puede ser mutable");
+            instance.WriteError("SC014", $"El valor de la constante '{name}' no puede ser mutable");
             return false;
         }
 
@@ -189,7 +193,7 @@ internal class Fields
             Name = name,
             Instance = instance,
             IsAssigned = true,
-            Isolation = Isolation.ReadAndWrite,
+            Isolation = Isolation.Read,
             Tipo = value.Object.Tipo
         };
 
@@ -207,7 +211,7 @@ internal class Fields
 
         if (!can)
         {
-            instance.WriteError("campo duplicada.");
+            instance.WriteError("SC013", "campo duplicada.");
             return false;
         }
 

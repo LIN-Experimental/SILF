@@ -62,7 +62,7 @@ public class Instance
     public void Write(string result)
     {
         if (Environment != Environments.PreRun)
-            Console?.InsertLine(result, LogLevel.None);
+            Console?.InsertLine(result, "",  LogLevel.None);
     }
 
 
@@ -71,10 +71,10 @@ public class Instance
     /// Escribe sobre la consola.
     /// </summary>
     /// <param name="result">Resultado.</param>
-    public void WriteError(string result)
+    public void WriteError(string errorCode, string result)
     {
         IsRunning = false;
-        Console?.InsertLine(result, LogLevel.Error);
+        Console?.InsertLine(result, errorCode, LogLevel.Error);
     }
 
 
@@ -87,7 +87,7 @@ public class Instance
     public void WriteWarning(string result)
     {
         if (Environment != Environments.PreRun)
-            Console?.InsertLine(result, LogLevel.Warning);
+            Console?.InsertLine(result, "", LogLevel.Warning);
     }
 
 

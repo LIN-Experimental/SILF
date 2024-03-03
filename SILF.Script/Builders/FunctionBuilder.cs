@@ -57,7 +57,7 @@ internal class FunctionBuilder
 
             if (normalType == null && tipo != "void")
             {
-                instance.WriteError($"el tipo '{tipo}' de la función '{name}' no existe.");
+                instance.WriteError("SC012", $"el tipo '{tipo}' de la función '{name}' no existe.");
                 continue;
             }
 
@@ -77,13 +77,13 @@ internal class FunctionBuilder
 
                 if (paramName == null)
                 {
-                    instance.WriteError($"Parámetro sin nombre en la función '{name}'.");
+                    instance.WriteError("SC015", $"Parámetro sin nombre en la función '{name}'.");
                     continue;
                 }
 
                 if (paramType == null)
                 {
-                    instance.WriteError($"El tipo '{paramType}' del parámetro '{paramName}' de la función '{name}' no existe.");
+                    instance.WriteError("SC012", $"El tipo '{paramType}' del parámetro '{paramName}' de la función '{name}' no existe.");
                     continue;
                 }
 
@@ -109,7 +109,7 @@ internal class FunctionBuilder
         }
         else if (!main)
         {
-            instance.WriteError("No hay función main al compilar");
+            instance.WriteError("SC016", "No hay función main al compilar");
         }
 
         return functions;

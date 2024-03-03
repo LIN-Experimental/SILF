@@ -89,7 +89,7 @@ public class App(string code, IConsole? console = null, Environments environment
 
         if (main == null)
         {
-            Console?.InsertLine("No se encontró la función 'main'", LogLevel.Error);
+            Console?.InsertLine("SC016", "No se encontró la función 'main'", LogLevel.Error);
             return;
         }
 
@@ -135,7 +135,7 @@ public class App(string code, IConsole? console = null, Environments environment
 
         if (main == null)
         {
-            Console?.InsertLine("No se encontró la función 'main'", LogLevel.Error);
+            Console?.InsertLine("SC016", "No se encontró la función 'main'", LogLevel.Error);
             return;
         }
 

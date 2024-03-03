@@ -78,14 +78,14 @@ internal class ScriptInterpreter
             // Si no existe
             if (field == null)
             {
-                instance.WriteError($"No existe el campo '{nombre}'.");
+                instance.WriteError("SC017",$"No existe el campo '{nombre}'.");
                 return new(Objects.SILFNullObject.Create(), true);
             }
 
             // Si no se puede sobrescribir
             if (field.Isolation != Isolation.ReadAndWrite & field.Isolation != Isolation.Write)
             {
-                instance.WriteError($"El campo '{nombre}' no se puede se puede sobrescribir.");
+                instance.WriteError("SC018",$"El campo '{nombre}' no se puede se puede sobrescribir.");
                 return new(Objects.SILFNullObject.Create(), true);
             }
 
@@ -97,7 +97,7 @@ internal class ScriptInterpreter
 
             if (evaluations.Count != 1)
             {
-                instance.WriteError($"La asignación no puede tener tener mas de 1 (un) bloque.");
+                instance.WriteError("SC009",$"La asignación no puede tener tener mas de 1 (un) bloque.");
                 return new(Objects.SILFNullObject.Create(), true);
             }
 
@@ -107,7 +107,7 @@ internal class ScriptInterpreter
             // Si no son compatibles
             if (!Types.IsCompatible(instance, presentType, evaluation.Object.Tipo))
             {
-                instance.WriteError($"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType.Description}>");
+                instance.WriteError("SC011",$"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType.Description}>");
                 return new(Objects.SILFNullObject.Create(), true);
             }
 
@@ -152,7 +152,7 @@ internal class ScriptInterpreter
                         // Si la función no existe.
                         if (function == null)
                         {
-                            instance.WriteError($"No se encontró el método '{nombre}' en el tipo '{bs.Tipo.Description}'");
+                            instance.WriteError("SC019", $"No se encontró el método '{nombre}' en el tipo '{bs.Tipo.Description}'");
                             return new(true);
                         }
 
@@ -216,7 +216,7 @@ internal class ScriptInterpreter
                         // Si la función no existe.
                         if (property == null)
                         {
-                            instance.WriteError($"No se encontró la propiedad '{nombre}' en el tipo '{bs.Tipo.Description}'");
+                            instance.WriteError("SC019",$"No se encontró la propiedad '{nombre}' en el tipo '{bs.Tipo.Description}'");
                             return new(true);
                         }
 
@@ -314,7 +314,7 @@ internal class ScriptInterpreter
 
                 if (evaluations.Count != 1)
                 {
-                    instance.WriteError($"No se puede obtener el valor de la expresión '{grupo}'");
+                    instance.WriteError("SC009", $"No se puede obtener el valor de la expresión '{grupo}'");
                     return new(true);
                 }
 
@@ -418,13 +418,13 @@ internal class ScriptInterpreter
 
             if (getValue == null)
             {
-                instance.WriteError($"No existe el elemento '{line.Trim()}'");
+                instance.WriteError("SC017",$"No existe el elemento '{line.Trim()}'");
                 return new(Objects.SILFNullObject.Create(), true);
             }
 
             else if (!getValue.IsAssigned)
             {
-                instance.WriteError($"La variable '{line.Trim()}' no ha sido asignada.");
+                instance.WriteError("SC020",$"La variable '{line.Trim()}' no ha sido asignada.");
                 return new(Objects.SILFNullObject.Create(), true);
             }
 
@@ -515,7 +515,7 @@ internal class ScriptInterpreter
             // Si la función no existe.
             if (function == null)
             {
-                instance.WriteError($"No se encontró la función '{nombre}'");
+                instance.WriteError("SC019", $"No se encontró la función '{nombre}'");
                 return new(true);
             }
 
@@ -582,7 +582,7 @@ internal class ScriptInterpreter
             if (funcContext.IsVoid && line.Trim() != "")
             {
                 funcContext.IsReturning = true;
-                instance.WriteError($"Return void no puede tener expresiones");
+                instance.WriteError("SC022", $"Return void no puede tener expresiones");
                 return new(true);
             }
 
@@ -598,7 +598,7 @@ internal class ScriptInterpreter
 
             if (evals.Count != 1)
             {
-                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar 2 bloques de código.");
+                instance.WriteError("SC009", $"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar 2 bloques de código.");
                 return new(true);
             }
 
@@ -610,7 +610,7 @@ internal class ScriptInterpreter
             // Tipo es incompatible
             if (!Types.IsCompatible(instance, funcContext.WaitType, eval.Object.Tipo))
             {
-                instance.WriteError($"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar valores del tipo <{eval.Object.Tipo}>.");
+                instance.WriteError("SC011", $"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar valores del tipo <{eval.Object.Tipo}>.");
                 return new(true);
             }
 
@@ -623,7 +623,7 @@ internal class ScriptInterpreter
 
 
 
-        instance.WriteError($"Expression invalida '{line}' en modo '{level}'");
+        instance.WriteError("SC021",$"Expression invalida '{line}' en modo '{level}'");
         return new(true);
 
     }
