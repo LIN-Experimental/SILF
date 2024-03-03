@@ -1,4 +1,5 @@
 ﻿using SILF.Script.Objects;
+using System.Collections;
 
 namespace SILF.Script.Runners;
 
@@ -8,17 +9,17 @@ internal class ScriptInterpreter
 
 
     /// <summary>
-    /// Interprete de líneas.
+    /// Interprete de líneas. 
     /// </summary>
     /// <param name="instance">Instancia de SILF.</param>
     /// <param name="line">Linea.</param>
-    public static Eval Interprete(Instance instance, Context context, FuncContext funcContext, string line, short level = 0)
+    public static List<Eval> Interprete(Instance instance, Context context, FuncContext funcContext, string line, short level = 0)
     {
 
 
         // Si la app esta detenida
         if (!instance.IsRunning || funcContext.IsReturning)
-            return new(false);
+            return [new(false)];
 
 
         // Preparador
@@ -26,7 +27,7 @@ internal class ScriptInterpreter
 
         // Si esta vacío
         if (string.IsNullOrWhiteSpace(line))
-            return new(true);
+            return [new(true)];
 
         // Separar por punto.
         var separar = Actions.Blocks.Separar(line, '.');
@@ -45,7 +46,7 @@ internal class ScriptInterpreter
             bool canCreate = Actions.Fields.CreateConst(instance, context, funcContext, constante.Name, constante.Expression);
 
             // Respuesta
-            return new(true);
+            return [new(true)];
 
         }
 
@@ -59,13 +60,13 @@ internal class ScriptInterpreter
             bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, variable.Name, variable.Type, variable.Expression);
 
             // Respuesta
-            return new(true);
+            return [new(true)];
 
         }
 
 
         else if (separar == null || separar.Count <= 0)
-            return new(true);
+            return [new(true)];
 
 
         // Es una asignación
@@ -78,15 +79,15 @@ internal class ScriptInterpreter
             // Si no existe
             if (field == null)
             {
-                instance.WriteError("SC017",$"No existe el campo '{nombre}'.");
-                return new(Objects.SILFNullObject.Create(), true);
+                instance.WriteError("SC017", $"No existe el campo '{nombre}'.");
+                return [new(Objects.SILFNullObject.Create(), true)];
             }
 
             // Si no se puede sobrescribir
             if (field.Isolation != Isolation.ReadAndWrite & field.Isolation != Isolation.Write)
             {
-                instance.WriteError("SC018",$"El campo '{nombre}' no se puede se puede sobrescribir.");
-                return new(Objects.SILFNullObject.Create(), true);
+                instance.WriteError("SC018", $"El campo '{nombre}' no se puede se puede sobrescribir.");
+                return [new(Objects.SILFNullObject.Create(), true)];
             }
 
             // Tipo esperado
@@ -97,8 +98,8 @@ internal class ScriptInterpreter
 
             if (evaluations.Count != 1)
             {
-                instance.WriteError("SC009",$"La asignación no puede tener tener mas de 1 (un) bloque.");
-                return new(Objects.SILFNullObject.Create(), true);
+                instance.WriteError("SC009", $"La asignación no puede tener tener mas de 1 (un) bloque.");
+                return [new(Objects.SILFNullObject.Create(), true)];
             }
 
             // Result
@@ -107,15 +108,15 @@ internal class ScriptInterpreter
             // Si no son compatibles
             if (!Types.IsCompatible(instance, presentType, evaluation.Object.Tipo))
             {
-                instance.WriteError("SC011",$"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType.Description}>");
-                return new(Objects.SILFNullObject.Create(), true);
+                instance.WriteError("SC011", $"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType.Description}>");
+                return [new(Objects.SILFNullObject.Create(), true)];
             }
 
             // Asigna el valor
             field.Value = evaluation.Object;
             field.IsAssigned = true;
 
-            return new(Objects.SILFNullObject.Create(), true);
+            return [new(Objects.SILFNullObject.Create(), true)];
         }
 
 
@@ -153,7 +154,7 @@ internal class ScriptInterpreter
                         if (function == null)
                         {
                             instance.WriteError("SC019", $"No se encontró el método '{nombre}' en el tipo '{bs.Tipo.Description}'");
-                            return new(true);
+                            return [new(true)];
                         }
 
 
@@ -177,7 +178,7 @@ internal class ScriptInterpreter
 
                         if (!valid)
                         {
-                            return new(true);
+                            return [new(true)];
 
                         }
 
@@ -216,8 +217,8 @@ internal class ScriptInterpreter
                         // Si la función no existe.
                         if (property == null)
                         {
-                            instance.WriteError("SC019",$"No se encontró la propiedad '{nombre}' en el tipo '{bs.Tipo.Description}'");
-                            return new(true);
+                            instance.WriteError("SC019", $"No se encontró la propiedad '{nombre}' en el tipo '{bs.Tipo.Description}'");
+                            return [new(true)];
                         }
 
 
@@ -240,7 +241,7 @@ internal class ScriptInterpreter
 
             }
 
-            return new(bs ?? SILFNullObject.Create());
+            return [new(bs ?? SILFNullObject.Create())];
 
         }
 
@@ -253,7 +254,7 @@ internal class ScriptInterpreter
             bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, isUnsigned.name, isUnsigned.type, null);
 
             // Respuesta
-            return new(true);
+            return [new(true)];
 
         }
 
@@ -266,7 +267,7 @@ internal class ScriptInterpreter
 
             // Si es modo PRE.
             if (instance.Environment == Environments.PreRun)
-                return new(@object);
+                return [new(@object)];
 
             // Convertir el numero.
             _ = decimal.TryParse(line, out decimal value);
@@ -275,7 +276,7 @@ internal class ScriptInterpreter
             @object.SetValue(value);
 
             // Retornar.
-            return new(@object);
+            return [new(@object)];
 
         }
 
@@ -315,7 +316,7 @@ internal class ScriptInterpreter
                 if (evaluations.Count != 1)
                 {
                     instance.WriteError("SC009", $"No se puede obtener el valor de la expresión '{grupo}'");
-                    return new(true);
+                    return [new(true)];
                 }
 
                 if (instance.Environment != Environments.PreRun)
@@ -328,7 +329,7 @@ internal class ScriptInterpreter
 
             @object.SetValue(final);
 
-            return new(@object);
+            return [new(@object)];
 
         }
 
@@ -339,7 +340,7 @@ internal class ScriptInterpreter
             var @object = instance.Library.Get(Library.String);
 
             if (instance.Environment == Environments.PreRun)
-                return new Eval(@object);
+                return [new Eval(@object)];
 
 
 
@@ -349,7 +350,7 @@ internal class ScriptInterpreter
 
             @object.SetValue(line);
 
-            return new(@object);
+            return [new(@object)];
 
         }
 
@@ -368,7 +369,7 @@ internal class ScriptInterpreter
 
             @object.SetValue(final);
 
-            return new Eval(@object);
+            return [new Eval(@object)];
         }
 
         // Devuelve la cadena de string
@@ -385,7 +386,7 @@ internal class ScriptInterpreter
 
             @object.SetValue(line);
 
-            return new Eval(@object);
+            return [new Eval(@object)];
         }
 
         // Es Booleano
@@ -405,9 +406,55 @@ internal class ScriptInterpreter
 
             @object.SetValue(final);
 
-            return new(@object);
+            return [new(@object)];
 
         }
+
+        // propagación.
+        else if (level == 1 && line.StartsWith(".."))
+        {
+            line = line.Remove(0, 2);
+
+            var getValue = context[line.Trim()];
+
+            if (getValue == null)
+            {
+                instance.WriteError("SC017", $"No existe el elemento '{line.Trim()}'");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+            else if (!getValue.IsAssigned)
+            {
+                instance.WriteError("SC020", $"La variable '{line.Trim()}' no ha sido asignada.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+
+            if (getValue.Tipo != new Tipo(Library.List) || getValue.Value is not SILFArrayObject)
+            {
+                instance.WriteError("SC023", $"El operador de propagación no se puede usar en '{line.Trim()}' porque no es una lista.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+
+            var value = getValue.Value as SILFArrayObject;
+
+
+           var lista =  value?.GetValue();
+
+            List<Eval> final = [];
+            foreach(var e in lista ?? [] )
+            {
+
+                if (e is SILFObjectBase obj)
+                    final.Add(new(obj));
+
+            }
+
+            return final;
+
+        }
+
 
 
         // Elementos (Variables, constantes)
@@ -418,18 +465,18 @@ internal class ScriptInterpreter
 
             if (getValue == null)
             {
-                instance.WriteError("SC017",$"No existe el elemento '{line.Trim()}'");
-                return new(Objects.SILFNullObject.Create(), true);
+                instance.WriteError("SC017", $"No existe el elemento '{line.Trim()}'");
+                return [new(Objects.SILFNullObject.Create(), true)];
             }
 
             else if (!getValue.IsAssigned)
             {
-                instance.WriteError("SC020",$"La variable '{line.Trim()}' no ha sido asignada.");
-                return new(Objects.SILFNullObject.Create(), true);
+                instance.WriteError("SC020", $"La variable '{line.Trim()}' no ha sido asignada.");
+                return [new(Objects.SILFNullObject.Create(), true)];
             }
 
 
-            return new(getValue.Value);
+            return [new(getValue.Value)];
 
         }
 
@@ -443,9 +490,9 @@ internal class ScriptInterpreter
             var results = MicroRunner.Runner(instance, context, funcContext, line, 1);
 
             if (results.Count != 1)
-                return new(true);
+                return [new(true)];
 
-            return results[0];
+            return [results[0]];
         }
 
         // Lista.
@@ -468,7 +515,7 @@ internal class ScriptInterpreter
 
             list.SetValue(a);
 
-            return new(list);
+            return [new(list)];
         }
 
         // Ejecutar funciones
@@ -486,7 +533,7 @@ internal class ScriptInterpreter
                     instance.Write(eval.Object.GetValue()?.ToString() ?? "");
                 }
 
-                return new(Objects.SILFNullObject.Create(), true);
+                return [new(Objects.SILFNullObject.Create(), true)];
 
             }
 
@@ -498,10 +545,10 @@ internal class ScriptInterpreter
 
                 string tipoDes = f?.Tipo.Description ?? "null";
 
-                return new(new SILFStringObject()
+                return [ new(new SILFStringObject()
                 {
                     Value = $"<{tipoDes}>"
-                });
+                })];
 
             }
 
@@ -516,7 +563,7 @@ internal class ScriptInterpreter
             if (function == null)
             {
                 instance.WriteError("SC019", $"No se encontró la función '{nombre}'");
-                return new(true);
+                return [new(true)];
             }
 
 
@@ -536,12 +583,12 @@ internal class ScriptInterpreter
             bool valid = Actions.Parameters.BuildParams(instance, function, mapping);
 
             if (!valid)
-                return new(true);
+                return [new(true)];
 
 
             if (instance.Environment == Environments.PreRun)
             {
-                return new(instance.Library.Get(function.Type.Value.Description ?? "null"));
+                return [new(instance.Library.Get(function.Type.Value.Description ?? "null"))];
             }
 
 
@@ -550,11 +597,11 @@ internal class ScriptInterpreter
 
             // Si la función no retorno nada o es void
             if (funcResult.IsVoid || !funcResult.IsReturning)
-                return new(true);
+                return [new(true)];
 
 
             // Nueva evaluación.
-            return new Eval(funcResult.Value);
+            return [new Eval(funcResult.Value)];
 
         }
 
@@ -567,30 +614,30 @@ internal class ScriptInterpreter
             var paramsExec = MicroRunner.Runner(instance, context, funcContext, command, 1);
 
             // Nueva evaluación.
-            return new Eval(paramsExec[0].Object);
+            return [new Eval(paramsExec[0].Object)];
 
         }
 
-        // Return.
-        else if (line.Split(" ")[0] == "return")
+        // return [.
+        else if (line.Split(" ")[0] == "return [")
         {
 
-            // Caso del return
-            line = line.Remove(0, "return".Length);
+            // Caso del return [
+            line = line.Remove(0, "return [".Length);
 
             // Si el tipo esperado es void y hay una expresión
             if (funcContext.IsVoid && line.Trim() != "")
             {
-                funcContext.IsReturning = true;
-                instance.WriteError("SC022", $"Return void no puede tener expresiones");
-                return new(true);
+                funcContext.IsReturning= true;
+                instance.WriteError("SC022", $"return [ void no puede tener expresiones");
+                return [new(true)];
             }
 
             // Si el tipo el void
             else if (funcContext.IsVoid)
             {
                 funcContext.IsReturning = true;
-                return new(true);
+                return [new(true)];
             }
 
             // Evalúa
@@ -599,7 +646,7 @@ internal class ScriptInterpreter
             if (evals.Count != 1)
             {
                 instance.WriteError("SC009", $"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar 2 bloques de código.");
-                return new(true);
+                return [new(true)];
             }
 
             var eval = evals[0];
@@ -611,20 +658,20 @@ internal class ScriptInterpreter
             if (!Types.IsCompatible(instance, funcContext.WaitType, eval.Object.Tipo))
             {
                 instance.WriteError("SC011", $"La función '{funcContext.Name}' del tipo <{funcContext.WaitType}> no puede retornar valores del tipo <{eval.Object.Tipo}>.");
-                return new(true);
+                return [new(true)];
             }
 
             // Valores
             funcContext.Value.SetValue(eval.Object.GetValue());
             funcContext.Value.Tipo = eval.Object.Tipo;
-            return new(true);
+            return [new(true)];
 
         }
 
 
 
-        instance.WriteError("SC021",$"Expression invalida '{line}' en modo '{level}'");
-        return new(true);
+        instance.WriteError("SC021", $"Expression invalida '{line}' en modo '{level}'");
+        return [new(true)];
 
     }
 

@@ -18,13 +18,13 @@ public class SILFArrayObject : SILFObjectBase
     /// <summary>
     /// Obtener el valor.
     /// </summary>
-    public new IEnumerable GetValue()
+    public new IEnumerable<SILFObjectBase> GetValue()
     {
-        if (Value is IEnumerable value)
+        if (Value is IEnumerable<SILFObjectBase> value)
             return value;
 
-        Value = new ArrayList();
-        return Value as ArrayList;
+        Value = new List<SILFObjectBase>();
+        return Value as IEnumerable<SILFObjectBase> ?? [];
     }
 
 
@@ -35,10 +35,10 @@ public class SILFArrayObject : SILFObjectBase
     public new void SetValue(object? value)
     {
 
-        if (value is IEnumerable lista)
+        if (value is IEnumerable<SILFObjectBase> lista)
             Value = lista;
 
-        Value = new ArrayList();
+        Value = new List<SILFObjectBase>();
 
     }
 

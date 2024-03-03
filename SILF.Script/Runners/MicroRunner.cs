@@ -60,7 +60,7 @@ internal class MicroRunner
                     }
 
                     var result = ScriptInterpreter.Interprete(instance, context, funcContext, ex.Value.ToString() ?? "", level);
-                    evals.Add(result);
+                    evals.AddRange(result);
 
                 }
 
@@ -70,8 +70,12 @@ internal class MicroRunner
                 calcs.Solve();
 
                 evals ??= [];
-                if (evals.Count != 1)
+
+                if (evals.Count <= 0)
                     evals.Add(new(true));
+                else
+                    final.AddRange(evals);
+
 
                 final.Add(evals[0]);
             }
