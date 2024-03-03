@@ -455,8 +455,6 @@ internal class ScriptInterpreter
 
         }
 
-
-
         // Elementos (Variables, constantes)
         else if (level == 1 && (!line.EndsWith(')') && !line.EndsWith(']')))
         {
@@ -506,7 +504,7 @@ internal class ScriptInterpreter
 
             var list = instance.Library.Get(Library.List);
 
-            List<SILFObjectBase> a = [];
+            SILFArray a = [];
 
             foreach (var result in results)
             {
@@ -618,18 +616,18 @@ internal class ScriptInterpreter
 
         }
 
-        // return [.
-        else if (line.Split(" ")[0] == "return [")
+        // return.
+        else if (line.Split(" ")[0] == "return")
         {
 
             // Caso del return [
-            line = line.Remove(0, "return [".Length);
+            line = line.Remove(0, "return".Length);
 
             // Si el tipo esperado es void y hay una expresión
             if (funcContext.IsVoid && line.Trim() != "")
             {
                 funcContext.IsReturning= true;
-                instance.WriteError("SC022", $"return [ void no puede tener expresiones");
+                instance.WriteError("SC022", $"return void no puede tener expresiones");
                 return [new(true)];
             }
 

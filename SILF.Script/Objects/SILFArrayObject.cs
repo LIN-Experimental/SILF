@@ -6,6 +6,14 @@ namespace SILF.Script.Objects;
 public class SILFArrayObject : SILFObjectBase
 {
 
+
+    /// <summary>
+    /// Obtener el valor.
+    /// </summary>
+    public new SILFArray Value = null!;
+
+
+
     /// <summary>
     /// Nuevo objeto.
     /// </summary>
@@ -18,13 +26,13 @@ public class SILFArrayObject : SILFObjectBase
     /// <summary>
     /// Obtener el valor.
     /// </summary>
-    public new IEnumerable<SILFObjectBase> GetValue()
+    public new SILFArray GetValue()
     {
-        if (Value is IEnumerable<SILFObjectBase> value)
+        if (Value is SILFArray value)
             return value;
 
-        Value = new List<SILFObjectBase>();
-        return Value as IEnumerable<SILFObjectBase> ?? [];
+        Value = [];
+        return Value ?? [];
     }
 
 
@@ -35,12 +43,21 @@ public class SILFArrayObject : SILFObjectBase
     public new void SetValue(object? value)
     {
 
-        if (value is IEnumerable<SILFObjectBase> lista)
+        if (value is SILFArray lista)
             Value = lista;
 
-        Value = new List<SILFObjectBase>();
+        Value = [];
 
     }
+
+
+}
+
+
+public class SILFArray : List<SILFObjectBase>
+{
+
+    public override string ToString() => Library.List;
 
 
 }

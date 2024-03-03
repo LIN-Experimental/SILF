@@ -354,6 +354,54 @@ internal class PEMDAS
         }
 
 
+        // Operaciones
+        else if (pre.Object.Tipo.Description == Library.List && pos.Object.Tipo.Description == Library.List)
+        {
+
+            // Si es preRun
+            if (Instance.Environment == Environments.PreRun)
+            {
+                value = new SILFArray();
+                type = pre.Object.Tipo;
+            }
+
+            // Valores
+            else
+            {
+
+
+                // Segun el operador
+                switch (ope.Object.GetValue().ToString())
+                {
+
+                    // Suma
+                    case "+":
+                        {
+
+
+
+
+                            var a = pre.Object.GetValue() as SILFArray;
+                            var b = pos.Object.GetValue() as SILFArray ;
+                            var c = new SILFArray();
+
+                            c.AddRange(a);
+                            c.AddRange(b);
+
+                            value = c;
+                            type = pre.Object.Tipo;
+
+                            break;
+                        }
+
+                  
+
+                }
+            }
+
+        }
+
+
         // Concatenar
         else if ((pre.Object.Tipo.Description == "string" || pos.Object.Tipo.Description == "string") & ope.Object.GetValue().ToString() == "+")
         {
@@ -370,6 +418,7 @@ internal class PEMDAS
             }
 
         }
+
 
         // Si el operador no es compatible
         else
