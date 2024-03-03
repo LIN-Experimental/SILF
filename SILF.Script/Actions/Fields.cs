@@ -5,15 +5,6 @@ internal class Fields
 {
 
 
-
-
-
-
-
-
-
-
-
     /// <summary>
     /// Crear nueva variable
     /// </summary>

@@ -3,20 +3,26 @@
 namespace SILF.Script;
 
 
-public class Instance
+/// <summary>
+/// Nueva estancia de la app.
+/// </summary>
+/// <param name="console">IConsole</param>
+/// <param name="environment">Entorno</param>
+public class Instance(IConsole? console, Environments environment)
 {
+
 
     /// <summary>
     /// Consola
     /// </summary>
-    private IConsole? Console { get; set; }
+    private IConsole? Console { get; set; } = console;
 
 
 
     /// <summary>
     /// Lista de funciones
     /// </summary>
-    public List<IFunction> Functions { get; set; }
+    public List<IFunction> Functions { get; set; } = [];
 
 
 
@@ -37,20 +43,7 @@ public class Instance
     /// <summary>
     /// Ambiente de la app
     /// </summary>
-    public Environments Environment { get; private set; }
-
-
-
-    /// <summary>
-    /// Nueva estancia de la app.
-    /// </summary>
-    /// <param name="console">IConsole</param>
-    public Instance(IConsole? console, Environments environment)
-    {
-        this.Console = console;
-        this.Environment = environment;
-        this.Functions = new();
-    }
+    public Environments Environment { get; private set; } = environment;
 
 
 
@@ -76,7 +69,6 @@ public class Instance
         IsRunning = false;
         Console?.InsertLine(result, errorCode, LogLevel.Error);
     }
-
 
 
 

@@ -1,7 +1,4 @@
-﻿using SILF.Script.Objects;
-using System.Collections;
-
-namespace SILF.Script.Runners;
+﻿namespace SILF.Script.Runners;
 
 
 internal class ScriptInterpreter
@@ -606,6 +603,30 @@ internal class ScriptInterpreter
         // Ejecutar funciones
         else if (Expressions.Functions.IsIndex(line, out nombre, out @params))
         {
+
+
+            var getValue = context[nombre];
+
+            if (getValue == null)
+            {
+                instance.WriteError("SC017", $"No existe el elemento '{line.Trim()}'");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+
+            if (getValue.Tipo != new Tipo(Library.List))
+            {
+                instance.WriteError("SC023", $"La característica de índice no esta disponible para el tipo <{getValue.Tipo}>.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+             if (!getValue.IsAssigned)
+            {
+                instance.WriteError("SC020", $"La variable '{line.Trim()}' no ha sido asignada.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+
 
             string command = $"{nombre}.get({@params})";
 

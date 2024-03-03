@@ -14,3 +14,4 @@ global using SILF.Script.Runners;
 global using SILF.Script.Validations;
 global using SILF.Script.Expressions.Objects;
 global using SILF.Script.Utilities;
+global using SILF.Script.Objects;

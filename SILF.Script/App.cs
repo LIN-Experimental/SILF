@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script;
+﻿namespace SILF.Script;
 
 
 /// <summary>
@@ -68,44 +66,49 @@ public class App(string code, IConsole? console = null, Environments environment
     public void Run()
     {
 
+        // Comprobar el entorno.
         if (Environment == Environments.PreRun)
         {
             RunTest();
             return;
         }
 
-        // Nueva estancia
+        // Generar la estancia.
         Instance = new(Console, Environment);
 
-        foreach (var x in Library.Objects)
-        {
-            Instance.Library.Load(x.Key.Description, x.Value.Item1);
-            Instance.Library.Load(x.Key.Description, x.Value.Item2);
-        }
+        // Cargar objetos de los frameworks.
+        LoadObjects();
 
-        var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
 
-        var main = build.GetMain();
+        // Compilar el código.
+        CompileResult build = new Compilers.ScriptCompiler(Code).Compile(Instance);
 
+        // Obtener el método main
+        Function? main = build.GetMain();
+
+        // Validar el método main.
         if (main == null)
         {
             Console?.InsertLine("SC016", "No se encontró la función 'main'", LogLevel.Error);
             return;
         }
 
+        // Cargar funciones.
         Instance.Functions =
         [
             // Funciones del compilador
             .. build.Functions,
-            // Funciones externas
+            // Funciones externas.
             .. Functions,
         ];
 
+        // Contexto.
         Context context = new();
+
+        // Contexto de la función.
         FuncContext funContext = FuncContext.GenerateContext(main);
 
-        
-
+        // Ejecutar.
         foreach (var line in main.CodeLines)
             ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
 
@@ -118,27 +121,28 @@ public class App(string code, IConsole? console = null, Environments environment
     /// </summary>
     private void RunTest()
     {
+
         // Nueva estancia
         Instance = new(Console, Environment);
 
-
-        foreach(var x in Library.Objects)
-        {
-            Instance.Library.Load(x.Key.Description, x.Value.Item1);
-            Instance.Library.Load(x.Key.Description, x.Value.Item2);
-        }
+        // Cargar objetos.
+        LoadObjects();
 
 
-        var build = new Compilers.ScriptCompiler(this.Code).Compile(Instance);
+        // Compilar el código.
+        CompileResult build = new Compilers.ScriptCompiler(Code).Compile(Instance);
 
-        var main = build.GetMain();
+        // Obtener el método main
+        Function? main = build.GetMain();
 
+        // Validar el método main.
         if (main == null)
         {
             Console?.InsertLine("SC016", "No se encontró la función 'main'", LogLevel.Error);
             return;
         }
 
+        // Funciones generales.
         Instance.Functions =
         [
             // Funciones del compilador
@@ -149,30 +153,65 @@ public class App(string code, IConsole? console = null, Environments environment
         ];
 
 
-        foreach (var function in Instance.Functions)
+        // Funciones.
+        foreach (Function function in Instance.Functions.Where(t => t is Function))
         {
 
-            if (function is Function baseFunction)
+            // Generar el contexto.
+            Context context = new();
+
+            // Contexto de la función.
+            FuncContext funcContext = FuncContext.GenerateContext(function);
+
+            // Parámetros.
+            foreach (var parameter in function.Parameters)
             {
-                Context context = new();
-                FuncContext funContext = FuncContext.GenerateContext(baseFunction);
 
-                foreach (var var in function.Parameters)
+                // Campo.
+                Field field = new()
                 {
-                    context.SetField(new(var.Name, null, var.Tipo, Instance, Isolation.ReadAndWrite)
-                    {
-                        IsAssigned = true
-                    });
-                }
+                    Name = parameter.Name,
+                    IsAssigned = true,
+                    Instance = Instance,
+                    Isolation = Isolation.Read,
+                    Tipo = parameter.Tipo
+                };
 
+                // Establecer el parametro.
+                context.SetField(field);
 
-                foreach (var line in baseFunction.CodeLines)
-                    Runners.ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
             }
 
 
+            // Ejecutar la función.
+            foreach (var line in function.CodeLines)
+                Runners.ScriptInterpreter.Interprete(Instance, context, funcContext, line, 0);
+
         }
 
+    }
+
+
+
+    /// <summary>
+    /// Cargar los objetos.
+    /// </summary>
+    private void LoadObjects()
+    {
+
+        // Validar.
+        if (Instance == null)
+            return;
+
+        // Cargar objetos de los frameworks.
+        foreach (var objects in Library.Objects)
+        {
+            // Funciones.
+            Instance.Library.Load(objects.Key.Description, objects.Value.Item1);
+
+            // Propiedades.
+            Instance.Library.Load(objects.Key.Description, objects.Value.Item2);
+        }
 
     }
 

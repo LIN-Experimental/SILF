@@ -106,3 +106,5 @@ Expresión invalida.
 ### SC022
 Una función marcada como void no puede regresar nada.
 
+### SC023
+El tipo ```X``` no tiene la propiedad de indices.
