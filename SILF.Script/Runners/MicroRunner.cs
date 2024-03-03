@@ -72,12 +72,10 @@ internal class MicroRunner
                 evals ??= [];
 
                 if (evals.Count <= 0)
-                    evals.Add(new(true));
+                    final.Add(new(true));
                 else
                     final.AddRange(evals);
 
-
-                final.Add(evals[0]);
             }
 
 

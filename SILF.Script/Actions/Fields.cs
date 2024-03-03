@@ -24,7 +24,7 @@ internal class Fields
     {
 
         // Validar Nombre
-        bool isValidName = Validations.Options.IsValidName(name);
+         bool isValidName = Validations.Options.IsValidName(name);
 
         if (!isValidName)
         {

@@ -16,8 +16,6 @@ Los tipos de datos por valor se refieren a aquellos en los que la variable guard
 * ```int``` Números enteros.
 
 
-
-
 # Variables
 
 #### Inferencia de tipo.
@@ -40,7 +38,6 @@ string name = "Juan"
 
 # Listas
 
-
 Una lista es una estructura de datos en la que los elementos se almacenan de manera secuencial. Cada elemento tiene una posición única dentro de la lista, identificada por su índice. Las listas son una forma eficaz de gestionar colecciones de elementos del mismo tipo.
 
 ### Declaración
@@ -54,6 +51,33 @@ let ages = [1, 5, 22, 82, 98]
 ### Índices
 
 El índice inicia en número 0 al igual que otros lenguajes como Java, C#, C++ o JS.
+
+```java
+let ages = [1, 5, 22, 82, 98]
+print(ages[0]) // 1
+```
+
+
+### Operador de propagación
+
+El operador de propagacion permite agregar los elementos de una lista a otra de forma natural
+
+
+##### Usando propagación
+```java
+let nums = [1, 2, 3, 4]
+let nums2 = [5, 6, 7, 8]
+let nums3 = [..nums, ..nums2] // 1,2,3,4,5,6,7,8
+```
+
+la propagacion se pueda usar de la forma en que mejor convenga, por ejemplo:
+
+```java
+let nums = [1, 2, 3]
+let nums2 = [5, 6, 7, 8]
+let nums3 = [..nums, 4, ..nums2] // 1,2,3,4,5,6,7,8
+```
+El operador se remplazara por los valores.
 
 
 # Aritmética
@@ -82,44 +106,6 @@ print(¥"Hello {name}")
 ```
 
 Puede usar ```$```, ```£``` o ```¥```.
-
-# Palabras clave
-
-En SILF existen unas palabras clave que salen del común de otros lenguajes de programación.
-
-
-### Previous
-
-La palabra clave ```previous``` permite obtener el valor anterior de una variable.
-
-```java
-string name = "Alex"
-name = "Juan"
-print(name) // Juan
-print(previous name) // Alex
-```
-
-Esta palabra no sobrescribe el valor actual.
-
-
-> [!CAUTION]
-> Esta función puede provocar volcados de memoria, use esta característica con precaución.
-
-
-### Clear
-
-La palabra clave ```clear``` permite borrar el historial de una variable, esto para ahorrar y liberar memoria.
-
-```java
-string name = "Alex"
-name = "Juan"
-clear name
-print(name) // Juan
-print(previous name) // 'Juan', ya que no existe un historial.
-```
-
-Esta palabra no sobrescribe el valor actual.
-
 
 
 ### sizeof
