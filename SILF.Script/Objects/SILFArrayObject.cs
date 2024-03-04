@@ -51,6 +51,9 @@ public class SILFArrayObject : SILFObjectBase
     }
 
 
+    public static SILFArrayObject Create() => new();
+
+
 }
 
 

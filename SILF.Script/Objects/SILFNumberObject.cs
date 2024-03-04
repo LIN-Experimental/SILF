@@ -38,4 +38,7 @@ public class SILFNumberObject : SILFObjectBase
     }
 
 
+    public static SILFNumberObject Create() => new();
+
+
 }

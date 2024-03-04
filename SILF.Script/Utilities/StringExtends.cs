@@ -20,4 +20,23 @@ internal static class StringExtends
 
 
 
+    /// <summary>
+    /// Reversar una cadena.
+    /// </summary>
+    /// <param name="cadena">Cadena.</param>
+    public static string Sub(this string cadena, int i, int count)
+    {
+        try
+        {
+          return  cadena.Substring(i, count);
+        }
+        catch
+        {
+        }
+        return "";
+
+    }
+
+
+
 }

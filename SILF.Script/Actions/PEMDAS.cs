@@ -659,13 +659,13 @@ internal class PEMDAS
         {
             Values.RemoveRange(index, 2);
 
+            var obje = SILFBoolObject.Create();
+            obje.SetValue(value);
+
             Values.Insert(index, new()
             {
                 IsVoid = false,
-                Object = new SILFBoolObject()
-                {
-                    Value = value
-                }
+                Object = obje
             });
 
         }

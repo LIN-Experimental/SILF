@@ -5,15 +5,6 @@ internal class Fields
 {
 
 
-
-
-
-
-
-
-
-
-
     /// <summary>
     /// Una expresión es la declaración de una variable.
     /// </summary>
@@ -78,6 +69,31 @@ internal class Fields
         nombre = "";
         operador = "";
         expression = "";
+        return false;
+
+    }
+
+
+
+    /// <summary>
+    /// Una expresión es la asignación a una variable
+    /// </summary>
+    /// <param name="line">Expresión</param>
+    public static bool IsPipe(string line, out string evaluador, out string receptor)
+    {
+        string patron = @"^(.+)\s*\|>\s*(.+)$"; // Patrón para buscar asignaciones de valores
+
+        Match coincidencia = Regex.Match(line, patron);
+
+        if (coincidencia.Success)
+        {
+            evaluador = coincidencia.Groups[1].Value;
+            receptor = coincidencia.Groups[2].Value;
+            return true;
+        }
+
+        evaluador = "";
+        receptor = "";
         return false;
 
     }

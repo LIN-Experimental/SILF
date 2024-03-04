@@ -40,4 +40,7 @@ public class SILFBoolObject : SILFObjectBase
     }
 
 
+    public static SILFBoolObject Create() => new();
+
+
 }

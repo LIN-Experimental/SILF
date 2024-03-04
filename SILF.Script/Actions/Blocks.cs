@@ -99,6 +99,8 @@ internal class Blocks
         // Preparación.
         value = value.Normalize().Trim();
 
+        List<string> operadoresErroneos = new List<string> { "|>" };
+
         // Separación de los bloques.
         {
 
@@ -108,7 +110,7 @@ internal class Blocks
             bool isString = false;
             string? fragment = null;
 
-            char[] operators = { '<', '>', '!', '=', '+', '-', '/', '*' };
+            char[] operators = ['<', '>', '!', '=', '+', '-', '/', '*'];
 
             // Separador por bloques
             for (int i = 0; i < value.Length; i++)
@@ -129,6 +131,22 @@ internal class Blocks
                 else if (carácter == '"' || carácter == '\'')
                     isString = !isString;
 
+                // Verificación de operadores erróneos
+                else if (operadoresErroneos.Contains(value.Sub(i, 2)) && !isString && counter == 0)
+                {
+                    i++;
+
+                    // Inserción del carácter
+                    if (BD2 == false)
+                    {
+                        if (fragment == null)
+                            fragment = carácter.ToString();
+                        else
+                            fragment += carácter;
+                    }
+
+                    carácter = value[i];
+                }
 
                 //Nuevo bloque 
                 else if ((operators.Contains(carácter)) & !isString & counter == 0)

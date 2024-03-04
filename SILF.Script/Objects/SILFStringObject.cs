@@ -37,4 +37,6 @@ public class SILFStringObject : SILFObjectBase
     }
 
 
+    public static SILFStringObject Create() => new();
+
 }

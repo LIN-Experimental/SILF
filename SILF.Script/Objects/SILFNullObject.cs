@@ -34,9 +34,7 @@ public class SILFNullObject : SILFObjectBase
 
 
 
-    public static SILFNullObject Create()
-    {
-        return new();
-    }
+    public static SILFNullObject Create() => new();
+
 
 }

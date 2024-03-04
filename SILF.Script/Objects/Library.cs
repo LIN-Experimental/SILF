@@ -79,31 +79,31 @@ public class Library
         // Normalizar.
         type = type.Trim().ToLower();
 
-        SILFObjectBase obj = new SILFNullObject();
+        SILFObjectBase obj = SILFNullObject.Create();
 
         // Tipo string.
         if (type == String)
-            obj = new SILFStringObject();
+            obj = SILFStringObject.Create();
 
         // Tipo numérico.
         else if (type == Number)
-            obj = new SILFNumberObject();
+            obj = SILFNumberObject.Create();
 
         // Tipo booleano.
         else if (type == Bool)
-            obj = new SILFBoolObject();
+            obj = SILFBoolObject.Create();
 
         // Tipo numero grande.
         else if (type == LotNumber)
-            obj = new SILFNumberLotObject();
+            obj = SILFNumberLotObject.Create();
 
         // Tipo lista.
         else if (type == List)
-            obj = new SILFArrayObject();
+            obj = SILFArrayObject.Create();
 
         // Null.
         else if (type == Null)
-            obj = new SILFBoolObject();
+            obj = SILFBoolObject.Create();
 
         else
         {
@@ -120,12 +120,35 @@ public class Library
         // Data.
         var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value);
 
-        // Establecer las funciones.
-        obj.Functions = data.SelectMany(t => t.Item1).ToList();
-        obj.Properties = data.SelectMany(t => t.Item2).ToList();
-
         // Null.
         return obj;
+
+    }
+
+
+
+
+
+    public IEnumerable<IFunction> GetFunctions(string type = Null)
+    {
+
+        // Data.
+        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item1).SelectMany(t=>t);
+
+        // Retornar.
+        return data ?? [];
+
+    }
+
+
+    public IEnumerable<IProperty> GetProperties(string type = Null)
+    {
+
+        // Data.
+        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item2).SelectMany(t => t);
+
+        // Retornar.
+        return data ?? [];
 
     }
 

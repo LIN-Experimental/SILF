@@ -94,7 +94,7 @@ internal class Fields
                 return false;
             }
 
-            value = new(new Objects.SILFNullObject());
+            value = new( Objects.SILFNullObject.Create());
         }
 
 

@@ -30,9 +30,8 @@ internal class ScriptInterpreter
 
 
 
-
         // Es una variable
-        var isUnsigned = Fields.IsNotValuableVar(instance, line);
+        var isUnsigned = Validations.Fields.IsNotValuableVar(instance, line);
 
         // Definición de constante
         if (Expressions.Fields.IsConst(line, out var constante))
@@ -66,7 +65,7 @@ internal class ScriptInterpreter
 
 
         // Es una asignación
-        else if (Fields.IsAssignment(line, out var nombre, out var operador, out var expresión))
+        else if (Validations.Fields.IsAssignment(line, out var nombre, out var operador, out var expresión))
         {
 
             // Obtiene el campo
@@ -116,128 +115,137 @@ internal class ScriptInterpreter
         }
 
 
-
-        else if (separar.Count > 1)
+        // Es una asignación
+        else if (Validations.Fields.IsPipe(line, out var evaluator, out var receptor))
         {
-            SILFObjectBase? bs = null;
-            foreach (var bloque in separar)
+
+            // Evaluador.
+            var evaluateParams = MicroRunner.Runner(instance, context, funcContext, evaluator, 1);
+
+
+            var sep = Actions.Blocks.Separar(receptor, '.');
+
+            if (sep.Count > 1)
             {
+                SILFObjectBase? bs = null;
 
-                if (bs == null)
-                {
-                    List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, bloque.Value, 1);
-                    bs = evals[0].Object;
-                }
-
-
-                else
+                for (int i = 0; i < sep.Count; i++)
                 {
 
+                    var bloque = sep[i];
 
-                    bool isFunction = Expressions.Functions.IsFunction(bloque.Value, out nombre, out string @params);
+                    if (bs == null)
+                    {
+                        List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, bloque.Value, 1);
 
-                    if (isFunction)
+                        if (evals.Count > 0)
+                            bs = evals[0].Object;
+                    }
+
+
+                    else
                     {
 
 
+                        // Validar si es función.
+                        bool isFunction = Expressions.Functions.IsFunction(bloque.Value, out string name, out string @params);
 
-                        // Funciones definidas por el usuario.
-                        IFunction? function = (from F in bs.Functions
-                                               where F.Name == nombre
-                                               select F).FirstOrDefault();
+                        name = (isFunction) ? name : bloque.Value;
 
-                        // Si la función no existe.
-                        if (function == null)
+                        if (isFunction || i + 1 == sep.Count)
                         {
-                            instance.WriteError("SC019", $"No se encontró el método '{nombre}' en el tipo '{bs.Tipo.Description}'");
-                            return [new(true)];
-                        }
 
 
 
 
-                        var paramsExec = MicroRunner.Runner(instance, context, funcContext, @params, 1);
+                            // Funciones definidas por el usuario.
+                            IFunction? function = (from F in instance.Library.GetFunctions(bs.Tipo.Description)
+                                                   where F.Name == name
+                                                   select F).FirstOrDefault();
+
+                            // Si la función no existe.
+                            if (function == null)
+                            {
+                                instance.WriteError("SC019", $"No se encontró el método '{nombre}' en el tipo '{bs.Tipo.Description}'");
+                                return [new(true)];
+                            }
 
 
 
-                        var mapping = new List<ParameterValue>
+
+                            var paramsExec = (i + 1 == sep.Count) ? evaluateParams : MicroRunner.Runner(instance, context, funcContext, @params, 1);
+
+
+
+                            var mapping = new List<ParameterValue>
                     {
                         new(string.Empty, bs)
                     };
 
-                        foreach (var param in paramsExec)
-                        {
-                            mapping.Add(new("", param.Object));
+                            foreach (var param in paramsExec)
+                            {
+                                mapping.Add(new("", param.Object));
+                            }
+
+
+
+
+
+                            bool valid = Actions.Parameters.BuildParams(instance, function, mapping);
+
+                            if (!valid)
+                            {
+                                return [new(true)];
+
+                            }
+
+
+                            FuncContext funcResult = function.Run(instance, mapping);
+
+
+                            bs = instance.Library.Get(funcResult?.Value?.Tipo.Description ?? "null");
+
+
+                            if (funcResult != null && funcResult.Value != null)
+                            {
+                                bs.SetValue(funcResult.Value.Value);
+                            }
+                            else
+                            {
+                                bs = SILFNullObject.Create();
+                            }
+
+
+
+                            // Nueva evaluación.
+
+                            continue;
+
                         }
 
-                        bool valid = Actions.Parameters.BuildParams(instance, function, mapping);
-
-                        if (!valid)
-                        {
-                            return [new(true)];
-
-                        }
 
 
-                        FuncContext funcResult = function.Run(instance, mapping);
-
-
-                        bs = instance.Library.Get(funcResult?.Value?.Tipo.Description ?? "null");
-
-
-                        if (funcResult != null && funcResult.Value != null)
-                        {
-                            bs.SetValue(funcResult.Value.Value);
-                        }
-                        else
-                        {
-                            bs = SILFNullObject.Create();
-                        }
-
-
-
-                        // Nueva evaluación.
-
-                        continue;
                     }
-
-                    // Ejecutar propiedad
-                    {
-
-
-                        // Funciones definidas por el usuario.
-                        IProperty? property = (from F in bs.Properties
-                                               where F.Name == bloque.Value
-                                               select F).FirstOrDefault();
-
-                        // Si la función no existe.
-                        if (property == null)
-                        {
-                            instance.WriteError("SC019", $"No se encontró la propiedad '{nombre}' en el tipo '{bs.Tipo.Description}'");
-                            return [new(true)];
-                        }
-
-
-                        property.Parent = bs;
-                        var result = property.GetValue(instance);
-
-                        bs = instance.Library.Get(result.Tipo.Description);
-                        bs.SetValue(result.Value);
-
-                        // Nueva evaluación.
-
-                        continue;
-                    }
-
-
 
 
                 }
 
-
+                return [new(bs ?? SILFNullObject.Create())];
             }
 
-            return [new(bs ?? SILFNullObject.Create())];
+
+
+
+        }
+
+
+
+        else if (separar.Count > 1)
+        {
+
+            var fin = TryExec(separar, instance, context, funcContext);
+
+            return fin;
 
         }
 
@@ -436,10 +444,10 @@ internal class ScriptInterpreter
             var value = getValue.Value as SILFArrayObject;
 
 
-           var lista =  value?.GetValue();
+            var lista = value?.GetValue();
 
             List<Eval> final = [];
-            foreach(var e in lista ?? [] )
+            foreach (var e in lista ?? [])
             {
 
                 if (e is SILFObjectBase obj)
@@ -539,10 +547,10 @@ internal class ScriptInterpreter
 
                 string tipoDes = f?.Tipo.Description ?? "null";
 
-                return [ new(new SILFStringObject()
-                {
-                    Value = $"<{tipoDes}>"
-                })];
+                var mm = SILFStringObject.Create();
+                mm.SetValue($"<{tipoDes}>");
+
+                return [ new(mm)];
 
             }
 
@@ -619,7 +627,7 @@ internal class ScriptInterpreter
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 
-             if (!getValue.IsAssigned)
+            if (!getValue.IsAssigned)
             {
                 instance.WriteError("SC020", $"La variable '{line.Trim()}' no ha sido asignada.");
                 return [new(Objects.SILFNullObject.Create(), true)];
@@ -646,7 +654,7 @@ internal class ScriptInterpreter
             // Si el tipo esperado es void y hay una expresión
             if (funcContext.IsVoid && line.Trim() != "")
             {
-                funcContext.IsReturning= true;
+                funcContext.IsReturning = true;
                 instance.WriteError("SC022", $"return void no puede tener expresiones");
                 return [new(true)];
             }
@@ -690,6 +698,133 @@ internal class ScriptInterpreter
 
         instance.WriteError("SC021", $"Expression invalida '{line}' en modo '{level}'");
         return [new(true)];
+
+    }
+
+
+
+
+
+
+
+
+
+
+    public static List<Eval> TryExec(IEnumerable<CodeBlock> blocks, Instance instance, Context context, FuncContext funcContext)
+    {
+
+        // Objeto base.
+        SILFObjectBase? @base = null;
+
+        // Recorrer los bloques.
+        foreach (CodeBlock block in blocks)
+        {
+
+            // Si no existe el objeto base.
+            if (@base == null)
+            {
+                // Evaluar expresión.
+                List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, block.Value, 1);
+
+                // Evaluar.
+                if (evals.Count != 1)
+                {
+                    instance.WriteError("NO-DOCUMENTES", "No documentado");
+                    return [];
+                }
+
+                @base = evals[0].Object;
+
+                continue;
+
+            }
+
+
+            // Validar si es función.
+            bool isFunction = Expressions.Functions.IsFunction(block.Value, out string name, out string @params);
+
+            // Si es una función.
+            if (isFunction)
+            {
+
+                // Funciones definidas por el usuario.
+                IFunction? function = (from F in instance.Library.GetFunctions(@base.Tipo.Description)
+                                       where F.Name == name
+                                       select F).FirstOrDefault();
+
+                // Si la función no existe.
+                if (function == null)
+                {
+                    instance.WriteError("SC019", $"No se encontró el método '{name}' en el tipo '{@base.Tipo}'");
+                    return [new(true)];
+                }
+
+                // Ejecutar el método.
+                var resultFinal = ExecMethod(function, @base, @params, instance, context, funcContext);
+
+                // Base.
+                @base = resultFinal.Object;
+
+                continue;
+
+            }
+
+
+            // Propiedades definidas por el usuario.
+            IProperty? property = (from F in instance.Library.GetProperties(@base.Tipo.Description)
+                                   where F.Name == block.Value
+                                   select F).FirstOrDefault();
+
+            // Si la función no existe.
+            if (property == null)
+            {
+                instance.WriteError("SC019", $"No se encontró la propiedad '{name}' en el tipo '{@base.Tipo}'");
+                return [new(true)];
+            }
+
+
+            property.Parent = @base;
+            var result = property.GetValue(instance);
+
+            @base = instance.Library.Get(result.Tipo.Description);
+            @base.SetValue(result.Value);
+
+
+            continue;
+
+        }
+
+        return [new(@base ?? SILFNullObject.Create())];
+
+    }
+
+
+
+    static Eval ExecMethod(IFunction function, SILFObjectBase objectBase, string parameters, Instance instance, Context context, FuncContext funcContext)
+    {
+
+        // Parámetros.
+        var paramsExec = MicroRunner.Runner(instance, context, funcContext, parameters, 1);
+
+        // Mapear los parámetros.
+        List<ParameterValue> mapParams = [new ParameterValue(string.Empty, objectBase)];
+
+        // Recorrer los parámetros.
+        foreach (var param in paramsExec)
+            mapParams.Add(new("", param.Object));
+
+        // Validar la integridad de los parámetros.
+        bool valid = Actions.Parameters.BuildParams(instance, function, mapParams);
+
+        // Si no es valido.
+        if (!valid)
+            return new(true);
+
+        // Resultado.
+        FuncContext funcResult = function.Run(instance, mapParams);
+
+        // Obtener el objeto final.
+        return new(funcResult.Value);
 
     }
 

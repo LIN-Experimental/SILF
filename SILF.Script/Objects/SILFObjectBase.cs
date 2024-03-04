@@ -19,21 +19,6 @@ public class SILFObjectBase
 
 
     /// <summary>
-    /// Métodos.
-    /// </summary>
-    public List<IFunction> Functions { get; set; } = [];
-
-
-
-    /// <summary>
-    /// Propiedades.
-    /// </summary>
-    public List<IProperty> Properties { get; set; } = [];
-
-
-
-
-    /// <summary>
     /// Obtener el valor.
     /// </summary>
     public object GetValue()
