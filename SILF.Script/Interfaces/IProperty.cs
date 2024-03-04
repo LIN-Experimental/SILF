@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script.Interfaces;
+﻿namespace SILF.Script.Interfaces;
 
 
 public interface IProperty
@@ -13,6 +11,7 @@ public interface IProperty
     public Objects.SILFObjectBase Value { get; set; }
 
     public SILFObjectBase Parent { get; set; }
+
 
     public IFunction Get {  get; set; }
     public IFunction Set {  get; set; }

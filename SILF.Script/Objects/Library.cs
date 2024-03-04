@@ -10,10 +10,11 @@ public class Library
     public const string LotNumber = "big";
     public const string Bool = "bool";
     public const string List = "array";
+    public const string Null = "null";
 
 
 
-    private List<string> OtherTypes = [];
+    private readonly List<string> OtherTypes = [];
 
 
 
@@ -72,7 +73,7 @@ public class Library
     /// Obtener un nuevo objeto.
     /// </summary>
     /// <param name="type">Tipo</param>
-    public SILFObjectBase Get(string type = "null")
+    public SILFObjectBase Get(string type = Null)
     {
 
         // Normalizar.
@@ -101,28 +102,27 @@ public class Library
             obj = new SILFArrayObject();
 
         // Null.
-        else if (type == "null")
+        else if (type == Null)
             obj = new SILFBoolObject();
 
         else
         {
+            // Encontrar el tipo.
             var find = OtherTypes.Where(t => t == type).FirstOrDefault();
 
             if (find != null)
             {
-
+                // --
             }
 
         }
 
-
-
+        // Data.
         var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value);
 
         // Establecer las funciones.
         obj.Functions = data.SelectMany(t => t.Item1).ToList();
         obj.Properties = data.SelectMany(t => t.Item2).ToList();
-
 
         // Null.
         return obj;

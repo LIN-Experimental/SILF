@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script.Runners;
+﻿namespace SILF.Script.Runners;
 
 
 internal class MicroRunner

@@ -6,12 +6,12 @@ internal class Functions
 
 
     /// <summary>
-    /// Si una linea es la definición de una función.
+    /// Si una línea es la definición de una función.
     /// </summary>
-    /// <param name="input"></param>
-    /// <param name="tipo"></param>
-    /// <param name="nombre"></param>
-    /// <param name="parameters"></param>
+    /// <param name="input">Entrada.</param>
+    /// <param name="tipo">Salida del tipo</param>
+    /// <param name="nombre">Salida del nombre</param>
+    /// <param name="parameters">Parametros</param>
     public static bool Match(string input, out string tipo, out string nombre, out List<string> parameters)
     {
 
@@ -29,7 +29,7 @@ internal class Functions
             string parametersCrude = match.Groups["parametros"].Value;
 
             // Dividir los parámetros en una lista si es necesario
-            parameters = parametersCrude.Split(new char[] { ',' }).ToList();
+            parameters = [.. parametersCrude.Split([','])];
             return true;
         }
         return false;

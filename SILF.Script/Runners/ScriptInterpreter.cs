@@ -13,7 +13,6 @@ internal class ScriptInterpreter
     public static List<Eval> Interprete(Instance instance, Context context, FuncContext funcContext, string line, short level = 0)
     {
 
-
         // Si la app esta detenida
         if (!instance.IsRunning || funcContext.IsReturning)
             return [new(false)];

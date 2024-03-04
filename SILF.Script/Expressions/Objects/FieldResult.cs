@@ -1,27 +1,40 @@
 ﻿namespace SILF.Script.Expressions.Objects;
 
 
-internal class FieldResult
+internal class FieldResult(string name, string type, string expression, bool success = true)
 {
 
-    public string Name { get; set; }
-    public string Type { get; set; }
-    public string Expression { get; set; }
-    public bool Success { get; set; }
+    /// <summary>
+    /// Nombre.
+    /// </summary>
+    public string Name { get; set; } = name;
 
 
-    public FieldResult(string name, string type, string expression, bool success = true)
-    {
-        this.Name = name;
-        this.Type = type;
-        this.Expression = expression;
-        this.Success = success;
-    }
+    /// <summary>
+    /// Tipo.
+    /// </summary>
+    public string Type { get; set; } = type;
 
 
+    /// <summary>
+    /// Expresión.
+    /// </summary>
+    public string Expression { get; set; } = expression;
+
+
+    /// <summary>
+    /// Correcto.
+    /// </summary>
+    public bool Success { get; set; } = success;
+
+
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="success"></param>
     public FieldResult(bool success = false) : this(string.Empty, string.Empty, string.Empty, success)
     {
-
     }
 
 

@@ -14,7 +14,7 @@ internal class PEMDAS
     /// <summary>
     /// Lista de valores
     /// </summary>
-    private readonly List<Eval> Values = new();
+    private readonly List<Eval> Values = [];
 
 
 

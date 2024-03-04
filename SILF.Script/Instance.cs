@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script;
+﻿namespace SILF.Script;
 
 
 /// <summary>
@@ -44,7 +42,6 @@ public class Instance(IConsole? console, Environments environment)
     /// Ambiente de la app
     /// </summary>
     public Environments Environment { get; private set; } = environment;
-
 
 
 
