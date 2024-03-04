@@ -14,6 +14,7 @@ Los tipos de datos por valor se refieren a aquellos en los que la variable guard
 * ```char``` Caracteres.
 * ```bool``` Valores booleanos ```true``` o ```false```.
 * ```int``` Números enteros.
+* ```array``` Lista.
 
 
 # Variables
@@ -29,7 +30,6 @@ Las variables con inferencia de tipo, toman el tipo del primer valor que llega.
 En el caso ```name``` es del tipo ```string```.
 
 
----
 #### Tipo explícito
 Declaración de variables con tipo explícito de tipos.
 ```java
