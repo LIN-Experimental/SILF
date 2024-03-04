@@ -6,7 +6,7 @@ internal class Fields
 
 
     /// <summary>
-    /// Crear nueva variable
+    /// Crear nueva variable.
     /// </summary>
     /// <param name="instance">Instancia de la app</param>
     /// <param name="context">Contexto</param>
@@ -107,33 +107,14 @@ internal class Fields
             Tipo = value.Object.Tipo
         };
 
-        if (instance.Environment == Environments.PreRun)
-        {
-            field.Value = instance.Library.Get(value.Object.Tipo.Description);
-        }
-        else
-        {
-            field.Value = value.Object;
-        }
-
-
-        var can = context.SetField(field);
-
-        if (!can)
-        {
-            instance.WriteError("SC013","campo duplicada.");
-            return false;
-        }
-
-
-        return true;
+        return CreateField(field, instance, context, value.Object.Tipo.Description, value.Object);
 
     }
 
 
 
     /// <summary>
-    /// Crear nueva constante
+    /// Crear nueva constante.
     /// </summary>
     /// <param name="instance">Instancia de la app</param>
     /// <param name="context">Contexto</param>
@@ -188,27 +169,41 @@ internal class Fields
             Tipo = value.Object.Tipo
         };
 
-        if (instance.Environment == Environments.PreRun)
-        {
-            field.Value = instance.Library.Get(value.Object.Tipo.Description);
-        }
-        else
-        {
-            field.Value = value.Object;
-        }
+
+        return CreateField(field, instance, context, value.Object.Tipo.Description, value.Object);
+
+    }
 
 
+
+    /// <summary>
+    /// Crear campo.
+    /// </summary>
+    /// <param name="field">Campo.</param>
+    /// <param name="instance">Estancia.</param>
+    /// <param name="context">Contexto.</param>
+    /// <param name="type">Tipo</param>
+    /// <param name="value">Valor.</param>
+    private static bool CreateField(Field field, Instance instance, Context context, string type, SILFObjectBase value)
+    {
+
+        // Valor.
+        field.Value = (instance.Environment == Environments.PreRun)
+                      ? instance.Library.Get(type) 
+                      : value;
+
+        // Establecer.
         var can = context.SetField(field);
 
+        // Si hubo un error.
         if (!can)
         {
             instance.WriteError("SC013", "campo duplicada.");
             return false;
         }
 
-
+        // Correcto.
         return true;
-
 
     }
 
