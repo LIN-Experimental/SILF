@@ -611,7 +611,6 @@ internal class PEMDAS
 
         // Valores finales
         bool value = false;
-        Tipo type = new();
 
         // Operaciones
         if (pos.Object is SILFBoolObject posObject)
