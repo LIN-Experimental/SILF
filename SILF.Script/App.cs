@@ -177,7 +177,7 @@ public class App(string code, IConsole? console = null, Environments environment
                     Tipo = parameter.Tipo
                 };
 
-                // Establecer el parametro.
+                // Establecer el parámetro.
                 context.SetField(field);
 
             }

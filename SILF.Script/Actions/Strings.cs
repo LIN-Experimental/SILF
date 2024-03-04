@@ -5,63 +5,76 @@ public class Strings
 {
 
 
+    /// <summary>
+    /// Separar una cadena interpolada con llaves.
+    /// </summary>
+    /// <param name="cadena">Cadena.</param>
     public static IEnumerable<string> SepararPorLlaves(string cadena)
     {
 
-        List<string> result = new List<string>();
+        // Variables.
+        List<string> result = [];
+
+        // Elementos.
         int counter = 0;
-        string command = string.Empty;
-        string values = string.Empty;
         bool isCommand = false;
 
+        StringBuilder command = new();
+        StringBuilder value = new();
 
-        foreach (var @char in cadena)
+        // Recorrer caracteres.
+        foreach (char @char in cadena)
         {
 
+            // Caracter de abierta.
             if (@char == '{')
             {
+                // Aumentar.
                 counter++;
 
                 if (!isCommand)
                 {
                     isCommand = true;
-                    result.Add(values);
-                    values = "";
+                    result.Add(value.ToString());
+                    value = new();
                 }
             }
 
-            if (@char == '}')
+            // Caracter de cerrado.
+            else if (@char == '}')
             {
+                // Decrementar escape.
                 counter--;
                 if (isCommand && counter == 0)
                 {
                     isCommand = false;
-                    result.Add(command + "}");
-                    command = "";
+                    result.Add(command.ToString() + "}");
+                    command = new();
                     continue;
                 }
             }
 
-
+            // Es un comando.
             if (isCommand)
-            {
-                command += @char;
-            }
+                command.Append(@char);
+
             else
-            {
-                values += @char;
-            }
-        
+                value.Append(@char);
 
         }
 
+
+        // Es un comando.
         if (isCommand)
-            result.Add(command);
+            result.Add(command.ToString());
+
+        // Valor.
         else
-            result.Add(values);
+            result.Add(value.ToString());
 
-
+        // Retornar.
         return result;
+
     }
 
 

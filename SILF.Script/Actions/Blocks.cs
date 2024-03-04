@@ -196,6 +196,6 @@ internal class Bloque
 {
 
     public bool IsOperator { get; set; }
-    public string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
 
 }

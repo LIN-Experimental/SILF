@@ -45,7 +45,7 @@ public class SILFObjectBase
     /// <summary>
     /// Obtener el valor.
     /// </summary>
-    public void SetValue(object @object)
+    public void SetValue(object? @object)
     {
         Value = @object;
     }
