@@ -150,3 +150,8 @@ Otras características del lenguaje son:
 
 > [!WARNING]
 > Este es un lenguaje de programación enfocado en un nicho especifico.
+
+# Advertencias
+
+> [!WARNING]
+> SILF Script NO usa ```;``` se basa unicamente en los saltos de linea, por lo cual es código no se puede minificar.
