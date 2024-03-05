@@ -62,7 +62,7 @@ internal class ScriptInterpreter
 
         }
 
-        // Definición de variable
+        // Foreach
         else if (line.StartsWith("?f"))
         {
 
@@ -76,7 +76,7 @@ internal class ScriptInterpreter
 
 
 
-            if ( @for == null)
+            if (@for == null)
             {
                 return [];
             }
@@ -107,17 +107,12 @@ internal class ScriptInterpreter
                     IsAssigned = true,
                     Isolation = Isolation.Read,
                     Name = @for.Name,
-                    Tipo = new("mutable"),
+                    Tipo = ee.Tipo,
                     Value = ee
                 });
 
                 foreach (var l in @for.Lines)
-                    Runners.ScriptInterpreter.Interprete(instance, cons, funcContext, l, 0);
-
-
-
-
-
+                    Interprete(instance, cons, funcContext, l, 0);
 
 
             }
@@ -130,6 +125,62 @@ internal class ScriptInterpreter
             return [];
 
         }
+
+        // If
+        else if (line.StartsWith("?i"))
+        {
+
+
+            line = line.Remove(0, 2).Trim();
+
+            var id = int.Parse(line);
+
+
+            var @if = instance.Structures.Where(t => t.Id == id && t is FunctionBuilder.IfStructure).FirstOrDefault() as FunctionBuilder.IfStructure;
+
+
+
+            if (@if == null)
+            {
+                return [];
+            }
+
+
+            var eval = MicroRunner.Runner(instance, context, funcContext, @if.Expression, 1);
+
+
+
+            if (eval.Count != 1 || eval[0].Object.Tipo != new Tipo(Library.Bool))
+            {
+                return [];
+            }
+
+
+
+
+            var ll = eval[0].Object.GetValue();
+
+            if (ll is bool n && n == true)
+            {
+
+                var cons = new Context()
+                {
+                    BaseContext = context
+                };
+
+                foreach (var l in @if.Lines)
+                    Interprete(instance, cons, funcContext, l, 0);
+
+
+
+
+            }
+            return [];
+
+
+        }
+
+
 
 
         else if (separar == null || separar.Count <= 0)

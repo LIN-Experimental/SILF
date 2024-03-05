@@ -138,9 +138,10 @@ internal class FunctionBuilder
             if (Regex.IsMatch(line.Trim(), @"^if\s*\(.+\)\s*$"))
             {
                 id++;
-                ControlStructure newStructure = new ControlStructure("if")
+                ControlStructure newStructure = new IfStructure()
                 {
                     Id = id,
+                    Expression = line.Trim().Remove(0, 2)
                 };
 
                 var peek = stack.Peek();
@@ -236,9 +237,19 @@ internal class FunctionBuilder
         {
         }
 
+    }
 
 
+    public class IfStructure : ControlStructure
+    {
+
+        public string Expression { get; set; }
+
+        public IfStructure() : base("if")
+        {
+        }
 
     }
+
 
 }
