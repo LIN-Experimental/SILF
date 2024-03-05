@@ -27,6 +27,18 @@ internal class ScriptCompiler(string code)
 
         var functions = Builders.FunctionBuilder.GetFunctions(instance, code);
 
+
+        foreach (var f in functions)
+        {
+            try
+            {
+                var structure = Builders.FunctionBuilder.ParseCode(f.CodeLines, instance);
+                f.CodeLines = structure.Lines;
+            }
+            catch { }
+
+        }
+
         result.Functions = functions;
 
 

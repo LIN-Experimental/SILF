@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace SILF.Script.Objects;
+﻿namespace SILF.Script.Objects;
 
 
 public class SILFArrayObject : SILFObjectBase
@@ -10,7 +8,7 @@ public class SILFArrayObject : SILFObjectBase
     /// <summary>
     /// Obtener el valor.
     /// </summary>
-    public new SILFArray Value = null!;
+    public new SILFArray Value { get => base.Value as SILFArray ?? []; set { Value = value; } }
 
 
 

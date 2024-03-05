@@ -1,4 +1,6 @@
-﻿namespace SILF.Script;
+﻿using static SILF.Script.Builders.FunctionBuilder;
+
+namespace SILF.Script;
 
 
 /// <summary>
@@ -9,6 +11,8 @@
 public class Instance(IConsole? console, Environments environment)
 {
 
+
+   internal List<ControlStructure> Structures = []; 
 
     /// <summary>
     /// Consola

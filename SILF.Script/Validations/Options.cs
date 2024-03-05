@@ -27,7 +27,7 @@ internal static class Options
     public static bool IsBool(string expression)
     {
 
-        string[] values = { "false", "true" };
+        string[] values = ["false", "true"];
 
         return values.Contains(expression);
 
@@ -48,6 +48,7 @@ internal static class Options
     }
 
 
+
     /// <summary>
     /// Una expresión es un string interpolado valido
     /// </summary>
@@ -60,6 +61,7 @@ internal static class Options
 
         return Regex.IsMatch(input, pattern) || Regex.IsMatch(input, pattern2);
     }
+
 
 
     /// <summary>
@@ -124,7 +126,7 @@ internal static class Options
     public static bool EsPalabraClave(string nombre)
     {
         // Lista de palabras clave de C# (puedes ampliarla según sea necesario).
-        string[] palabrasClave = { "function", "let", "const" };
+        string[] palabrasClave = ["function", "let", "const"];
 
         // Comprueba si el nombre está en la lista de palabras clave.
         return palabrasClave.Contains(nombre);

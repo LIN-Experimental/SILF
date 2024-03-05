@@ -51,9 +51,9 @@ internal class FunctionBuilder
             isSuperior = false;
 
 
-           
 
-            var normalType =  instance.Library.Exist(tipo);
+
+            var normalType = instance.Library.Exist(tipo);
 
             if (normalType == null && tipo != "void")
             {
@@ -118,5 +118,127 @@ internal class FunctionBuilder
 
     }
 
+
+
+    public static ControlStructure ParseCode(IEnumerable<string> code, Instance instance)
+    {
+        ControlStructure root = new ControlStructure("Root");
+
+        Stack<ControlStructure> stack = new Stack<ControlStructure>();
+        stack.Push(root);
+
+        int id = 0;
+
+        foreach (string line in code)
+        {
+
+            // IF
+
+
+            if (Regex.IsMatch(line.Trim(), @"^if\s*\(.+\)\s*$"))
+            {
+                id++;
+                ControlStructure newStructure = new ControlStructure("if")
+                {
+                    Id = id,
+                };
+
+                var peek = stack.Peek();
+
+                peek.InnerStructures.Add(newStructure);
+                peek.Lines.Add($"?i{id}");
+
+                instance.Structures.Add(newStructure);
+
+                stack.Push(newStructure);
+                continue;
+            }
+
+
+            var z = Regex.Match(line.Trim(), @"^for\s*\(\s*(?<varName>\w+)\s+in\s+(?<collection>.+?)\s*\)\s*$");
+
+
+            if (z.Success)
+            {
+                id++;
+                ControlStructure newStructure = new ForStructure()
+                {
+                    Id = id,
+                    Name = z.Groups["varName"].Value,
+                    Expression = z.Groups["collection"].Value,
+                };
+
+                var peek = stack.Peek();
+
+                peek.InnerStructures.Add(newStructure);
+
+                peek.Lines.Add($"?f{id}");
+
+                instance.Structures.Add(newStructure);
+
+                stack.Push(newStructure);
+            }
+            else if (Regex.IsMatch(line.Trim(), @"^}$"))
+            {
+                stack.Pop();
+            }
+            else
+            {
+                stack.Peek().Lines.Add(line.Trim());
+            }
+        }
+
+        return root;
+    }
+
+    public static void PrintControlStructure(ControlStructure structure, int depth)
+    {
+        string indentation = new string(' ', depth * 4);
+        Console.WriteLine($"{indentation}{structure.Type}");
+
+        foreach (string line in structure.Lines)
+        {
+            Console.WriteLine($"{indentation}    {line}");
+        }
+
+        foreach (ControlStructure innerStructure in structure.InnerStructures)
+        {
+            PrintControlStructure(innerStructure, depth + 1);
+        }
+    }
+
+
+
+    public class ControlStructure
+    {
+        public int Id { get; set; }
+        public string Type { get; set; }
+        public List<string> Lines { get; set; }
+        public List<ControlStructure> InnerStructures { get; set; }
+
+        public ControlStructure(string type)
+        {
+            Type = type;
+            Lines = new List<string>();
+            InnerStructures = new List<ControlStructure>();
+        }
+    }
+
+
+    public class ForStructure : ControlStructure
+    {
+
+        public string Name {  get; set; }
+
+        public string Expression { get; set; }
+
+        public ForStructure() : base("for")
+        {
+        }
+
+
+
+
+    }
 
 }

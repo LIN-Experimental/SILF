@@ -35,19 +35,6 @@ internal class Fields
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     /// <summary>
     /// Una expresión es la asignación a una variable
     /// </summary>
@@ -97,9 +84,6 @@ internal class Fields
         return false;
 
     }
-
-
-
 
 
 

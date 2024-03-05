@@ -1,4 +1,5 @@
-﻿namespace SILF.Script;
+﻿
+namespace SILF.Script;
 
 
 /// <summary>

@@ -1,4 +1,7 @@
-﻿namespace SILF.Script.Runners;
+﻿using SILF.Script.Builders;
+using System.Data;
+
+namespace SILF.Script.Runners;
 
 
 internal class ScriptInterpreter
@@ -56,6 +59,75 @@ internal class ScriptInterpreter
 
             // Respuesta
             return [new(true)];
+
+        }
+
+        // Definición de variable
+        else if (line.StartsWith("?f"))
+        {
+
+
+            line = line.Remove(0, 2).Trim();
+
+            var id = int.Parse(line);
+
+
+            var @for = instance.Structures.Where(t => t.Id == id && t is FunctionBuilder.ForStructure).FirstOrDefault() as FunctionBuilder.ForStructure;
+
+
+
+            if ( @for == null)
+            {
+                return [];
+            }
+
+
+            var eval = MicroRunner.Runner(instance, context, funcContext, @for.Expression, 1);
+
+            if (eval.Count != 1 || eval[0].Object.Tipo != new Tipo(Library.List))
+            {
+                return [];
+            }
+
+
+            var ll = eval[0].Object.GetValue() as SILFArray;
+
+
+            foreach (var ee in ll ?? [])
+            {
+
+                var cons = new Context()
+                {
+                    BaseContext = context
+                };
+
+                cons.SetField(new()
+                {
+                    Instance = instance,
+                    IsAssigned = true,
+                    Isolation = Isolation.Read,
+                    Name = @for.Name,
+                    Tipo = new("mutable"),
+                    Value = ee
+                });
+
+                foreach (var l in @for.Lines)
+                    Runners.ScriptInterpreter.Interprete(instance, cons, funcContext, l, 0);
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+            return [];
 
         }
 
@@ -417,34 +489,31 @@ internal class ScriptInterpreter
         // propagación.
         else if (level == 1 && line.StartsWith(".."))
         {
+
+            // Line.
             line = line.Remove(0, 2);
 
-            var getValue = context[line.Trim()];
+            // Valor.
+            var values = MicroRunner.Runner(instance, context, funcContext, line, level);
 
-            if (getValue == null)
+
+            if (values.Count != 1)
             {
-                instance.WriteError("SC017", $"No existe el elemento '{line.Trim()}'");
+                instance.WriteError("NOTDOCUMENTED", $"La expresión '{line.Trim()}' debe devolver solo 1 valor.");
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 
-            else if (!getValue.IsAssigned)
-            {
-                instance.WriteError("SC020", $"La variable '{line.Trim()}' no ha sido asignada.");
-                return [new(Objects.SILFNullObject.Create(), true)];
-            }
+            var value = values[0];
 
 
-            if (getValue.Tipo != new Tipo(Library.List) || getValue.Value is not SILFArrayObject)
+            if (value.Object.Tipo != new Tipo(Library.List) || value.Object is not SILFArrayObject)
             {
                 instance.WriteError("SC023", $"El operador de propagación no se puede usar en '{line.Trim()}' porque no es una lista.");
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 
 
-            var value = getValue.Value as SILFArrayObject;
-
-
-            var lista = value?.GetValue();
+            var lista = (value.Object as SILFArrayObject)?.GetValue();
 
             List<Eval> final = [];
             foreach (var e in lista ?? [])
@@ -500,6 +569,13 @@ internal class ScriptInterpreter
         // Lista.
         else if (line.StartsWith('[') && line.EndsWith(']'))
         {
+
+            if (instance.Environment == Environments.PreRun)
+            {
+                return [new(SILFArrayObject.Create())];
+            }
+
+
             line = line.Remove(0, 1);
             line = line.Reverse().Remove(0, 1);
             line = line.Reverse();
@@ -550,7 +626,7 @@ internal class ScriptInterpreter
                 var mm = SILFStringObject.Create();
                 mm.SetValue($"<{tipoDes}>");
 
-                return [ new(mm)];
+                return [new(mm)];
 
             }
 
@@ -763,7 +839,10 @@ internal class ScriptInterpreter
                 var resultFinal = ExecMethod(function, @base, @params, instance, context, funcContext);
 
                 // Base.
-                @base = resultFinal.Object;
+                @base = instance.Library.Get(resultFinal.Object.Tipo.Description);
+
+                @base.SetValue(resultFinal.Object.GetValue());
+
 
                 continue;
 
