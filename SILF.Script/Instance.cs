@@ -12,7 +12,9 @@ public class Instance(IConsole? console, Environments environment)
 {
 
 
-   internal List<ControlStructure> Structures = []; 
+    internal List<ControlStructure> Structures = [];
+
+
 
     /// <summary>
     /// Consola
@@ -56,7 +58,7 @@ public class Instance(IConsole? console, Environments environment)
     public void Write(string result)
     {
         if (Environment != Environments.PreRun)
-            Console?.InsertLine(result, "",  LogLevel.None);
+            Console?.InsertLine(result, "", LogLevel.None);
     }
 
 

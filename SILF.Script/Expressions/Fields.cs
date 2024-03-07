@@ -80,4 +80,25 @@ internal class Fields
     }
 
 
+   
+    public static bool IsNew(string line, out string? type)
+    {
+
+        string pattern = @"\bnew\s+(\w+)";
+
+        Match match = Regex.Match(line, pattern);
+
+        if (match.Success)
+        {
+            string typeName = match.Groups[1].Value;
+            type = typeName;
+            return true;
+        }
+
+        type = null;
+        return false;
+
+    }
+
+
 }

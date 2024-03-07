@@ -77,15 +77,24 @@ public class App(string code, IConsole? console = null, Environments environment
         // Generar la estancia.
         Instance = new(Console, Environment);
 
+
+        // Compilar clases.
+        var classes = Builders.ClassBuilder.Build(Code.Split('\n'), Instance);
+
+        // Compilar métodos.
+        foreach (var @class in classes)
+        {
+            var methods = Builders.MethodBuilder.Build(@class, Instance, @class.Lineas);
+            Instance.Library.Load(@class.Name, [.. methods]);
+            @class.Functions.AddRange(methods);
+        }
+
         // Cargar objetos de los frameworks.
         LoadObjects();
 
 
-        // Compilar el código.
-        CompileResult build = new Compilers.ScriptCompiler(Code).Compile(Instance);
-
         // Obtener el método main
-        Function? main = build.GetMain();
+        IFunction? main = classes.Where(t => t.Name == "Startup").FirstOrDefault().Functions.Where(t => t.Name == "main").FirstOrDefault();
 
         // Validar el método main.
         if (main == null)
@@ -98,7 +107,7 @@ public class App(string code, IConsole? console = null, Environments environment
         Instance.Functions =
         [
             // Funciones del compilador
-            .. build.Functions,
+          //  .. build.Functions,
             // Funciones externas.
             .. Functions,
         ];
@@ -110,9 +119,7 @@ public class App(string code, IConsole? console = null, Environments environment
         FuncContext funContext = FuncContext.GenerateContext(main);
 
         // Ejecutar.
-        foreach (var line in main.CodeLines)
-            ScriptInterpreter.Interprete(Instance, context, funContext, line, 0);
-
+        main.Run(Instance, []);
     }
 
 

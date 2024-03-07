@@ -114,7 +114,6 @@ internal class ScriptInterpreter
                 foreach (var l in @for.Lines)
                     Interprete(instance, cons, funcContext, l, 0);
 
-
             }
 
 
@@ -182,9 +181,19 @@ internal class ScriptInterpreter
 
 
 
-
         else if (separar == null || separar.Count <= 0)
             return [new(true)];
+
+        // Es una asignación
+        else if (Expressions.Fields.IsNew(line, out var type))
+        {
+
+            var z = instance.Library.Get(type ?? "");
+
+
+            return [new(z)];
+
+        }
 
 
         // Es una asignación

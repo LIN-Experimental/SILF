@@ -84,8 +84,6 @@ internal class Functions
             parámetros = "";
             return false;
         }
-
-
     }
 
 

@@ -33,6 +33,9 @@ public class Library
     public void Load(string type, List<IFunction> functions)
     {
 
+        // Agregar nuevo tipo.
+        OtherTypes.Add(type);
+
         // Si ya existe.
         if (Objects.TryGetValue(new(type), out var values))
         {
@@ -107,14 +110,13 @@ public class Library
 
         else
         {
-            // Encontrar el tipo.
-            var find = OtherTypes.Where(t => t == type).FirstOrDefault();
-
-            if (find != null)
+            obj = new SILFObjectBase
             {
-                // --
-            }
-
+                Tipo = new(type),
+                Value = new
+                {
+                }
+            };
         }
 
         // Data.
@@ -133,7 +135,7 @@ public class Library
     {
 
         // Data.
-        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item1).SelectMany(t=>t);
+        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item1).SelectMany(t => t);
 
         // Retornar.
         return data ?? [];

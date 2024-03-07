@@ -133,8 +133,6 @@ internal class FunctionBuilder
         {
 
             // IF
-
-
             if (Regex.IsMatch(line.Trim(), @"^if\s*\(.+\)\s*$"))
             {
                 id++;
@@ -156,9 +154,11 @@ internal class FunctionBuilder
             }
 
 
+       
+
+
+            // Foreach
             var z = Regex.Match(line.Trim(), @"^for\s*\(\s*(?<varName>\w+)\s+in\s+(?<collection>.+?)\s*\)\s*$");
-
-
             if (z.Success)
             {
                 id++;
@@ -192,21 +192,9 @@ internal class FunctionBuilder
         return root;
     }
 
-    public static void PrintControlStructure(ControlStructure structure, int depth)
-    {
-        string indentation = new string(' ', depth * 4);
-        Console.WriteLine($"{indentation}{structure.Type}");
+  
+   
 
-        foreach (string line in structure.Lines)
-        {
-            Console.WriteLine($"{indentation}    {line}");
-        }
-
-        foreach (ControlStructure innerStructure in structure.InnerStructures)
-        {
-            PrintControlStructure(innerStructure, depth + 1);
-        }
-    }
 
 
 
