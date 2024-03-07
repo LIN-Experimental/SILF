@@ -34,7 +34,7 @@ internal class ScriptInterpreter
 
 
         // Es una variable
-        var isUnsigned = Validations.Fields.IsNotValuableVar(instance, line);
+        var (uType, uName, uSuccess) =  Validations.Fields.IsNotValuableVar(instance, line) ;
 
         // Definición de constante
         if (Expressions.Fields.IsConst(line, out var constante))
@@ -185,11 +185,10 @@ internal class ScriptInterpreter
             return [new(true)];
 
         // Es una asignación
-        else if (Expressions.Fields.IsNew(line, out var type))
+        else if (Expressions.Fields.IsNew(line, out var type, out string valuesEx))
         {
 
             var z = instance.Library.Get(type ?? "");
-
 
             return [new(z)];
 
@@ -383,11 +382,11 @@ internal class ScriptInterpreter
 
 
         // Definición de variable
-        else if (isUnsigned.success)
+        else if (uSuccess && level == 0)
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, isUnsigned.name, isUnsigned.type, null);
+            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, uName, uType, null);
 
             // Respuesta
             return [new(true)];

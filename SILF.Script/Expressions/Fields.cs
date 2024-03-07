@@ -81,10 +81,10 @@ internal class Fields
 
 
    
-    public static bool IsNew(string line, out string? type)
+    public static bool IsNew(string line, out string type, out string values)
     {
 
-        string pattern = @"\bnew\s+(\w+)";
+        string pattern = @"^new\s+(\w+)\((.*?)\)$";
 
         Match match = Regex.Match(line, pattern);
 
@@ -92,10 +92,12 @@ internal class Fields
         {
             string typeName = match.Groups[1].Value;
             type = typeName;
+            values = match.Groups[2].Value;
             return true;
         }
 
-        type = null;
+        type = "";
+        values = "";
         return false;
 
     }

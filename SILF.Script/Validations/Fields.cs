@@ -11,7 +11,7 @@ internal class Fields
     /// <param name="line">Expresión</param>
     public static (string type, string name, bool success) IsNotValuableVar(Instance instance, string line)
     {
-        string patron = @"(\w+)\s+(\w+)";
+        string patron = @"\b(grupo|valor)\s+(\w+)\s+(?<!\S)\b";
 
         var coincidencia = Regex.Match(line, patron);
 
