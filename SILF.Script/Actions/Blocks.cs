@@ -99,12 +99,10 @@ internal class Blocks
         // Preparación.
         value = value.Normalize().Trim();
 
-        List<string> operadoresErroneos = new List<string> { "|>" };
+        List<string> operadoresErroneos = ["|>", "++", "--"];
 
         // Separación de los bloques.
         {
-
-            Tipo tipo = new("operator");
 
             int counter = 0;
             bool isString = false;

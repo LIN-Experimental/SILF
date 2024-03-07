@@ -1,5 +1,5 @@
-﻿
-using SILF.Script.Builders;
+﻿using SILF.Script.Builders;
+using System.Diagnostics;
 
 namespace SILF.Script;
 
@@ -118,21 +118,11 @@ public class App(string code, IConsole? console = null, Environments environment
             .. Functions,
         ];
 
-        // Contexto.
-        Context context = new();
-
-        // Contexto de la función.
-        FuncContext funContext = FuncContext.GenerateContext(main);
-    
-
-        Instance.Write($"Compile time {stopwatch.ElapsedMilliseconds}ms");
-        
         // Ejecutar.
         main.Run(Instance, []);
 
         Instance.Write($"Execution time {stopwatch.ElapsedMilliseconds}ms");
 
-        Instance.Writes();
     }
 
 
@@ -142,74 +132,7 @@ public class App(string code, IConsole? console = null, Environments environment
     /// </summary>
     private void RunTest()
     {
-
-        // Nueva estancia
-        Instance = new(Console, Environment);
-
-        // Cargar objetos.
-        LoadObjects();
-
-
-        // Compilar el código.
-        CompileResult build = new Compilers.ScriptCompiler(Code).Compile(Instance);
-
-        // Obtener el método main
-        Function? main = build.GetMain();
-
-        // Validar el método main.
-        if (main == null)
-        {
-            Console?.InsertLine("SC016", "No se encontró la función 'main'", LogLevel.Error);
-            return;
-        }
-
-        // Funciones generales.
-        Instance.Functions =
-        [
-            // Funciones del compilador
-            .. build.Functions,
-
-            // Funciones externas
-            .. Functions,
-        ];
-
-
-        // Funciones.
-        foreach (Function function in Instance.Functions.Where(t => t is Function))
-        {
-
-            // Generar el contexto.
-            Context context = new();
-
-            // Contexto de la función.
-            FuncContext funcContext = FuncContext.GenerateContext(function);
-
-            // Parámetros.
-            foreach (var parameter in function.Parameters)
-            {
-
-                // Campo.
-                Field field = new()
-                {
-                    Name = parameter.Name,
-                    IsAssigned = true,
-                    Instance = Instance,
-                    Isolation = Isolation.Read,
-                    Tipo = parameter.Tipo
-                };
-
-                // Establecer el parámetro.
-                context.SetField(field);
-
-            }
-
-
-            // Ejecutar la función.
-            foreach (var line in function.CodeLines)
-                Runners.ScriptInterpreter.Interprete(Instance, context, funcContext, line, 0);
-
-        }
-
+        // El modo de TESTS en SILF Script 2024.3 esta deshabilitado.
     }
 
 

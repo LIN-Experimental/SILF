@@ -16,8 +16,6 @@ internal class ScriptInterpreter
     public static List<Eval> Interprete(Instance instance, Context context, FuncContext funcContext, string line, short level = 0)
     {
 
-        Stopwatch s = Stopwatch.StartNew();
-
         // Si la app esta detenida
         if (!instance.IsRunning || funcContext.IsReturning)
             return [new(false)];
@@ -580,6 +578,74 @@ internal class ScriptInterpreter
             }
 
             return final;
+
+        }
+
+        // propagación.
+        else if ( line.EndsWith("++"))
+        {
+
+            // Line.
+            line = line.Reverse().Remove(0, 2).Reverse();
+
+            var getValue = context[line.Trim()];
+
+            if (getValue == null)
+            {
+                instance.WriteError("SC017", $"No existe el elemento '{line.Trim()}'");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+            else if (!getValue.IsAssigned)
+            {
+                instance.WriteError("SC020", $"La variable '{line.Trim()}' no ha sido asignada.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+            else if (getValue.Tipo != new Tipo(Library.Number))
+            {
+                instance.WriteError("", $"El operador ++ no puede ser usado en '{line.Trim()}' porque no es del tipo number.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+
+            getValue.Value.SetValue((decimal)getValue.Value.Value + 1);
+
+            return [new(getValue.Value)];
+
+        }
+
+        // propagación.
+        else if ( line.EndsWith("--"))
+        {
+
+            // Line.
+            line = line.Reverse().Remove(0, 2).Reverse();
+
+            var getValue = context[line.Trim()];
+
+            if (getValue == null)
+            {
+                instance.WriteError("SC017", $"No existe el elemento '{line.Trim()}'");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+            else if (!getValue.IsAssigned)
+            {
+                instance.WriteError("SC020", $"La variable '{line.Trim()}' no ha sido asignada.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+            else if (getValue.Tipo != new Tipo(Library.Number))
+            {
+                instance.WriteError("", $"El operador -- no puede ser usado en '{line.Trim()}' porque no es del tipo number.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+
+            getValue.Value.SetValue((decimal)getValue.Value.Value - 1);
+
+            return [new(getValue.Value)];
 
         }
 

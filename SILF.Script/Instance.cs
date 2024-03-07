@@ -87,31 +87,6 @@ public class Instance(IConsole? console, Environments environment)
 
 
 
-    List<string> Strings { get; set; } = [];
-
-
-    /// <summary>
-    /// Escribe sobre la consola.
-    /// </summary>
-    /// <param name="result">Resultado.</param>
-    public void WriteFinal(string result)
-    {
-        Strings.Add(result);
-    }
-
-
-
-    /// <summary>
-    /// Escribe sobre la consola.
-    /// </summary>
-    /// <param name="result">Resultado.</param>
-    public void Writes()
-    {
-       foreach(var e in Strings)
-            Write(e);
-    }
-
-
-
+    
 
 }

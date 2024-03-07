@@ -21,10 +21,6 @@ internal class MicroRunner
             if (!instance.IsRunning)
                 return [];
 
-
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
-
             // Obtiene la expresión separada
             var bloques = Actions.Blocks.Separar(expression);
 
@@ -93,9 +89,6 @@ internal class MicroRunner
 
 
             }
-
-
-            instance.WriteFinal($"'{expression}'** {stopwatch.ElapsedMilliseconds}ms ");
 
             return final;
         }
