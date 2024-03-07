@@ -16,6 +16,8 @@ internal class ScriptInterpreter
     public static List<Eval> Interprete(Instance instance, Context context, FuncContext funcContext, string line, short level = 0)
     {
 
+        Stopwatch s = Stopwatch.StartNew();
+
         // Si la app esta detenida
         if (!instance.IsRunning || funcContext.IsReturning)
             return [new(false)];
@@ -31,10 +33,8 @@ internal class ScriptInterpreter
         // Separar por punto.
         var separar = Actions.Blocks.Separar(line, '.');
 
-
-
         // Es una variable
-        var (uType, uName, uSuccess) =  Validations.Fields.IsNotValuableVar(instance, line) ;
+        var (uType, uName, uSuccess) = Validations.Fields.IsNotValuableVar(instance, line);
 
         // Definición de constante
         if (Expressions.Fields.IsConst(line, out var constante))
@@ -76,6 +76,7 @@ internal class ScriptInterpreter
 
 
 
+
             if (@for == null)
             {
                 return [];
@@ -88,7 +89,6 @@ internal class ScriptInterpreter
             {
                 return [];
             }
-
 
             var ll = eval[0].Object.GetValue() as SILFArray;
 
@@ -115,10 +115,6 @@ internal class ScriptInterpreter
                     Interprete(instance, cons, funcContext, l, 0);
 
             }
-
-
-
-
 
 
             return [];
@@ -605,7 +601,6 @@ internal class ScriptInterpreter
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 
-
             return [new(getValue.Value)];
 
         }
@@ -828,7 +823,6 @@ internal class ScriptInterpreter
             return [new(true)];
 
         }
-
 
 
         instance.WriteError("SC021", $"Expression invalida '{line}' en modo '{level}'");

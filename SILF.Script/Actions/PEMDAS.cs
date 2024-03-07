@@ -37,6 +37,10 @@ internal class PEMDAS
     public void Solve()
     {
 
+        if (Values.Count <= 1)
+            return;
+
+
         SolveLL(); // Unarios
         SolveA();  //Operadores aritméticos
         //    N();  //Resuelve Nulos

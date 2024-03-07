@@ -14,7 +14,7 @@ internal static class StringExtends
 
         char[] caracteres = cadena.ToCharArray();
         Array.Reverse(caracteres);
-        return  new string(caracteres);
+        return new string(caracteres);
 
     }
 
@@ -26,13 +26,11 @@ internal static class StringExtends
     /// <param name="cadena">Cadena.</param>
     public static string Sub(this string cadena, int i, int count)
     {
-        try
-        {
-          return  cadena.Substring(i, count);
-        }
-        catch
-        {
-        }
+
+        // Validar.
+        if (i >= 0 && cadena.Length >= i + count)
+            return cadena.Substring(i, count);
+        
         return "";
 
     }

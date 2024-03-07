@@ -17,11 +17,14 @@ internal class Fields
         // Validar Nombre
          bool isValidName = Validations.Options.IsValidName(name);
 
+       
         if (!isValidName)
         {
             instance.WriteError("SC006", $"El nombre '{name}' es invalido.");
             return false;
-        }
+        } 
+        
+
 
         // Validar Tipo
         Tipo? tipo = null;
@@ -46,6 +49,10 @@ internal class Fields
             instance.WriteError("SC008", $"Las variables con tipo implícito se tienen que asignar");
             return false;
         }
+
+
+
+
 
         // Obtiene el valor
         Eval? value = null;
@@ -107,7 +114,11 @@ internal class Fields
             Tipo = value.Object.Tipo
         };
 
-        return CreateField(field, instance, context, value.Object.Tipo.Description, value.Object);
+
+
+        var x = CreateField(field, instance, context, value.Object.Tipo.Description, value.Object);
+
+        return x;
 
     }
 

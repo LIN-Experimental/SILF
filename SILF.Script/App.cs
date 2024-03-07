@@ -1,4 +1,6 @@
 ﻿
+using SILF.Script.Builders;
+
 namespace SILF.Script;
 
 
@@ -67,6 +69,8 @@ public class App(string code, IConsole? console = null, Environments environment
     public void Run()
     {
 
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
         // Comprobar el entorno.
         if (Environment == Environments.PreRun)
         {
@@ -77,7 +81,6 @@ public class App(string code, IConsole? console = null, Environments environment
         // Generar la estancia.
         Instance = new(Console, Environment);
 
-
         // Compilar clases.
         var classes = Builders.ClassBuilder.Build(Code.Split('\n'), Instance);
 
@@ -85,13 +88,16 @@ public class App(string code, IConsole? console = null, Environments environment
         foreach (var @class in classes)
         {
             var methods = Builders.MethodBuilder.Build(@class, Instance, @class.Lineas);
+
+            foreach (var method in methods)
+                method.CodeLines = FunctionBuilder.ParseCode(method.CodeLines, Instance).Lines;
+
             Instance.Library.Load(@class.Name, [.. methods]);
             @class.Functions.AddRange(methods);
         }
 
         // Cargar objetos de los frameworks.
         LoadObjects();
-
 
         // Obtener el método main
         IFunction? main = classes.Where(t => t.Name == "Startup").FirstOrDefault().Functions.Where(t => t.Name == "main").FirstOrDefault();
@@ -107,7 +113,7 @@ public class App(string code, IConsole? console = null, Environments environment
         Instance.Functions =
         [
             // Funciones del compilador
-          //  .. build.Functions,
+            //  .. build.Functions,
             // Funciones externas.
             .. Functions,
         ];
@@ -117,9 +123,16 @@ public class App(string code, IConsole? console = null, Environments environment
 
         // Contexto de la función.
         FuncContext funContext = FuncContext.GenerateContext(main);
+    
 
+        Instance.Write($"Compile time {stopwatch.ElapsedMilliseconds}ms");
+        
         // Ejecutar.
         main.Run(Instance, []);
+
+        Instance.Write($"Execution time {stopwatch.ElapsedMilliseconds}ms");
+
+        Instance.Writes();
     }
 
 

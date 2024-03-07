@@ -15,7 +15,7 @@ internal class Context
     /// <summary>
     /// Lista de campos
     /// </summary>
-    private readonly List<Field> Fields = new();
+    private readonly Dictionary<string, Field> Fields = [];
 
 
 
@@ -29,9 +29,8 @@ internal class Context
     /// <param name="name">Nombre</param>
     private Field? GetField(string name)
     {
-        var field = (from F in Fields
-                     where F.Name.ToLower() == name.ToLower()
-                     select F).FirstOrDefault();
+
+        Fields.TryGetValue(name, out var field);
 
         // Si hay un contexto base
         field ??= BaseContext?.GetField(name);
@@ -51,7 +50,7 @@ internal class Context
 
         if (exitField == null)
         {
-            Fields.Add(field);
+            Fields.Add(field.Name, field);
             return true;
         }
 

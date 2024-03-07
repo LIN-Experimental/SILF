@@ -21,9 +21,14 @@ internal class MicroRunner
             if (!instance.IsRunning)
                 return [];
 
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+
             // Obtiene la expresión separada
             var bloques = Actions.Blocks.Separar(expression);
 
+         
             // Si no hay bloques
             if (bloques.Count <= 0)
                 return [];
@@ -34,10 +39,16 @@ internal class MicroRunner
             foreach (var bloque in bloques)
             {
 
+                //Stopwatch stopwatch1 = Stopwatch.StartNew();
+
                 List<Eval> evals = [];
 
                 // Obtiene la expresión separada
                 var expressions = Actions.Blocks.GetOperators(bloque.Value, instance);
+
+
+                //instance.WriteFinal($"Operadores bloque '{bloque.Value}'  {stopwatch1.ElapsedMilliseconds}ms");
+
 
                 // Recorre
                 foreach (var ex in expressions)
@@ -58,9 +69,13 @@ internal class MicroRunner
                     }
 
                     var result = ScriptInterpreter.Interprete(instance, context, funcContext, ex.Value.ToString() ?? "", level);
+
                     evals.AddRange(result);
 
                 }
+
+              //  instance.WriteFinal($"Fin eval bloque '{bloque.Value}' {stopwatch1.ElapsedMilliseconds}ms");
+
 
                 // Solucionador PEMDAS
                 Actions.PEMDAS calcs = new(instance, evals);
@@ -74,8 +89,13 @@ internal class MicroRunner
                 else
                     final.AddRange(evals);
 
+                //instance.WriteFinal($"Fin PEMDAS bloque '{bloque.Value}' {stopwatch1.ElapsedMilliseconds}ms");
+
+
             }
 
+
+            instance.WriteFinal($"'{expression}'** {stopwatch.ElapsedMilliseconds}ms ");
 
             return final;
         }

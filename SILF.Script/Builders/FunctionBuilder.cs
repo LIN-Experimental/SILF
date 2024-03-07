@@ -122,6 +122,7 @@ internal class FunctionBuilder
 
     public static ControlStructure ParseCode(IEnumerable<string> code, Instance instance)
     {
+
         ControlStructure root = new ControlStructure("Root");
 
         Stack<ControlStructure> stack = new Stack<ControlStructure>();
@@ -152,10 +153,6 @@ internal class FunctionBuilder
                 stack.Push(newStructure);
                 continue;
             }
-
-
-       
-
 
             // Foreach
             var z = Regex.Match(line.Trim(), @"^for\s*\(\s*(?<varName>\w+)\s+in\s+(?<collection>.+?)\s*\)\s*$");
