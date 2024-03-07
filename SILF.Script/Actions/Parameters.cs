@@ -17,7 +17,7 @@ internal class Parameters
         // Si no hay la misma cantidad de parámetros (bloques).
         if (function.Parameters.Count != @params.Count)
         {
-            instance.WriteError("SC001", $"La función '{function.Name}' necesita {function.Parameters.Count} parámetros.");
+            instance.WriteError("SC001", $"La función '{function.Name}' necesita {function.Parameters.Where(t => !t.Hidden).Count()} parámetros.");
             return false;
         }
 
@@ -36,7 +36,7 @@ internal class Parameters
             // Si no son compatibles.
             if (!isCompatible)
             {
-                instance.WriteError("SC002",$"El parámetro '{parameter.Name}' de La función '{function.Name}' no puede tomar valores del tipo <{parameterValue.Objeto.Tipo.Description}>.");
+                instance.WriteError("SC002", $"El parámetro '{parameter.Name}' de La función '{function.Name}' no puede tomar valores del tipo <{parameterValue.Objeto.Tipo.Description}>.");
                 return false;
             }
 

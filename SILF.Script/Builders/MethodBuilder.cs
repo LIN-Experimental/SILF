@@ -46,7 +46,7 @@ internal class MethodBuilder
 
             function = new(name, normalType)
             {
-                Parameters = [new Parameter("value", new(@class.Name))]
+                Parameters = [new Parameter("value", new(@class.Name), true)]
             };
 
             functions.Add(function);
