@@ -14,10 +14,10 @@ internal class Blocks
 
         // Valor nulo.
         if (value == null)
-            return new();
+            return [];
 
         // CodeBlocks.
-        List<CodeBlock> codeBlocks = new();
+        List<CodeBlock> codeBlocks = [];
 
         // Preparación.
         value = value.Normalize().Trim();
@@ -27,7 +27,7 @@ internal class Blocks
 
             int counter = 0;
             bool isString = false;
-            string? fragment = null;
+            StringBuilder fragment = new();
 
             // Separador por bloques
             foreach (char carácter in value)
@@ -50,26 +50,23 @@ internal class Blocks
                 else if (carácter == @char && !isString && counter == 0)
                 {
                     if (fragment != null)
-                        codeBlocks.Add(new(fragment.Trim()));
+                        codeBlocks.Add(new(fragment.ToString().Trim()));
 
-                    fragment = null;
+                    fragment = new();
                     BD2 = true;
                 }
 
                 // Inserción del carácter
                 if (BD2 == false)
                 {
-                    if (fragment == null)
-                        fragment = carácter.ToString();
-                    else
-                        fragment += carácter;
+                    fragment.Append(carácter);
                 }
 
             }
 
             {
                 if (fragment != null)
-                    codeBlocks.Add(new(fragment.Trim()));
+                    codeBlocks.Add(new(fragment.ToString().Trim()));
             }
 
 

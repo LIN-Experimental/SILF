@@ -37,4 +37,35 @@ internal class Functions
     }
 
 
+
+
+
+    /// <summary>
+    /// Si una línea es la definición de una función.
+    /// </summary>
+    /// <param name="input">Entrada.</param>
+    /// <param name="tipo">Salida del tipo</param>
+    /// <param name="nombre">Salida del nombre</param>
+    /// <param name="parameters">Parametros</param>
+    public static bool MatchProperty(string input, out string tipo, out string nombre)
+    {
+
+        tipo = "";
+        nombre = "";
+
+        string pattern = @"property\s+(?<type>\w+)\s+(?<name>\w+)";
+
+        Match match = Regex.Match(input, pattern);
+
+        if (match.Success)
+        {
+            tipo = match.Groups["type"].Value;
+            nombre = match.Groups["name"].Value;
+            return true;
+        }
+        return false;
+
+    }
+
+
 }

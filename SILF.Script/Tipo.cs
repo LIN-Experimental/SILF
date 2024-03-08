@@ -18,7 +18,7 @@ public readonly record struct Tipo
     /// <param name="tipo">nombre del tipo</param>
     public Tipo(string? tipo)
     {
-        _description = tipo?.Trim()?.ToLower() ?? "";
+        _description = tipo?.Trim() ?? "";
     }
 
 

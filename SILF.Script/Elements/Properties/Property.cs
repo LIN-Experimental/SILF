@@ -14,7 +14,9 @@ internal class Property : IProperty
 
     public IFunction Get { get; set; }
     public IFunction Set { get; set; }
-    public SILFObjectBase Parent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public SILFObjectBase Parent { get; set; }
+
+
 
     public Property(string name, Tipo? tipo)
     {
@@ -42,10 +44,10 @@ internal class Property : IProperty
         Set = new BridgeFunction((e) =>
         {
 
-            var value = e.LastOrDefault(t => t.Name == "value");
+            var value = e.FirstOrDefault();
 
 
-            if (value.Objeto is SILFObjectBase obj)
+            if (value?.Objeto is SILFObjectBase obj)
                 Value = obj;
 
             return new FuncContext()
@@ -61,25 +63,28 @@ internal class Property : IProperty
                new Parameter("value", Type.Value)
             ]
         };
-
-
-
-
-
-
-
     }
 
 
 
     public SILFObjectBase GetValue(Instance instance)
     {
-        var result = Get.Run(instance, [new ParameterValue("", Value)]);
+        var result = Get.Run(instance, [new ParameterValue("", Value)], ObjectContext.GenerateContext(Parent));
         return result.Value;
     }
 
     public void SetValue(Instance instance, SILFObjectBase @base)
     {
-        Set.Run(instance, [new ParameterValue("", @base)]);
+        Set.Run(instance, [new ParameterValue("", @base)], ObjectContext.GenerateContext(Parent));
     }
+
+
+   public IProperty Clone()
+    {
+        return new Property(Name, Type)
+        {
+
+        };
+    }
+
 }

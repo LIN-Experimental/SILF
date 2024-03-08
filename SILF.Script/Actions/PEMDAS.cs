@@ -1,33 +1,25 @@
 ﻿namespace SILF.Script.Actions;
 
 
-internal class PEMDAS
+/// <summary>
+/// Nuevo solucionador PEMDAS.
+/// </summary>
+/// <param name="instance">Instancia de la app</param>
+/// <param name="values">Valores a resolver</param>
+internal class PEMDAS(Instance instance, List<Eval> values)
 {
 
 
     /// <summary>
     /// Instancia actual de la app
     /// </summary>
-    private Instance Instance { get; set; }
+    private Instance Instance { get; set; } = instance;
 
 
     /// <summary>
     /// Lista de valores
     /// </summary>
-    private readonly List<Eval> Values = [];
-
-
-
-    /// <summary>
-    /// Nuevo solucionador PEMDAS
-    /// </summary>
-    /// <param name="instance">Instancia de la app</param>
-    /// <param name="values">Valores a resolver</param>
-    public PEMDAS(Instance instance, List<Eval> values)
-    {
-        this.Instance = instance;
-        this.Values = values;
-    }
+    private readonly List<Eval> Values = values;
 
 
 
@@ -363,7 +355,7 @@ internal class PEMDAS
             // Si es preRun
             if (Instance.Environment == Environments.PreRun)
             {
-                value = new SILFArray();
+               // value = new SILFArray();
                 type = pre.Object.Tipo;
             }
 
@@ -383,15 +375,15 @@ internal class PEMDAS
 
 
 
-                            var a = pre.Object.GetValue() as SILFArray;
-                            var b = pos.Object.GetValue() as SILFArray;
-                            var c = new SILFArray();
+                            //var a = pre.Object.GetValue() as SILFArray;
+                            //var b = pos.Object.GetValue() as SILFArray;
+                            //var c = new SILFArray();
 
-                            c.AddRange(a);
-                            c.AddRange(b);
+                            //c.AddRange(a);
+                            //c.AddRange(b);
 
-                            value = c;
-                            type = pre.Object.Tipo;
+                            //value = c;
+                            //type = pre.Object.Tipo;
 
                             break;
                         }
@@ -616,61 +608,61 @@ internal class PEMDAS
         // Valores finales
         bool value = false;
 
-        // Operaciones
-        if (pos.Object is SILFBoolObject posObject)
-        {
+        //// Operaciones
+        //if (pos.Object is SILFBoolObject posObject)
+        //{
 
 
-            // Segun el operador
-            switch (ope.Object.GetValue().ToString())
-            {
+        //    // Segun el operador
+        //    switch (ope.Object.GetValue().ToString())
+        //    {
 
-                // Suma
-                case "!":
-                    {
+        //        // Suma
+        //        case "!":
+        //            {
 
-                        if (Instance.Environment == Environments.PreRun)
-                        {
-                            value = false;
+        //                if (Instance.Environment == Environments.PreRun)
+        //                {
+        //                    value = false;
 
-                            break;
-                        }
-                        bool final = !posObject.GetValue();
+        //                    break;
+        //                }
+        //                bool final = !posObject.GetValue();
 
-                        value = final;
+        //                value = final;
 
-                        break;
-                    }
+        //                break;
+        //            }
 
-            }
-
-
-        }
+        //    }
 
 
+        //}
 
-        // Si el operador no es compatible
-        else
-        {
-            // Error
-            Instance.WriteError("CS004", $"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pos.Object.Tipo}>");
 
-        }
+
+        //// Si el operador no es compatible
+        //else
+        //{
+        //    // Error
+        //    Instance.WriteError("CS004", $"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pos.Object.Tipo}>");
+
+        //}
 
 
         // Eliminar los valores
         try
         {
-            Values.RemoveRange(index, 2);
+            //Values.RemoveRange(index, 2);
 
-            var obje = SILFBoolObject.Create();
-            obje.SetValue(value);
+            //var obje = SILFBoolObject.Create();
+            //obje.SetValue(value);
 
-            Values.Insert(index, new()
-            {
-                IsVoid = false,
-                Object = obje
-            });
+            //Values.Insert(index, new()
+            //{
+            //    IsVoid = false,
+            //    Object = obje
+            //});
 
         }
         catch

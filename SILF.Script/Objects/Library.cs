@@ -80,47 +80,47 @@ public class Library
     {
 
         // Normalizar.
-        type = type.Trim().ToLower();
+        type = type.Trim();
 
-        SILFObjectBase obj = SILFNullObject.Create();
+        // Objeto final.
+        SILFObjectBase obj;
 
-        // Tipo string.
-        if (type == String)
-            obj = SILFStringObject.Create();
+        //// Tipo string.
+        //if (type == String)
+        //    obj = SILFStringObject.Create();
 
-        // Tipo numérico.
-        else if (type == Number)
-            obj = SILFNumberObject.Create();
+        //// Tipo numérico.
+        //else if (type == Number)
+        //    obj = SILFNumberObject.Create();
 
-        // Tipo booleano.
-        else if (type == Bool)
-            obj = SILFBoolObject.Create();
+        //// Tipo booleano.
+        //else if (type == Bool)
+        //    obj = SILFBoolObject.Create();
 
-        // Tipo numero grande.
-        else if (type == LotNumber)
-            obj = SILFNumberLotObject.Create();
+        //// Tipo numero grande.
+        //else if (type == LotNumber)
+        //    obj = SILFNumberLotObject.Create();
 
-        // Tipo lista.
-        else if (type == List)
-            obj = SILFArrayObject.Create();
+        //// Tipo lista.
+        //else if (type == List)
+        //    obj = SILFArrayObject.Create();
 
-        // Null.
-        else if (type == Null)
-            obj = SILFBoolObject.Create();
+        //// Null.
+        //else if (type == Null)
+        //    obj = SILFBoolObject.Create();
 
-        else
+        //else
+        //{
+
+        obj = new SILFClassObject(type)
         {
-            obj = new SILFObjectBase
+            Value = new
             {
-                Tipo = new(type),
-                Value = new
-                {
-                }
-            };
-        }
-
-        // Data.
-        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value);
+            },
+            Functions = GetFunctions(type).ToList(),
+            Properties = GetProperties(type).ToList()
+        };
+        //    }
 
         // Null.
         return obj;
@@ -130,9 +130,14 @@ public class Library
 
 
 
-
+    /// <summary>
+    /// Obtener los métodos.
+    /// </summary>
+    /// <param name="type">Tipo.</param>
     public IEnumerable<IFunction> GetFunctions(string type = Null)
     {
+        // Tipo.
+        type = type.Trim();
 
         // Data.
         var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item1).SelectMany(t => t);
@@ -143,11 +148,19 @@ public class Library
     }
 
 
+
+    /// <summary>
+    /// Obtener las propiedades.
+    /// </summary>
+    /// <param name="type">Tipo.</param>
     public IEnumerable<IProperty> GetProperties(string type = Null)
     {
 
+        // Tipo.
+        type = type.Trim();
+
         // Data.
-        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item2).SelectMany(t => t);
+        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item2).SelectMany(t => t).Select(t=>t.Clone());
 
         // Retornar.
         return data ?? [];
@@ -164,7 +177,7 @@ public class Library
     {
 
         // Normalizar.
-        type = type.Trim().ToLower();
+        type = type.Trim();
 
         // Tipos
         string[] localTypes = ["string", "number", "array", "big", "bool"];

@@ -11,7 +11,7 @@ internal class Fields
     /// <param name="instance">Instancia de la app</param>
     /// <param name="context">Contexto</param>
     /// <param name="expression">Expression</param>
-    public static bool CreateVar(Instance instance, Context context, FuncContext funcContext, string name, string type, string? expression)
+    public static bool CreateVar(Instance instance, Context context, FuncContext funcContext, ObjectContext classContext, string name, string type, string? expression)
     {
 
         // Validar Nombre
@@ -62,7 +62,7 @@ internal class Fields
         if (expression != null)
         {
 
-            var values = MicroRunner.Runner(instance, context, funcContext, expression, 1);
+            var values = MicroRunner.Runner(instance, context, funcContext, classContext, expression, 1);
 
 
             if (values.Count <= 0 ||values.Count > 1) 
@@ -130,7 +130,7 @@ internal class Fields
     /// <param name="instance">Instancia de la app</param>
     /// <param name="context">Contexto</param>
     /// <param name="expression">Expression</param>
-    public static bool CreateConst(Instance instance, Context context, FuncContext funcContext, string name, string expression)
+    public static bool CreateConst(Instance instance, Context context, FuncContext funcContext, ObjectContext classContext, string name, string expression)
     {
 
         // Validar Nombre
@@ -144,7 +144,7 @@ internal class Fields
 
 
         // Obtiene el valor
-        var values = MicroRunner.Runner(instance, context, funcContext, expression, 1);
+        var values = MicroRunner.Runner(instance, context, funcContext, classContext, expression, 1);
 
 
         if (values.Count <= 0 || values.Count > 1)

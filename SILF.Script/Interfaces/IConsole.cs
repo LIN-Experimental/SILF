@@ -4,6 +4,7 @@
 public interface IConsole
 {
 
+
     /// <summary>
     /// Método que se ejecuta al recibir un resultado.
     /// </summary>

@@ -16,6 +16,14 @@ public class SILFClassObject : SILFObjectBase
 
 
     /// <summary>
+    /// Nuevo objeto.
+    /// </summary>
+    public SILFClassObject()
+    {
+    }
+
+
+    /// <summary>
     /// Obtener el valor.
     /// </summary>
     public new string GetValue()

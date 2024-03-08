@@ -1,5 +1,6 @@
 ﻿using SILF.Script.Builders;
 using System.Data;
+using System.Xml.Linq;
 
 namespace SILF.Script.Runners;
 
@@ -13,12 +14,12 @@ internal class ScriptInterpreter
     /// </summary>
     /// <param name="instance">Instancia de SILF.</param>
     /// <param name="line">Linea.</param>
-    public static List<Eval> Interprete(Instance instance, Context context, FuncContext funcContext, string line, short level = 0)
+    public static List<Eval> Interprete(Instance instance, Context context, ObjectContext classContext, FuncContext funcContext, string line, short level = 0)
     {
 
         // Si la app esta detenida
         if (!instance.IsRunning || funcContext.IsReturning)
-            return [new(false)];
+            return [];
 
 
         // Preparador
@@ -26,7 +27,7 @@ internal class ScriptInterpreter
 
         // Si esta vacío
         if (string.IsNullOrWhiteSpace(line))
-            return [new(true)];
+            return [];
 
         // Separar por punto.
         var separar = Actions.Blocks.Separar(line, '.');
@@ -39,7 +40,7 @@ internal class ScriptInterpreter
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateConst(instance, context, funcContext, constante.Name, constante.Expression);
+            bool canCreate = Actions.Fields.CreateConst(instance, context, funcContext, classContext, constante.Name, constante.Expression);
 
             // Respuesta
             return [new(true)];
@@ -53,7 +54,7 @@ internal class ScriptInterpreter
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, variable.Name, variable.Type, variable.Expression);
+            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, classContext, variable.Name, variable.Type, variable.Expression);
 
             // Respuesta
             return [new(true)];
@@ -81,65 +82,62 @@ internal class ScriptInterpreter
             }
 
 
-            var eval = MicroRunner.Runner(instance, context, funcContext, @for.Expression, 1);
+            var eval = MicroRunner.Runner(instance, context, funcContext, classContext, @for.Expression, 1);
 
             if (eval.Count != 1 || eval[0].Object.Tipo != new Tipo(Library.List))
             {
                 return [];
             }
 
-            var ll = eval[0].Object.GetValue() as SILFArray;
+            //var ll = eval[0].Object.GetValue() as SILFArray;
 
 
-            foreach (var ee in ll ?? [])
-            {
+            //foreach (var ee in ll ?? [])
+            //{
 
-                var cons = new Context()
-                {
-                    BaseContext = context
-                };
+            //    var cons = new Context()
+            //    {
+            //        BaseContext = context
+            //    };
 
-                cons.SetField(new()
-                {
-                    Instance = instance,
-                    IsAssigned = true,
-                    Isolation = Isolation.Read,
-                    Name = @for.Name,
-                    Tipo = ee.Tipo,
-                    Value = ee
-                });
+            //    cons.SetField(new()
+            //    {
+            //        Instance = instance,
+            //        IsAssigned = true,
+            //        Isolation = Isolation.Read,
+            //        Name = @for.Name,
+            //        Tipo = ee.Tipo,
+            //        Value = ee
+            //    });
 
-                foreach (var l in @for.Lines)
-                    Interprete(instance, cons, funcContext, l, 0);
+            //    foreach (var l in @for.Lines)
+            //        Interprete(instance, cons, classContext, funcContext, l, 0);
 
-            }
+            //}
 
 
-            return [];
+            //return [];
 
         }
 
         // If
         else if (line.StartsWith("?i"))
         {
-
-
             line = line.Remove(0, 2).Trim();
 
             var id = int.Parse(line);
 
 
-            var @if = instance.Structures.Where(t => t.Id == id && t is FunctionBuilder.IfStructure).FirstOrDefault() as FunctionBuilder.IfStructure;
 
 
 
-            if (@if == null)
+            if (instance.Structures.Where(t => t.Id == id && t is FunctionBuilder.IfStructure).FirstOrDefault() is not FunctionBuilder.IfStructure @if)
             {
                 return [];
             }
 
 
-            var eval = MicroRunner.Runner(instance, context, funcContext, @if.Expression, 1);
+            var eval = MicroRunner.Runner(instance, context, funcContext, classContext, @if.Expression, 1);
 
 
 
@@ -162,10 +160,7 @@ internal class ScriptInterpreter
                 };
 
                 foreach (var l in @if.Lines)
-                    Interprete(instance, cons, funcContext, l, 0);
-
-
-
+                    Interprete(instance, cons, classContext, funcContext, l, 0);
 
             }
             return [];
@@ -199,7 +194,33 @@ internal class ScriptInterpreter
             // Si no existe
             if (field == null)
             {
+
+                // Propiedades
+
+                IProperty d = (from p in classContext.SILFObjectBase.Properties
+                               where p.Name == nombre
+                               select p).FirstOrDefault();
+
+
+                List<Eval> evaluations1 = MicroRunner.Runner(instance, context, funcContext, classContext, expresión, 1);
+
+                if (evaluations1.Count != 1)
+                {
+                    instance.WriteError("SC009", $"La asignación no puede tener tener mas de 1 (un) bloque.");
+                    return [new(Objects.SILFNullObject.Create(), true)];
+                }
+
+                // Result
+                var evaluation1 = evaluations1[0];
+
+                d.Parent = classContext.SILFObjectBase;
+
+                d.SetValue(instance, evaluation1.Object);
+
+ return [];
                 instance.WriteError("SC017", $"No existe el campo '{nombre}'.");
+
+               
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 
@@ -214,7 +235,7 @@ internal class ScriptInterpreter
             Tipo presentType = field.Tipo;
 
             // Evaluación de las expresiones
-            List<Eval> evaluations = MicroRunner.Runner(instance, context, funcContext, expresión, 1);
+            List<Eval> evaluations = MicroRunner.Runner(instance, context, funcContext, classContext, expresión, 1);
 
             if (evaluations.Count != 1)
             {
@@ -245,7 +266,7 @@ internal class ScriptInterpreter
         {
 
             // Evaluador.
-            var evaluateParams = MicroRunner.Runner(instance, context, funcContext, evaluator, 1);
+            var evaluateParams = MicroRunner.Runner(instance, context, funcContext, classContext, evaluator, 1);
 
 
             var sep = Actions.Blocks.Separar(receptor, '.');
@@ -261,7 +282,7 @@ internal class ScriptInterpreter
 
                     if (bs == null)
                     {
-                        List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, bloque.Value, 1);
+                        List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, classContext, bloque.Value, 1);
 
                         if (evals.Count > 0)
                             bs = evals[0].Object;
@@ -298,7 +319,7 @@ internal class ScriptInterpreter
 
 
 
-                            var paramsExec = (i + 1 == sep.Count) ? evaluateParams : MicroRunner.Runner(instance, context, funcContext, @params, 1);
+                            var paramsExec = (i + 1 == sep.Count) ? evaluateParams : MicroRunner.Runner(instance, context, funcContext, classContext, @params, 1);
 
 
 
@@ -325,7 +346,7 @@ internal class ScriptInterpreter
                             }
 
 
-                            FuncContext funcResult = function.Run(instance, mapping);
+                            FuncContext funcResult = function.Run(instance, mapping, classContext);
 
 
                             bs = instance.Library.Get(funcResult?.Value?.Tipo.Description ?? "null");
@@ -368,7 +389,7 @@ internal class ScriptInterpreter
         else if (separar.Count > 1)
         {
 
-            var fin = TryExec(separar, instance, context, funcContext);
+            var fin = TryExec(separar, instance, context, funcContext, classContext);
 
             return fin;
 
@@ -380,7 +401,7 @@ internal class ScriptInterpreter
         {
 
             // Crea la constante
-            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, uName, uType, null);
+            bool canCreate = Actions.Fields.CreateVar(instance, context, funcContext, classContext, uName, uType, null);
 
             // Respuesta
             return [new(true)];
@@ -440,7 +461,7 @@ internal class ScriptInterpreter
                 grupo = grupo.Reverse();
 
 
-                List<Eval> evaluations = MicroRunner.Runner(instance, context, funcContext, grupo, 1);
+                List<Eval> evaluations = MicroRunner.Runner(instance, context, funcContext, classContext, grupo, 1);
 
                 if (evaluations.Count != 1)
                 {
@@ -547,7 +568,7 @@ internal class ScriptInterpreter
             line = line.Remove(0, 2);
 
             // Valor.
-            var values = MicroRunner.Runner(instance, context, funcContext, line, level);
+            var values = MicroRunner.Runner(instance, context, funcContext, classContext, line, level);
 
 
             if (values.Count != 1)
@@ -559,30 +580,30 @@ internal class ScriptInterpreter
             var value = values[0];
 
 
-            if (value.Object.Tipo != new Tipo(Library.List) || value.Object is not SILFArrayObject)
+            if (value.Object.Tipo != new Tipo(Library.List))
             {
                 instance.WriteError("SC023", $"El operador de propagación no se puede usar en '{line.Trim()}' porque no es una lista.");
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 
 
-            var lista = (value.Object as SILFArrayObject)?.GetValue();
+            //var lista = (value.Object as SILFArrayObject)?.GetValue();
 
-            List<Eval> final = [];
-            foreach (var e in lista ?? [])
-            {
+            //List<Eval> final = [];
+            //foreach (var e in lista ?? [])
+            //{
 
-                if (e is SILFObjectBase obj)
-                    final.Add(new(obj));
+            //    if (e is SILFObjectBase obj)
+            //        final.Add(new(obj));
 
-            }
+            //}
 
-            return final;
+            // return final;
 
         }
 
         // propagación.
-        else if ( line.EndsWith("++"))
+        else if (line.EndsWith("++"))
         {
 
             // Line.
@@ -616,7 +637,7 @@ internal class ScriptInterpreter
         }
 
         // propagación.
-        else if ( line.EndsWith("--"))
+        else if (line.EndsWith("--"))
         {
 
             // Line.
@@ -649,7 +670,7 @@ internal class ScriptInterpreter
 
         }
 
-        // Elementos (Variables, constantes)
+        // Elementos (Variables, constantes, propiedades)
         else if (level == 1 && (!line.EndsWith(')') && !line.EndsWith(']')))
         {
 
@@ -657,6 +678,15 @@ internal class ScriptInterpreter
 
             if (getValue == null)
             {
+
+                // Ehe 
+               var prop = ExectProp(instance, classContext.SILFObjectBase, line.Trim());
+
+                if (prop != null)
+                {
+                    return [prop];
+                }
+
                 instance.WriteError("SC017", $"No existe el elemento '{line.Trim()}'");
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
@@ -678,7 +708,7 @@ internal class ScriptInterpreter
             line = line.Reverse().Remove(0, 1);
             line = line.Reverse();
 
-            var results = MicroRunner.Runner(instance, context, funcContext, line, 1);
+            var results = MicroRunner.Runner(instance, context, funcContext, classContext, line, 1);
 
             if (results.Count != 1)
                 return [new(true)];
@@ -690,30 +720,31 @@ internal class ScriptInterpreter
         else if (line.StartsWith('[') && line.EndsWith(']'))
         {
 
-            if (instance.Environment == Environments.PreRun)
-            {
-                return [new(SILFArrayObject.Create())];
-            }
+            //if (instance.Environment == Environments.PreRun)
+            //{
+            //    return [new(SILFArrayObject.Create())];
+            //}
 
 
-            line = line.Remove(0, 1);
-            line = line.Reverse().Remove(0, 1);
-            line = line.Reverse();
+            //line = line.Remove(0, 1);
+            //line = line.Reverse().Remove(0, 1);
+            //line = line.Reverse();
 
-            var results = MicroRunner.Runner(instance, context, funcContext, line, 1);
+            //var results = MicroRunner.Runner(instance, context, funcContext, classContext, line, 1);
 
-            var list = instance.Library.Get(Library.List);
+            //var list = instance.Library.Get(Library.List);
 
-            SILFArray a = [];
+            //SILFArray a = [];
 
-            foreach (var result in results)
-            {
-                a.Add(result.Object);
-            }
+            //foreach (var result in results)
+            //{
+            //    a.Add(result.Object);
+            //}
 
-            list.SetValue(a);
+            //list.SetValue(a);
 
-            return [new(list)];
+            //return [new(list)];
+
         }
 
         // Ejecutar funciones
@@ -724,7 +755,7 @@ internal class ScriptInterpreter
             if (nombre == "print")
             {
 
-                List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, @params, 1);
+                List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, classContext, @params, 1);
 
                 foreach (var eval in evals)
                 {
@@ -735,50 +766,68 @@ internal class ScriptInterpreter
 
             }
 
-            else if (nombre == "typeof")
-            {
+
+            //else if (nombre == "typeof")
+            //{
 
 
-                var f = context[@params.Trim()];
+            //    var f = context[@params.Trim()];
 
-                string tipoDes = f?.Tipo.Description ?? "null";
+            //    string tipoDes = f?.Tipo.Description ?? "null";
 
-                var mm = SILFStringObject.Create();
-                mm.SetValue($"<{tipoDes}>");
+            //    var mm = SILFStringObject.Create();
+            //    mm.SetValue($"<{tipoDes}>");
 
-                return [new(mm)];
+            //    return [new(mm)];
 
-            }
+            //}
 
 
 
-            // Funciones definidas por el usuario.
             IFunction? function = (from F in instance.Functions
                                    where F.Name == nombre
                                    select F).FirstOrDefault();
 
+
+            // Mapear los parámetros.
+            List<ParameterValue> mapParams = [];
+
+
             // Si la función no existe.
             if (function == null)
             {
-                instance.WriteError("SC019", $"No se encontró la función '{nombre}'");
-                return [new(true)];
+
+
+                function = (from F in classContext.SILFObjectBase.Functions
+                            where F.Name == nombre
+                            select F).FirstOrDefault();
+
+
+                if (function != null)
+                {
+                    mapParams.Add(new ParameterValue(string.Empty, classContext.SILFObjectBase));
+                }
+                else
+                {
+                    instance.WriteError("SC019", $"No se encontró la función '{nombre}'");
+                    return [new(true)];
+                }
+
             }
 
 
 
 
-            var paramsExec = MicroRunner.Runner(instance, context, funcContext, @params, 1);
+            var paramsExec = MicroRunner.Runner(instance, context, funcContext, classContext, @params, 1);
 
 
-
-            var mapping = new List<ParameterValue>();
 
             foreach (var param in paramsExec)
             {
-                mapping.Add(new("", param.Object));
+                mapParams.Add(new("", param.Object));
             }
 
-            bool valid = Actions.Parameters.BuildParams(instance, function, mapping);
+            bool valid = Actions.Parameters.BuildParams(instance, function, mapParams);
 
             if (!valid)
                 return [new(true)];
@@ -790,7 +839,7 @@ internal class ScriptInterpreter
             }
 
 
-            FuncContext funcResult = function.Run(instance, mapping);
+            FuncContext funcResult = function.Run(instance, mapParams, classContext);
 
 
             // Si la función no retorno nada o es void
@@ -833,7 +882,7 @@ internal class ScriptInterpreter
 
             string command = $"{nombre}.get({@params})";
 
-            var paramsExec = MicroRunner.Runner(instance, context, funcContext, command, 1);
+            var paramsExec = MicroRunner.Runner(instance, context, funcContext, classContext, command, 1);
 
             // Nueva evaluación.
             return [new Eval(paramsExec[0].Object)];
@@ -841,7 +890,7 @@ internal class ScriptInterpreter
         }
 
         // return.
-        else if (line.Split(" ")[0] == "return")
+        else if (line.Trim().StartsWith("return"))
         {
 
             // Caso del return [
@@ -863,7 +912,7 @@ internal class ScriptInterpreter
             }
 
             // Evalúa
-            List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, line, 1);
+            List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, classContext, line, 1);
 
             if (evals.Count != 1)
             {
@@ -905,7 +954,7 @@ internal class ScriptInterpreter
 
 
 
-    public static List<Eval> TryExec(IEnumerable<CodeBlock> blocks, Instance instance, Context context, FuncContext funcContext)
+    public static List<Eval> TryExec(IEnumerable<CodeBlock> blocks, Instance instance, Context context, FuncContext funcContext, ObjectContext objectContext)
     {
 
         // Objeto base.
@@ -919,7 +968,7 @@ internal class ScriptInterpreter
             if (@base == null)
             {
                 // Evaluar expresión.
-                List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, block.Value, 1);
+                List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, objectContext, block.Value, 1);
 
                 // Evaluar.
                 if (evals.Count != 1)
@@ -943,7 +992,7 @@ internal class ScriptInterpreter
             {
 
                 // Funciones definidas por el usuario.
-                IFunction? function = (from F in instance.Library.GetFunctions(@base.Tipo.Description)
+                IFunction? function = (from F in @base.Functions
                                        where F.Name == name
                                        select F).FirstOrDefault();
 
@@ -955,7 +1004,7 @@ internal class ScriptInterpreter
                 }
 
                 // Ejecutar el método.
-                var resultFinal = ExecMethod(function, @base, @params, instance, context, funcContext);
+                var resultFinal = ExecMethod(function, @params, instance, context, funcContext, ObjectContext.GenerateContext(@base));
 
                 // Base.
                 @base = instance.Library.Get(resultFinal.Object.Tipo.Description);
@@ -969,7 +1018,7 @@ internal class ScriptInterpreter
 
 
             // Propiedades definidas por el usuario.
-            IProperty? property = (from F in instance.Library.GetProperties(@base.Tipo.Description)
+            IProperty? property = (from F in @base.Properties
                                    where F.Name == block.Value
                                    select F).FirstOrDefault();
 
@@ -998,14 +1047,14 @@ internal class ScriptInterpreter
 
 
 
-    static Eval ExecMethod(IFunction function, SILFObjectBase objectBase, string parameters, Instance instance, Context context, FuncContext funcContext)
+    static Eval ExecMethod(IFunction function, string parameters, Instance instance, Context context, FuncContext funcContext, ObjectContext objectContext)
     {
 
         // Parámetros.
-        var paramsExec = MicroRunner.Runner(instance, context, funcContext, parameters, 1);
+        var paramsExec = MicroRunner.Runner(instance, context, funcContext, objectContext, parameters, 1);
 
         // Mapear los parámetros.
-        List<ParameterValue> mapParams = [new ParameterValue(string.Empty, objectBase)];
+        List<ParameterValue> mapParams = [new ParameterValue(string.Empty, objectContext.SILFObjectBase)];
 
         // Recorrer los parámetros.
         foreach (var param in paramsExec)
@@ -1018,13 +1067,39 @@ internal class ScriptInterpreter
         if (!valid)
             return new(true);
 
+
+
         // Resultado.
-        FuncContext funcResult = function.Run(instance, mapParams);
+        FuncContext funcResult = function.Run(instance, mapParams, objectContext);
 
         // Obtener el objeto final.
         return new(funcResult.Value);
 
     }
 
+
+
+
+    static Eval ExectProp(Instance instance, SILFObjectBase @base, string name)
+    {
+
+        // Propiedades definidas por el usuario.
+        IProperty? property = (from F in @base.Properties
+                               where F.Name == name
+                               select F).FirstOrDefault();
+
+        // Si la función no existe.
+        if (property == null)
+        {
+            instance.WriteError("SC019", $"No se encontró la propiedad '{name}' en el tipo '{@base.Tipo}'");
+            return new(true);
+        }
+
+
+        property.Parent = @base;
+        var result = property.GetValue(instance);
+
+        return new(result);
+    }
 
 }

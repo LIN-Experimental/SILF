@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script.Elements;
+﻿namespace SILF.Script.Elements;
 
 
 public class ParameterValue
@@ -16,7 +14,6 @@ public class ParameterValue
     {
         this.Name = name;
         this.Objeto = objectBase;
-
     }
 
 

@@ -44,7 +44,7 @@ internal class MethodBuilder
             }
 
 
-            function = new(name, normalType)
+            function = new(name, normalType, new(@class.Name))
             {
                 Parameters = [new Parameter("value", new(@class.Name), true)]
             };

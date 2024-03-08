@@ -4,15 +4,21 @@
 public class FuncContext
 {
 
-    public string Name { get; set; }
 
-    public Objects.SILFObjectBase Value { get; set; }
+
+    public ObjectContext? ObjectContext { get; set; }
+
+
+
+    public string Name { get; set; } = string.Empty;
+
+    public Objects.SILFObjectBase Value { get; set; } = null!;
 
     public Tipo? WaitType { get; set; }
 
     public bool IsReturning { get; set; }
 
-    public bool IsVoid => WaitType == null || WaitType.Value.Description.Trim() == "";
+    public bool IsVoid => WaitType == null || WaitType.Value.Description?.Trim() == "";
 
 
 
@@ -27,8 +33,12 @@ public class FuncContext
             IsReturning = false,
             WaitType = function.Type,
             Value =  Objects.SILFNullObject.Create(),
-            Name = function.Name
+            Name = function.Name,
+            ObjectContext = null
         };
     }
+
+
+
 
 }

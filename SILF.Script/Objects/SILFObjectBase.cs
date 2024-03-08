@@ -4,6 +4,22 @@
 public class SILFObjectBase
 {
 
+
+
+    /// <summary>
+    /// Obtener el valor.
+    /// </summary>
+    public string Key = Guid.NewGuid().ToString();
+
+
+
+
+    public List<IProperty> Properties { get; set; } = [];
+
+    public List<IFunction> Functions { get; set; } = [];
+
+
+
     /// <summary>
     /// Obtener el valor.
     /// </summary>

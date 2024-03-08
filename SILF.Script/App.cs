@@ -1,5 +1,4 @@
 ﻿using SILF.Script.Builders;
-using System.Diagnostics;
 
 namespace SILF.Script;
 
@@ -87,12 +86,18 @@ public class App(string code, IConsole? console = null, Environments environment
         // Compilar métodos.
         foreach (var @class in classes)
         {
+
+            // Construir los métodos.
             var methods = Builders.MethodBuilder.Build(@class, Instance, @class.Lineas);
+
+            // Construir las propiedades.
+            var properties = Builders.PropertyBuilder.Build(Instance, @class.Lineas);
 
             foreach (var method in methods)
                 method.CodeLines = FunctionBuilder.ParseCode(method.CodeLines, Instance).Lines;
 
             Instance.Library.Load(@class.Name, [.. methods]);
+            Instance.Library.Load(@class.Name, [.. properties]);
             @class.Functions.AddRange(methods);
         }
 
@@ -118,8 +123,10 @@ public class App(string code, IConsole? console = null, Environments environment
             .. Functions,
         ];
 
+        var @object = Instance.Library.Get("Startup");
+
         // Ejecutar.
-        main.Run(Instance, []);
+        main.Run(Instance, [], ObjectContext.GenerateContext(@object));
 
         Instance.Write($"Execution time {stopwatch.ElapsedMilliseconds}ms");
 

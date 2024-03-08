@@ -1,7 +1,7 @@
 ﻿namespace SILF.Script.Elements;
 
 
-internal class Context
+public class Context
 {
 
 
@@ -43,7 +43,7 @@ internal class Context
     /// <summary>
     /// Nuevo campo
     /// </summary>
-    public bool SetField(Field field)
+    internal bool SetField(Field field)
     {
 
         var exitField = GetField(field.Name);
@@ -59,7 +59,7 @@ internal class Context
 
 
 
-    public Field? this[string name]
+    internal Field? this[string name]
     {
         get => GetField(name);
     }

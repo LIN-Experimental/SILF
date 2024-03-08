@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script.Elements.Functions;
+﻿namespace SILF.Script.Elements.Functions;
 
 
 internal class Function : IFunction
@@ -14,17 +12,22 @@ internal class Function : IFunction
 
     public Tipo? Type { get; set; }
 
-    public Function(string name, Tipo? tipo)
+
+    public Context Context { get; set; }
+
+
+    public Function(string name, Tipo? tipo, Tipo? parentType)
     {
         this.Name = name;
         this.Type = tipo;
         this.CodeLines = new();
         this.Parameters = new();
+
     }
 
 
 
-    public FuncContext Run(Instance instance, List<ParameterValue> @params)
+    public FuncContext Run(Instance instance, List<ParameterValue> @params, ObjectContext @object)
     {
 
         var context = new Context();
@@ -33,7 +36,7 @@ internal class Function : IFunction
         foreach (var param in @params)
         {
 
-            var value =  instance.Library.Get(param.Objeto.Tipo.Description);
+            var value = instance.Library.Get(param.Objeto.Tipo.Description);
 
             value.SetValue(param.Objeto.Value);
 
@@ -50,14 +53,16 @@ internal class Function : IFunction
             context.SetField(field);
         }
 
+
         var func = FuncContext.GenerateContext(this);
 
         // Interprete de líneas.
         foreach (var line in CodeLines)
-            Runners.ScriptInterpreter.Interprete(instance, context, func, line, 0);
+            Runners.ScriptInterpreter.Interprete(instance, context, @object, func, line, 0);
 
         return func;
 
     }
+
 
 }

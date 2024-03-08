@@ -1,8 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script.Elements.Functions;
-
-
+﻿namespace SILF.Script.Elements.Functions;
 
 
 internal class BridgeProperty : IProperty
@@ -12,9 +8,9 @@ internal class BridgeProperty : IProperty
 
     public Tipo? Type { get; set; }
 
-    public SILFObjectBase Value { get; set; }
+    public SILFObjectBase Value { get; set; } = null!;
 
-    public SILFObjectBase Parent { get; set; }
+    public SILFObjectBase Parent { get; set; } = null!;
 
     public IFunction Get { get; set; }
     public IFunction Set { get; set; }
@@ -87,7 +83,7 @@ internal class BridgeProperty : IProperty
             [
             new ParameterValue("", Value),
             new ParameterValue("",  Parent)
-            ]);
+            ], ObjectContext.GenerateContext(Parent));
 
 
         return result.Value;
@@ -99,6 +95,11 @@ internal class BridgeProperty : IProperty
         Set.Run(instance, [
             new ParameterValue("", @base),
             new ParameterValue("", Parent)
-            ]);
+            ], ObjectContext.GenerateContext(Parent));
+    }
+
+    public IProperty Clone()
+    {
+        return new BridgeProperty(Name, Type);
     }
 }
