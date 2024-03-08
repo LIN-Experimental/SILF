@@ -1,6 +1,6 @@
 ﻿using SILF.Script.Builders;
 using System.Data;
-using System.Xml.Linq;
+using System.Linq.Expressions;
 
 namespace SILF.Script.Runners;
 
@@ -188,51 +188,36 @@ internal class ScriptInterpreter
         else if (Validations.Fields.IsAssignment(line, out var nombre, out var operador, out var expresión))
         {
 
+
+            var x = Actions.Blocks.Separar(nombre, '.');
+
+
+            if (x.Count > 1)
+            {
+                Asignar(x, instance, context, funcContext, classContext, expresión);
+                return [];
+            }
+
+
             // Obtiene el campo
-            Field? field = context[nombre];
+            IEstablish? field = context[nombre] ?? (from p in classContext.SILFObjectBase.Properties
+                                                    where p.Name == nombre.Trim()
+                                                    select p).FirstOrDefault() as IEstablish;
 
             // Si no existe
             if (field == null)
             {
 
-                // Propiedades
 
-                IProperty d = (from p in classContext.SILFObjectBase.Properties
-                               where p.Name == nombre
-                               select p).FirstOrDefault();
+                instance.WriteError("SC017", $"No existe el campo / propiedad '{nombre}'.");
 
-
-                List<Eval> evaluations1 = MicroRunner.Runner(instance, context, funcContext, classContext, expresión, 1);
-
-                if (evaluations1.Count != 1)
-                {
-                    instance.WriteError("SC009", $"La asignación no puede tener tener mas de 1 (un) bloque.");
-                    return [new(Objects.SILFNullObject.Create(), true)];
-                }
-
-                // Result
-                var evaluation1 = evaluations1[0];
-
-                d.Parent = classContext.SILFObjectBase;
-
-                d.SetValue(instance, evaluation1.Object);
-
- return [];
-                instance.WriteError("SC017", $"No existe el campo '{nombre}'.");
-
-               
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 
-            // Si no se puede sobrescribir
-            if (field.Isolation != Isolation.ReadAndWrite & field.Isolation != Isolation.Write)
-            {
-                instance.WriteError("SC018", $"El campo '{nombre}' no se puede se puede sobrescribir.");
-                return [new(Objects.SILFNullObject.Create(), true)];
-            }
+
 
             // Tipo esperado
-            Tipo presentType = field.Tipo;
+            Tipo? presentType = field.Tipo;
 
             // Evaluación de las expresiones
             List<Eval> evaluations = MicroRunner.Runner(instance, context, funcContext, classContext, expresión, 1);
@@ -249,13 +234,12 @@ internal class ScriptInterpreter
             // Si no son compatibles
             if (!Types.IsCompatible(instance, presentType, evaluation.Object.Tipo))
             {
-                instance.WriteError("SC011", $"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType.Description}>");
+                instance.WriteError("SC011", $"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType.Value.Description}>");
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 
             // Asigna el valor
-            field.Value = evaluation.Object;
-            field.IsAssigned = true;
+            field.Establish(evaluation.Object);
 
             return [new(Objects.SILFNullObject.Create(), true)];
         }
@@ -680,7 +664,7 @@ internal class ScriptInterpreter
             {
 
                 // Ehe 
-               var prop = ExectProp(instance, classContext.SILFObjectBase, line.Trim());
+                var prop = ExectProp(instance, classContext.SILFObjectBase, line.Trim());
 
                 if (prop != null)
                 {
@@ -1101,5 +1085,112 @@ internal class ScriptInterpreter
 
         return new(result);
     }
+
+
+
+
+    public static void Asignar(IEnumerable<CodeBlock> blocks, Instance instance, Context context, FuncContext funcContext, ObjectContext objectContext, string expression)
+    {
+
+        // Objeto base.
+        SILFObjectBase? @base = null;
+
+        // Recorrer los bloques.
+        for (int i = 0; i < blocks.Count(); i++)
+        {
+
+
+            CodeBlock block = blocks.ElementAt(i);
+
+
+            // Si no existe el objeto base.
+            if (@base == null)
+            {
+                // Evaluar expresión.
+                List<Eval> evals = MicroRunner.Runner(instance, context, funcContext, objectContext, block.Value, 1);
+
+                // Evaluar.
+                if (evals.Count != 1)
+                {
+                    instance.WriteError("NO-DOCUMENTES", "No documentado");
+                }
+
+                @base = evals[0].Object;
+
+                continue;
+
+            }
+
+
+            bool isFunction = Expressions.Functions.IsFunction(block.Value, out string name, out string @params);
+
+            // Si es una función.
+            if (isFunction)
+            {
+
+                // Funciones definidas por el usuario.
+                IFunction? function = (from F in @base.Functions
+                                       where F.Name == name
+                                       select F).FirstOrDefault();
+
+                // Si la función no existe.
+                if (function == null)
+                {
+                    instance.WriteError("SC019", $"No se encontró el método '{name}' en el tipo '{@base.Tipo}'");
+                }
+
+                // Ejecutar el método.
+                var resultFinal = ExecMethod(function, @params, instance, context, funcContext, ObjectContext.GenerateContext(@base));
+
+                // Base.
+                @base = instance.Library.Get(resultFinal.Object.Tipo.Description);
+
+                @base.SetValue(resultFinal.Object.GetValue());
+
+                continue;
+
+            }
+
+
+            // Propiedades definidas por el usuario.
+            IProperty? property = (from F in @base.Properties
+                                   where F.Name == block.Value
+                                   select F).FirstOrDefault();
+
+            // Si la función no existe.
+            if (property == null)
+            {
+                instance.WriteError("SC019", $"No se encontró la propiedad '{name}' en el tipo '{@base.Tipo}'");
+                continue;
+            }
+
+
+
+            if (i + 1 == blocks.Count())
+            {
+
+                // Evaluación de las expresiones
+                List<Eval> evaluations = MicroRunner.Runner(instance, context, funcContext, objectContext, expression, 1);
+
+                property.Establish(evaluations[0].Object);
+
+                continue;
+            }
+
+
+            property.Parent = @base;
+            var result = property.GetValue(instance);
+
+            @base = instance.Library.Get(result.Tipo.Description);
+            @base.SetValue(result.Value);
+
+
+            continue;
+
+        }
+
+    }
+
+
 
 }

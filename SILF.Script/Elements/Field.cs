@@ -3,7 +3,7 @@
 namespace SILF.Script.Elements;
 
 
-internal class Field
+internal class Field : IEstablish
 {
 
     /// <summary>
@@ -29,7 +29,7 @@ internal class Field
     /// <summary>
     /// Tipo de la variable
     /// </summary>
-    public Tipo Tipo { get; set; }
+    public Tipo? Tipo { get; set; }
 
 
     /// <summary>
@@ -85,4 +85,17 @@ internal class Field
     }
 
 
+
+    public void Establish(SILFObjectBase objectBase)
+    {
+
+        if (Isolation != Isolation.ReadAndWrite &Isolation != Isolation.Write)
+        {
+            Instance.WriteError("SC018", $"El campo '{Name}' no se puede se puede sobrescribir.");
+        }
+
+
+        Value = objectBase;
+        IsAssigned = true;
+    }
 }

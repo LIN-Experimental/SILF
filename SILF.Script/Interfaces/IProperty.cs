@@ -1,7 +1,7 @@
 ﻿namespace SILF.Script.Interfaces;
 
 
-public interface IProperty
+public interface IProperty : IEstablish
 {
 
 
@@ -9,12 +9,6 @@ public interface IProperty
     /// Nombre de la propiedad.
     /// </summary>
     public string Name { get; set; }
-
-
-    /// <summary>
-    /// Valor de la propiedad.
-    /// </summary>
-    public Tipo? Type { get; set; }
 
 
     /// <summary>

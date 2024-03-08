@@ -8,7 +8,7 @@ internal class Property : IProperty
 
     public string Name { get; set; }
 
-    public Tipo? Type { get; set; }
+    public Tipo? Tipo { get; set; }
 
     public SILFObjectBase Value { get; set; }
 
@@ -17,11 +17,13 @@ internal class Property : IProperty
     public SILFObjectBase Parent { get; set; }
 
 
+    public Instance Instance { get; set; }
+
 
     public Property(string name, Tipo? tipo)
     {
         this.Name = name;
-        this.Type = tipo;
+        this.Tipo = tipo;
 
         Get = new BridgeFunction((e) =>
         {
@@ -29,14 +31,14 @@ internal class Property : IProperty
             {
                 IsReturning = true,
                 Value = Value,
-                WaitType = Type,
+                WaitType = Tipo,
             };
         })
         {
             Name = "get",
             Parameters =
             [
-               new Parameter("value", Type.Value)
+               new Parameter("value", Tipo.Value)
             ]
         };
 
@@ -60,7 +62,7 @@ internal class Property : IProperty
             Name = "set",
             Parameters =
             [
-               new Parameter("value", Type.Value)
+               new Parameter("value", Tipo.Value)
             ]
         };
     }
@@ -81,10 +83,14 @@ internal class Property : IProperty
 
    public IProperty Clone()
     {
-        return new Property(Name, Type)
+        return new Property(Name, Tipo)
         {
 
         };
     }
 
+    public void Establish(SILFObjectBase objectBase)
+    {
+        SetValue(Instance, objectBase);
+    }
 }

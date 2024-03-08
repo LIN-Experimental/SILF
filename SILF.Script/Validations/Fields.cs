@@ -41,7 +41,7 @@ internal class Fields
     /// <param name="line">Expresión</param>
     public static bool IsAssignment(string line, out string nombre, out string operador, out string expression)
     {
-        string patron = @"^(\w+)\s*=\s*(.+)$"; // Patrón para buscar asignaciones de valores
+        string patron = @"^(.+)\s*=\s*(.+)$"; // Patrón para buscar asignaciones de valores
 
         Match coincidencia = Regex.Match(line, patron);
 
