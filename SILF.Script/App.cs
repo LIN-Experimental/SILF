@@ -135,6 +135,33 @@ public class App(string code, IConsole? console = null, Environments environment
 
 
     /// <summary>
+    /// Ejecuta la aplicación
+    /// </summary>
+    public object? RunProfit()
+    {
+
+        // Generar la estancia.
+        Instance = new(Console, Environment);
+
+        
+        // Cargar objetos de los frameworks.
+        LoadObjects();
+
+     
+        // Cargar funciones.
+        Instance.Functions =
+        [
+            .. Functions,
+        ];
+
+        var result = Runners.ScriptInterpreter.Interprete(Instance, new(), new(), new(), Code, 1);
+
+        return result.ElementAtOrDefault(0)?.Object?.GetValue() ?? "";
+    }
+
+
+
+    /// <summary>
     /// Ejecutar en modo Test.
     /// </summary>
     private void RunTest()
