@@ -23,7 +23,7 @@ internal class Types
         // Si el tipo es mutable
         if (tipoA.Value.Description == "mutable")
             return true;
-        
+
         // Si el tipo no es igual
         return tipoA.Value.Description == tipoB.Value.Description;
 

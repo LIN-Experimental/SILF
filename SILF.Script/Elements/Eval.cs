@@ -29,7 +29,7 @@ internal class Eval
 
     public Eval(bool isVoid = false)
     {
-        this.Object =  Objects.SILFNullObject.Create();
+        this.Object = Objects.SILFNullObject.Create();
         this.IsVoid = isVoid;
     }
 

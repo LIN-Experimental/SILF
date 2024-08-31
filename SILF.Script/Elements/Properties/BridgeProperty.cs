@@ -102,6 +102,6 @@ internal class BridgeProperty : IProperty
 
     public void Establish(SILFObjectBase obj)
     {
-       // throw new NotImplementedException();
+        // throw new NotImplementedException();
     }
 }

@@ -15,15 +15,15 @@ internal class Fields
     {
 
         // Validar Nombre
-         bool isValidName = Validations.Options.IsValidName(name);
+        bool isValidName = Validations.Options.IsValidName(name);
 
-       
+
         if (!isValidName)
         {
             instance.WriteError("SC006", $"El nombre '{name}' es invalido.");
             return false;
-        } 
-        
+        }
+
 
 
         // Validar Tipo
@@ -65,7 +65,7 @@ internal class Fields
             var values = MicroRunner.Runner(instance, context, funcContext, classContext, expression, 1);
 
 
-            if (values.Count <= 0 ||values.Count > 1) 
+            if (values.Count <= 0 || values.Count > 1)
             {
                 instance.WriteError("SC009", $"Los valores deben de ser validos");
                 return false;
@@ -85,7 +85,7 @@ internal class Fields
 
             if (!Validations.Types.IsCompatible(instance, tipo.Value, value.Object.Tipo))
             {
-                instance.WriteError("SC011",$"El tipo <{value.Object.Tipo}> no puede ser convertido en <{tipo.Value}>.");
+                instance.WriteError("SC011", $"El tipo <{value.Object.Tipo}> no puede ser convertido en <{tipo.Value}>.");
                 return false;
             }
 
@@ -101,7 +101,7 @@ internal class Fields
                 return false;
             }
 
-            value = new( Objects.SILFNullObject.Create());
+            value = new(Objects.SILFNullObject.Create());
         }
 
 
@@ -200,7 +200,7 @@ internal class Fields
 
         // Valor.
         field.Value = (instance.Environment == Environments.PreRun)
-                      ? instance.Library.Get(type) 
+                      ? instance.Library.Get(type)
                       : value;
 
         // Establecer.

@@ -143,11 +143,11 @@ public class App(string code, IConsole? console = null, Environments environment
         // Generar la estancia.
         Instance = new(Console, Environment);
 
-        
+
         // Cargar objetos de los frameworks.
         LoadObjects();
 
-     
+
         // Cargar funciones.
         Instance.Functions =
         [

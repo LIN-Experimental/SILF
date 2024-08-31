@@ -105,7 +105,7 @@ internal class ComplexMath
             num2 = temp;
         }
 
-        StringBuilder resultado = new StringBuilder();
+        StringBuilder resultado = new();
 
         int carry = 0;
 

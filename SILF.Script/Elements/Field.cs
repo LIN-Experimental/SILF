@@ -89,7 +89,7 @@ internal class Field : IEstablish
     public void Establish(SILFObjectBase objectBase)
     {
 
-        if (Isolation != Isolation.ReadAndWrite &Isolation != Isolation.Write)
+        if (Isolation != Isolation.ReadAndWrite & Isolation != Isolation.Write)
         {
             Instance.WriteError("SC018", $"El campo '{Name}' no se puede se puede sobrescribir.");
         }

@@ -7,10 +7,10 @@ internal class BridgeFunction : IFunction
     public string Name { get; set; } = string.Empty;
     public List<Parameter> Parameters { get; set; } = new();
 
-    Context IFunction.Context { get; set ; }
+    Context IFunction.Context { get; set; }
 
 
- 
+
     Func<List<SILF.Script.Elements.ParameterValue>, FuncContext> Action;
 
     public BridgeFunction(Func<List<SILF.Script.Elements.ParameterValue>, FuncContext> action)

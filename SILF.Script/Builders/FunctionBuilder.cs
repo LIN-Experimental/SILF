@@ -8,9 +8,9 @@ internal class FunctionBuilder
     public static ControlStructure ParseCode(IEnumerable<string> code, Instance instance)
     {
 
-        ControlStructure root = new ControlStructure("Root");
+        ControlStructure root = new("Root");
 
-        Stack<ControlStructure> stack = new Stack<ControlStructure>();
+        Stack<ControlStructure> stack = new();
         stack.Push(root);
 
         int id = 0;

@@ -1,6 +1,5 @@
 ﻿using SILF.Script.Builders;
 using System.Data;
-using System.Linq.Expressions;
 
 namespace SILF.Script.Runners;
 
@@ -234,7 +233,7 @@ internal class ScriptInterpreter
             // Si no son compatibles
             if (!Types.IsCompatible(instance, presentType, evaluation.Object.Tipo))
             {
-                instance.WriteError("SC011", $"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType.Value.Description}>");
+                instance.WriteError("SC011", $"No se puede convertir <{evaluation.Object.Tipo}> en <{presentType!.Value.Description}>");
                 return [new(Objects.SILFNullObject.Create(), true)];
             }
 

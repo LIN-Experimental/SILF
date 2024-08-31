@@ -12,7 +12,7 @@ public class ObjectContext
     {
         return new()
         {
-           SILFObjectBase = @base
+            SILFObjectBase = @base
         };
     }
 

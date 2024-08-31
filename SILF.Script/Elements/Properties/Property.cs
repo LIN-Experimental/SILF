@@ -1,6 +1,4 @@
-﻿using SILF.Script.Objects;
-
-namespace SILF.Script.Elements.Functions;
+﻿namespace SILF.Script.Elements.Functions;
 
 
 internal class Property : IProperty
@@ -81,7 +79,7 @@ internal class Property : IProperty
     }
 
 
-   public IProperty Clone()
+    public IProperty Clone()
     {
         return new Property(Name, Tipo)
         {

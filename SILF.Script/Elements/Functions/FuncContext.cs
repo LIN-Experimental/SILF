@@ -32,7 +32,7 @@ public class FuncContext
         {
             IsReturning = false,
             WaitType = function.Type,
-            Value =  Objects.SILFNullObject.Create(),
+            Value = Objects.SILFNullObject.Create(),
             Name = function.Name,
             ObjectContext = null
         };

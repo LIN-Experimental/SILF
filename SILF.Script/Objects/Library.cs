@@ -160,7 +160,7 @@ public class Library
         type = type.Trim();
 
         // Data.
-        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item2).SelectMany(t => t).Select(t=>t.Clone());
+        var data = Objects.Where(t => t.Key.Description == type).Select(t => t.Value.Item2).SelectMany(t => t).Select(t => t.Clone());
 
         // Retornar.
         return data ?? [];

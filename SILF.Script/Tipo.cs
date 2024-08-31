@@ -34,6 +34,6 @@ public readonly record struct Tipo
     /// ToString.
     /// </summary>
     public override string ToString() => Description;
- 
+
 
 }

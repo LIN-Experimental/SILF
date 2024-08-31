@@ -6,7 +6,7 @@ public class Parameter
 
     public string Name { get; set; }
     public Tipo Tipo { get; set; }
-    public bool Hidden { get; set; }    
+    public bool Hidden { get; set; }
 
 
 

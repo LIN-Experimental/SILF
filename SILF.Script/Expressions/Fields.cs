@@ -80,7 +80,7 @@ internal class Fields
     }
 
 
-   
+
     public static bool IsNew(string line, out string type, out string values)
     {
 

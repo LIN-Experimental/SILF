@@ -30,7 +30,7 @@ internal static class StringExtends
         // Validar.
         if (i >= 0 && cadena.Length >= i + count)
             return cadena.Substring(i, count);
-        
+
         return "";
 
     }

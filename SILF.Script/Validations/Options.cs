@@ -13,7 +13,7 @@ internal static class Options
     {
 
         bool isNumber = decimal.TryParse(expression, out _);
-        
+
         return isNumber;
 
     }
@@ -55,7 +55,7 @@ internal static class Options
     /// <param name="input">Expresión</param>
     public static bool IsInterpoladString(string input)
     {
-        string pattern = @"^[$£¥]""[^""]*""$"; 
+        string pattern = @"^[$£¥]""[^""]*""$";
         string pattern2 = @"^[$£¥]'[^']'$";
 
 
@@ -104,15 +104,15 @@ internal static class Options
         // Comprueba si la cadena está vacía o es nula.
         if (string.IsNullOrEmpty(nombre))
             return false;
-        
+
         // Comprueba si el nombre contiene caracteres inválidos.
         if (nombre.Any(c => !char.IsLetterOrDigit(c) && c != '_'))
             return false;
-        
+
         // Comprueba si el nombre es una palabra clave de C#.
         if (EsPalabraClave(nombre))
             return false;
-        
+
         // Si todas las comprobaciones pasan, el nombre es válido.
         return true;
     }
