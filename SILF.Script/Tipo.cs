@@ -1,15 +1,12 @@
 ﻿namespace SILF.Script;
 
-
 public readonly record struct Tipo
 {
-
 
     /// <summary>
     /// Guardar valor
     /// </summary>
-    private readonly string _description;
-
+    private readonly string _description; 
 
 
     /// <summary>
@@ -22,12 +19,10 @@ public readonly record struct Tipo
     }
 
 
-
     /// <summary>
     /// Obtiene la descripción del tipo
     /// </summary>
     public readonly string Description => _description;
-
 
 
     /// <summary>

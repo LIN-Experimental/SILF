@@ -1,6 +1,5 @@
 ﻿namespace SILF.Script.Builders;
 
-
 internal class MethodBuilder
 {
 
