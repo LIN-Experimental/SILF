@@ -608,62 +608,66 @@ internal class PEMDAS(Instance instance, List<Eval> values)
         // Valores finales
         bool value = false;
 
-        //// Operaciones
-        //if (pos.Object is SILFBoolObject posObject)
-        //{
+        // Operaciones
+        if (pos.Object.Tipo == new Tipo("bool"))
+        {
 
 
-        //    // Segun el operador
-        //    switch (ope.Object.GetValue().ToString())
-        //    {
+            // Segun el operador
+            switch (ope.Object.GetValue().ToString())
+            {
 
-        //        // Suma
-        //        case "!":
-        //            {
+                // Suma
+                case "!":
+                    {
 
-        //                if (Instance.Environment == Environments.PreRun)
-        //                {
-        //                    value = false;
+                        if (Instance.Environment == Environments.PreRun)
+                        {
+                            value = false;
+                            break;
+                        }
 
-        //                    break;
-        //                }
-        //                bool final = !posObject.GetValue();
+                        if (pos.Object.GetValue() is bool x)
+                        {
+                            value = !x;
+                        }
+                        else
+                        {
+                            value = false;
+                        }
+                        break;
+                    }
 
-        //                value = final;
-
-        //                break;
-        //            }
-
-        //    }
-
-
-        //}
-
+            }
 
 
-        //// Si el operador no es compatible
-        //else
-        //{
-        //    // Error
-        //    Instance.WriteError("CS004", $"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pos.Object.Tipo}>");
+        }
 
-        //}
+
+
+        // Si el operador no es compatible
+        else
+        {
+            // Error
+            Instance.WriteError("CS004", $"El operador '{ope.Object.GetValue()}' no es compatible para tipos <{pos.Object.Tipo}>");
+
+        }
 
 
         // Eliminar los valores
         try
         {
-            //Values.RemoveRange(index, 2);
+            Values.RemoveRange(index, 2);
 
-            //var obje = SILFBoolObject.Create();
-            //obje.SetValue(value);
-
-            //Values.Insert(index, new()
-            //{
-            //    IsVoid = false,
-            //    Object = obje
-            //});
-
+            Values.Insert(index, new()
+            {
+                IsVoid = false,
+                Object = new()
+                {
+                    Tipo = new("bool"),
+                    Value = value
+                }
+            });
         }
         catch
         {

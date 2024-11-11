@@ -1,6 +1,5 @@
 ﻿namespace SILF.Script.Expressions;
 
-
 internal class Fields
 {
 
@@ -45,7 +44,6 @@ internal class Fields
     }
 
 
-
     /// <summary>
     /// Evalúa si una expresión es una constante.
     /// </summary>
@@ -80,7 +78,12 @@ internal class Fields
     }
 
 
-
+    /// <summary>
+    /// Es una declaración de nuevo objeto.
+    /// </summary>
+    /// <param name="line">Linea.</param>
+    /// <param name="type">Tipo.</param>
+    /// <param name="values">Valores.</param>
     public static bool IsNew(string line, out string type, out string values)
     {
 

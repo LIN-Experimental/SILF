@@ -1,9 +1,7 @@
 ﻿namespace SILF.Script.Validations;
 
-
 internal class Types
 {
-
 
     /// <summary>
     /// Validación de tipos
@@ -14,13 +12,10 @@ internal class Types
     public static bool IsCompatible(Instance instance, Tipo? tipoA, Tipo? tipoB)
     {
 
-        if (!tipoA.HasValue && !tipoB.HasValue)
-            return false;
-
         if (!tipoA.HasValue || !tipoB.HasValue)
             return false;
 
-        // Si el tipo es mutable
+        // Si el tipo es mutable.
         if (tipoA.Value.Description == "mutable")
             return true;
 

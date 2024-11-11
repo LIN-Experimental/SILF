@@ -2,14 +2,12 @@
 
 namespace SILF.Script;
 
-
 /// <summary>
 /// Nueva app SILF
 /// </summary>
 /// <param name="code">Código a ejecutar.</param>
 public class App(string code, IConsole? console = null, Environments environment = Environments.Release)
 {
-
 
     /// <summary>
     /// Instancia de SILF
@@ -27,7 +25,6 @@ public class App(string code, IConsole? console = null, Environments environment
     /// Consola.
     /// </summary>
     private IConsole? Console { get; set; } = console;
-
 
 
     /// <summary>
@@ -59,7 +56,6 @@ public class App(string code, IConsole? console = null, Environments environment
     {
         Functions.AddRange(functions);
     }
-
 
 
     /// <summary>
@@ -117,9 +113,6 @@ public class App(string code, IConsole? console = null, Environments environment
         // Cargar funciones.
         Instance.Functions =
         [
-            // Funciones del compilador
-            //  .. build.Functions,
-            // Funciones externas.
             .. Functions,
         ];
 

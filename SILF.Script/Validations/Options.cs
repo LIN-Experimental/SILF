@@ -1,9 +1,7 @@
 ﻿namespace SILF.Script.Validations;
 
-
 internal static class Options
 {
-
 
     /// <summary>
     /// Es un valor numérico
@@ -11,13 +9,9 @@ internal static class Options
     /// <param name="expression">Expresión</param>
     public static bool IsNumber(string expression)
     {
-
         bool isNumber = decimal.TryParse(expression, out _);
-
         return isNumber;
-
     }
-
 
 
     /// <summary>
@@ -26,13 +20,9 @@ internal static class Options
     /// <param name="expression">Expresión</param>
     public static bool IsBool(string expression)
     {
-
         string[] values = ["false", "true"];
-
         return values.Contains(expression);
-
     }
-
 
 
     /// <summary>
@@ -48,7 +38,6 @@ internal static class Options
     }
 
 
-
     /// <summary>
     /// Una expresión es un string interpolado valido
     /// </summary>
@@ -58,14 +47,12 @@ internal static class Options
         string pattern = @"^[$£¥]""[^""]*""$";
         string pattern2 = @"^[$£¥]'[^']'$";
 
-
         return Regex.IsMatch(input, pattern) || Regex.IsMatch(input, pattern2);
     }
 
 
-
     /// <summary>
-    /// Una expresión es un string interpolado valido
+    /// Una expresión es un numero complejo.
     /// </summary>
     /// <param name="input">Expresión</param>
     public static bool IsComplexNumber(string input)
@@ -78,9 +65,8 @@ internal static class Options
     }
 
 
-
     /// <summary>
-    /// Una expresión es un string interpolado valido
+    /// Una expresión es un numero grande.
     /// </summary>
     /// <param name="input">Expresión</param>
     public static bool IsLotNumber(string input)
@@ -92,7 +78,6 @@ internal static class Options
 
         return Regex.IsMatch(input, pattern) || Regex.IsMatch(input, pattern2);
     }
-
 
 
     /// <summary>
@@ -116,7 +101,6 @@ internal static class Options
         // Si todas las comprobaciones pasan, el nombre es válido.
         return true;
     }
-
 
 
     /// <summary>

@@ -1,6 +1,5 @@
 ﻿namespace SILF.Script.Runtime;
 
-
 public class ObjectContext
 {
 

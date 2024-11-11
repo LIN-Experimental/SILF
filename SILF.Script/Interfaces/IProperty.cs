@@ -1,9 +1,7 @@
 ﻿namespace SILF.Script.Interfaces;
 
-
 public interface IProperty : IEstablish
 {
-
 
     /// <summary>
     /// Nombre de la propiedad.
@@ -35,13 +33,11 @@ public interface IProperty : IEstablish
     public IFunction Set { get; set; }
 
 
-
     /// <summary>
     /// Obtener el valor.
     /// </summary>
     /// <param name="instance">Instancia.</param>
     public SILFObjectBase GetValue(Instance instance);
-
 
 
     /// <summary>
@@ -52,5 +48,8 @@ public interface IProperty : IEstablish
     public void SetValue(Instance instance, SILFObjectBase @base);
 
 
+    /// <summary>
+    /// Clonar la propiedad.
+    /// </summary>
     public IProperty Clone();
 }

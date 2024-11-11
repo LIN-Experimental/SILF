@@ -1,9 +1,7 @@
 ﻿namespace SILF.Script.Interfaces;
 
-
 public interface IFunction
 {
-
 
     /// <summary>
     /// Nombre de la función.
@@ -23,12 +21,10 @@ public interface IFunction
     public Tipo? Type { get; set; }
 
 
-
     /// <summary>
     /// Lista de parámetros.
     /// </summary>
     public List<Parameter> Parameters { get; set; }
-
 
 
     /// <summary>
@@ -37,6 +33,5 @@ public interface IFunction
     /// <param name="instance">Instancia.</param>
     /// <param name="values">Valores de los parámetros.</param>
     public FuncContext Run(Instance instance, List<ParameterValue> values, ObjectContext @object);
-
 
 }

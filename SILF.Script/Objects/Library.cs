@@ -1,6 +1,5 @@
 ﻿namespace SILF.Script.Objects;
 
-
 public class Library
 {
 
@@ -22,7 +21,6 @@ public class Library
     /// Funciones y tipos.
     /// </summary>
     public Dictionary<Tipo, (List<IFunction>, List<IProperty>)> Objects { get; set; } = [];
-
 
 
     /// <summary>
@@ -49,7 +47,6 @@ public class Library
     }
 
 
-
     /// <summary>
     /// Cargar funciones a un tipo.
     /// </summary>
@@ -71,7 +68,6 @@ public class Library
     }
 
 
-
     /// <summary>
     /// Obtener un nuevo objeto.
     /// </summary>
@@ -83,36 +79,9 @@ public class Library
         type = type.Trim();
 
         // Objeto final.
-        SILFObjectBase obj = null;
+        SILFObjectBase obj;
 
-        //// Tipo string.
-        //if (type == String)
-        //    obj = SILFStringObject.Create();
-
-            //// Tipo numérico.
-            //else if (type == Number)
-            //    obj = SILFNumberObject.Create();
-
-            //// Tipo booleano.
-            //else if (type == Bool)
-            //    obj = SILFBoolObject.Create();
-
-            //// Tipo numero grande.
-            //else if (type == LotNumber)
-            //    obj = SILFNumberLotObject.Create();
-
-            // Tipo lista.
-        if (type == List)
-            obj = SILFArrayObject.Create();
-
-        //// Null.
-        //else if (type == Null)
-        //    obj = SILFBoolObject.Create();
-
-        //else
-        //{
-
-        obj ??= new SILFClassObject(type)
+        obj = new SILFClassObject(type)
         {
             Value = new
             {
@@ -120,14 +89,10 @@ public class Library
             Functions = GetFunctions(type).ToList(),
             Properties = GetProperties(type).ToList()
         };
-        //    }
 
-        // Null.
         return obj;
 
     }
-
-
 
 
     /// <summary>
@@ -146,7 +111,6 @@ public class Library
         return data ?? [];
 
     }
-
 
 
     /// <summary>
@@ -168,7 +132,6 @@ public class Library
     }
 
 
-
     /// <summary>
     /// Obtener un nuevo objeto.
     /// </summary>
@@ -187,7 +150,5 @@ public class Library
         return types.Where(t => t == type).Select(t => new Tipo(t)).FirstOrDefault();
 
     }
-
-
 
 }

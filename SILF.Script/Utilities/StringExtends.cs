@@ -1,9 +1,7 @@
 ﻿namespace SILF.Script.Utilities;
 
-
 internal static class StringExtends
 {
-
 
     /// <summary>
     /// Reversar una cadena.
@@ -17,7 +15,6 @@ internal static class StringExtends
         return new string(caracteres);
 
     }
-
 
 
     /// <summary>
@@ -34,7 +31,5 @@ internal static class StringExtends
         return "";
 
     }
-
-
 
 }

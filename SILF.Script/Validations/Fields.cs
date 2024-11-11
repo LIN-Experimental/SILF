@@ -1,9 +1,7 @@
 ﻿namespace SILF.Script.Validations;
 
-
 internal class Fields
 {
-
 
     /// <summary>
     /// Una expresión es la declaración de una variable.
@@ -34,7 +32,6 @@ internal class Fields
     }
 
 
-
     /// <summary>
     /// Una expresión es la asignación a una variable
     /// </summary>
@@ -61,7 +58,6 @@ internal class Fields
     }
 
 
-
     /// <summary>
     /// Una expresión es la asignación a una variable
     /// </summary>
@@ -84,7 +80,6 @@ internal class Fields
         return false;
 
     }
-
 
 
 }

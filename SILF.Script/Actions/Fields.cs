@@ -1,9 +1,7 @@
 ﻿namespace SILF.Script.Actions;
 
-
 internal class Fields
 {
-
 
     /// <summary>
     /// Crear nueva variable.
@@ -17,14 +15,11 @@ internal class Fields
         // Validar Nombre
         bool isValidName = Validations.Options.IsValidName(name);
 
-
         if (!isValidName)
         {
             instance.WriteError("SC006", $"El nombre '{name}' es invalido.");
             return false;
         }
-
-
 
         // Validar Tipo
         Tipo? tipo = null;

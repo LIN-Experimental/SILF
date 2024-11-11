@@ -1,6 +1,5 @@
 ﻿namespace SILF.Script.Expressions.Objects;
 
-
 internal class FieldResult(string name, string type, string expression, bool success = true)
 {
 
@@ -28,7 +27,6 @@ internal class FieldResult(string name, string type, string expression, bool suc
     public bool Success { get; set; } = success;
 
 
-
     /// <summary>
     /// Constructor.
     /// </summary>
@@ -36,6 +34,5 @@ internal class FieldResult(string name, string type, string expression, bool suc
     public FieldResult(bool success = false) : this(string.Empty, string.Empty, string.Empty, success)
     {
     }
-
 
 }

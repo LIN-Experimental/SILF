@@ -1,9 +1,7 @@
 ﻿namespace SILF.Script.Runners;
 
-
 internal class MicroRunner
 {
-
 
     /// <summary>
     /// Runner.
@@ -23,7 +21,6 @@ internal class MicroRunner
 
             // Obtiene la expresión separada
             var bloques = Actions.Blocks.Separar(expression);
-
 
             // Si no hay bloques
             if (bloques.Count <= 0)

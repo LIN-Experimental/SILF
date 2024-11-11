@@ -3,7 +3,6 @@ using System.Data;
 
 namespace SILF.Script.Runners;
 
-
 internal class ScriptInterpreter
 {
 
@@ -85,7 +84,10 @@ internal class ScriptInterpreter
                 return [];
             }
 
-            var ll = eval[0].Object.GetValue() as SILFArray;
+
+
+
+            var ll = eval[0].Object.GetValue() as List<SILFObjectBase>;
 
 
             foreach (var ee in ll ?? [])
@@ -392,7 +394,8 @@ internal class ScriptInterpreter
             }
 
 
-            var lista = (value.Object as SILFArrayObject)?.GetValue();
+            var lista = value.Object.GetValue() as List<SILFObjectBase>;
+
 
             List<Eval> final = [];
             foreach (var e in lista ?? [])
@@ -702,7 +705,7 @@ internal class ScriptInterpreter
 
             if (instance.Environment == Environments.PreRun)
             {
-                return [new(SILFArrayObject.Create())];
+                return [new() { Object = instance.Library.Get(Library.List) }];
             }
 
 
@@ -714,7 +717,7 @@ internal class ScriptInterpreter
 
             var list = instance.Library.Get(Library.List);
 
-            SILFArray a = [];
+            List<SILFObjectBase> a = [];
 
             foreach (var result in results)
             {
@@ -835,7 +838,6 @@ internal class ScriptInterpreter
         // Ejecutar funciones
         else if (Expressions.Functions.IsIndex(line, out nombre, out @params))
         {
-
 
             var getValue = context[nombre];
 

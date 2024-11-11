@@ -1,10 +1,7 @@
 ﻿namespace SILF.Script.Objects;
 
-
 public class SILFObjectBase
 {
-
-
 
     /// <summary>
     /// Obtener el valor.
@@ -12,12 +9,16 @@ public class SILFObjectBase
     public string Key = Guid.NewGuid().ToString();
 
 
-
-
+    /// <summary>
+    /// Lista de propiedades.
+    /// </summary>
     public List<IProperty> Properties { get; set; } = [];
 
-    public List<IFunction> Functions { get; set; } = [];
 
+    /// <summary>
+    /// Lista de funciones.
+    /// </summary>
+    public List<IFunction> Functions { get; set; } = [];
 
 
     /// <summary>
@@ -26,12 +27,10 @@ public class SILFObjectBase
     public object Value = null!;
 
 
-
     /// <summary>
     /// Tipo del objeto.
     /// </summary>
     public Tipo Tipo { get; set; }
-
 
 
     /// <summary>
@@ -50,7 +49,5 @@ public class SILFObjectBase
     {
         Value = @object;
     }
-
-
 
 }
