@@ -1,6 +1,5 @@
 ﻿namespace SILF.Script.Actions;
 
-
 internal class Blocks
 {
 

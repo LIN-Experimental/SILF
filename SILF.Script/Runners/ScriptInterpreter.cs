@@ -72,9 +72,6 @@ internal class ScriptInterpreter
 
             var @for = instance.Structures.Where(t => t.Id == id && t is FunctionBuilder.ForStructure).FirstOrDefault() as FunctionBuilder.ForStructure;
 
-
-
-
             if (@for == null)
             {
                 return [];
@@ -88,34 +85,34 @@ internal class ScriptInterpreter
                 return [];
             }
 
-            //var ll = eval[0].Object.GetValue() as SILFArray;
+            var ll = eval[0].Object.GetValue() as SILFArray;
 
 
-            //foreach (var ee in ll ?? [])
-            //{
+            foreach (var ee in ll ?? [])
+            {
 
-            //    var cons = new Context()
-            //    {
-            //        BaseContext = context
-            //    };
+                var cons = new Context()
+                {
+                    BaseContext = context
+                };
 
-            //    cons.SetField(new()
-            //    {
-            //        Instance = instance,
-            //        IsAssigned = true,
-            //        Isolation = Isolation.Read,
-            //        Name = @for.Name,
-            //        Tipo = ee.Tipo,
-            //        Value = ee
-            //    });
+                cons.SetField(new()
+                {
+                    Instance = instance,
+                    IsAssigned = true,
+                    Isolation = Isolation.Read,
+                    Name = @for.Name,
+                    Tipo = ee.Tipo,
+                    Value = ee
+                });
 
-            //    foreach (var l in @for.Lines)
-            //        Interprete(instance, cons, classContext, funcContext, l, 0);
+                foreach (var l in @for.Lines)
+                    Interprete(instance, cons, classContext, funcContext, l, 0);
 
-            //}
+            }
 
 
-            //return [];
+            return [];
 
         }
 
@@ -368,6 +365,48 @@ internal class ScriptInterpreter
         }
 
 
+        // propagación.
+        else if (level == 1 && line.StartsWith(".."))
+        {
+
+            // Line.
+            line = line.Remove(0, 2);
+
+            // Valor.
+            var values = MicroRunner.Runner(instance, context, funcContext, classContext, line, level);
+
+
+            if (values.Count != 1)
+            {
+                instance.WriteError("NOTDOCUMENTED", $"La expresión '{line.Trim()}' debe devolver solo 1 valor.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+            var value = values[0];
+
+
+            if (value.Object.Tipo != new Tipo(Library.List))
+            {
+                instance.WriteError("SC023", $"El operador de propagación no se puede usar en '{line.Trim()}' porque no es una lista.");
+                return [new(Objects.SILFNullObject.Create(), true)];
+            }
+
+
+            var lista = (value.Object as SILFArrayObject)?.GetValue();
+
+            List<Eval> final = [];
+            foreach (var e in lista ?? [])
+            {
+
+                if (e is SILFObjectBase obj)
+                    final.Add(new(obj));
+
+            }
+
+            return final;
+
+        }
+
 
         else if (separar.Count > 1)
         {
@@ -544,48 +583,6 @@ internal class ScriptInterpreter
         }
 
         // propagación.
-        else if (level == 1 && line.StartsWith(".."))
-        {
-
-            // Line.
-            line = line.Remove(0, 2);
-
-            // Valor.
-            var values = MicroRunner.Runner(instance, context, funcContext, classContext, line, level);
-
-
-            if (values.Count != 1)
-            {
-                instance.WriteError("NOTDOCUMENTED", $"La expresión '{line.Trim()}' debe devolver solo 1 valor.");
-                return [new(Objects.SILFNullObject.Create(), true)];
-            }
-
-            var value = values[0];
-
-
-            if (value.Object.Tipo != new Tipo(Library.List))
-            {
-                instance.WriteError("SC023", $"El operador de propagación no se puede usar en '{line.Trim()}' porque no es una lista.");
-                return [new(Objects.SILFNullObject.Create(), true)];
-            }
-
-
-            //var lista = (value.Object as SILFArrayObject)?.GetValue();
-
-            //List<Eval> final = [];
-            //foreach (var e in lista ?? [])
-            //{
-
-            //    if (e is SILFObjectBase obj)
-            //        final.Add(new(obj));
-
-            //}
-
-            // return final;
-
-        }
-
-        // propagación.
         else if (line.EndsWith("++"))
         {
 
@@ -703,30 +700,30 @@ internal class ScriptInterpreter
         else if (line.StartsWith('[') && line.EndsWith(']'))
         {
 
-            //if (instance.Environment == Environments.PreRun)
-            //{
-            //    return [new(SILFArrayObject.Create())];
-            //}
+            if (instance.Environment == Environments.PreRun)
+            {
+                return [new(SILFArrayObject.Create())];
+            }
 
 
-            //line = line.Remove(0, 1);
-            //line = line.Reverse().Remove(0, 1);
-            //line = line.Reverse();
+            line = line.Remove(0, 1);
+            line = line.Reverse().Remove(0, 1);
+            line = line.Reverse();
 
-            //var results = MicroRunner.Runner(instance, context, funcContext, classContext, line, 1);
+            var results = MicroRunner.Runner(instance, context, funcContext, classContext, line, 1);
 
-            //var list = instance.Library.Get(Library.List);
+            var list = instance.Library.Get(Library.List);
 
-            //SILFArray a = [];
+            SILFArray a = [];
 
-            //foreach (var result in results)
-            //{
-            //    a.Add(result.Object);
-            //}
+            foreach (var result in results)
+            {
+                a.Add(result.Object);
+            }
 
-            //list.SetValue(a);
+            list.SetValue(a);
 
-            //return [new(list)];
+            return [new(list)];
 
         }
 

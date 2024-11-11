@@ -56,8 +56,8 @@ internal class MethodBuilder
                 if (string.IsNullOrWhiteSpace(param))
                     continue;
 
-                var paramType = instance.Library.Exist(param.Trim().Split(" ")[0]);
-                var paramName = param.Trim().Split(" ").ElementAtOrDefault(1);
+                var paramType = instance.Library.Exist(param.Trim().Split(' ')[0]);
+                var paramName = param.Trim().Split(' ').ElementAtOrDefault(1);
 
                 if (paramName == null)
                 {

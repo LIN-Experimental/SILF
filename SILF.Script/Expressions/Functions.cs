@@ -29,7 +29,7 @@ internal class Functions
 
             line = line.Remove(0, i);
 
-            line = line[1..(line.Length - 1)];
+            line = line[1 ..(line.Length - 1)];
 
             parámetros = line;
 

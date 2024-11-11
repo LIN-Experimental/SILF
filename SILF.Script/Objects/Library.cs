@@ -83,27 +83,27 @@ public class Library
         type = type.Trim();
 
         // Objeto final.
-        SILFObjectBase obj;
+        SILFObjectBase obj = null;
 
         //// Tipo string.
         //if (type == String)
         //    obj = SILFStringObject.Create();
 
-        //// Tipo numérico.
-        //else if (type == Number)
-        //    obj = SILFNumberObject.Create();
+            //// Tipo numérico.
+            //else if (type == Number)
+            //    obj = SILFNumberObject.Create();
 
-        //// Tipo booleano.
-        //else if (type == Bool)
-        //    obj = SILFBoolObject.Create();
+            //// Tipo booleano.
+            //else if (type == Bool)
+            //    obj = SILFBoolObject.Create();
 
-        //// Tipo numero grande.
-        //else if (type == LotNumber)
-        //    obj = SILFNumberLotObject.Create();
+            //// Tipo numero grande.
+            //else if (type == LotNumber)
+            //    obj = SILFNumberLotObject.Create();
 
-        //// Tipo lista.
-        //else if (type == List)
-        //    obj = SILFArrayObject.Create();
+            // Tipo lista.
+        if (type == List)
+            obj = SILFArrayObject.Create();
 
         //// Null.
         //else if (type == Null)
@@ -112,7 +112,7 @@ public class Library
         //else
         //{
 
-        obj = new SILFClassObject(type)
+        obj ??= new SILFClassObject(type)
         {
             Value = new
             {
