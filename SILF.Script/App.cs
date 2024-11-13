@@ -58,12 +58,40 @@ public class App(string code, IConsole? console = null, Environments environment
     }
 
 
+    private Dictionary<string, List<IFunction>> _functions = [];
+
+
+    /// <summary>
+    /// Agrega funciones default de C# a SILF.Core
+    /// </summary>
+    /// <param name="functions">Funciones base</param>
+    public void AddBridget(params Delegate[] functions)
+    {
+
+        List<IFunction> funciones = [];
+        foreach (var function in functions)
+        {
+            var (metodo, name) = DotnetRun.DelegateConverters.GetInformation(function);
+            if (metodo != null && string.IsNullOrWhiteSpace(name))
+                funciones.Add(metodo);
+            else if (metodo != null)
+            {
+                _functions.TryAdd(name, []);
+                _functions[name].Add(metodo);
+            }
+
+        }
+
+        AddDefaultFunctions(funciones);
+
+    }
+
+
     /// <summary>
     /// Ejecuta la aplicación
     /// </summary>
     public void Run()
     {
-
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         // Comprobar el entorno.
@@ -140,7 +168,6 @@ public class App(string code, IConsole? console = null, Environments environment
         // Cargar objetos de los frameworks.
         LoadObjects();
 
-
         // Cargar funciones.
         Instance.Functions =
         [
@@ -182,6 +209,14 @@ public class App(string code, IConsole? console = null, Environments environment
 
             // Propiedades.
             Instance.Library.Load(objects.Key.Description, objects.Value.Item2);
+        }
+
+        // Cargar los objetos de frameworks de .NET.
+        foreach (var objects in _functions)
+        {
+            // Funciones.
+            Instance.Library.Load(objects.Key, objects.Value);
+
         }
 
     }

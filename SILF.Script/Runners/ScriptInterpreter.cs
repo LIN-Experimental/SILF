@@ -45,8 +45,6 @@ internal class ScriptInterpreter
 
         }
 
-
-
         // Definición de variable
         else if (Expressions.Fields.IsVar(line, out var variable))
         {
@@ -585,7 +583,7 @@ internal class ScriptInterpreter
 
         }
 
-        // propagación.
+        // Adicion.
         else if (line.EndsWith("++"))
         {
 
