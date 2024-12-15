@@ -15,6 +15,8 @@ public class Instance(IConsole? console, Environments environment)
     internal List<ControlStructure> Structures = [];
 
 
+    public IServiceProvider? ServiceProvider { get; set; }
+
 
     /// <summary>
     /// Consola

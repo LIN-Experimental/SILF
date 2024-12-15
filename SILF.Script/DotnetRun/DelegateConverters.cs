@@ -28,7 +28,6 @@ internal class DelegateConverters
         // Obtener el tipo de retorno del método
         Type tipoRetorno = information.ReturnType;
 
-
         string tipo = GetSilfType(tipoRetorno.FullName);
 
         var function = new DotnetBridgeFunction
@@ -36,11 +35,18 @@ internal class DelegateConverters
             Name = methodName,
             Type = new(tipo),
             Action = method,
-           
         };
 
         // Obtener los parámetros del método
-        ParameterInfo[] parametros = information.GetParameters();
+        List<ParameterInfo> parametros = information.GetParameters().ToList();
+
+        ParameterInfo DI = parametros.FirstOrDefault();
+
+        if (DI != null && DI.ParameterType.FullName.ToLower() == "system.iserviceprovider")
+        {
+            function.IsDependency = true;
+            parametros.Remove(DI);
+        }
 
         foreach (var parametro in parametros)
         {

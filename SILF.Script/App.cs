@@ -104,6 +104,9 @@ public class App(string code, IConsole? console = null, Environments environment
         // Generar la estancia.
         Instance = new(Console, Environment);
 
+        // Cargar el DI por defecto.
+        Instance.ServiceProvider ??= Provider;
+
         // Compilar clases.
         var classes = Builders.ClassBuilder.Build(Code.Split('\n'), Instance);
 
@@ -219,6 +222,31 @@ public class App(string code, IConsole? console = null, Environments environment
 
         }
 
+    }
+
+
+    /// <summary>
+    /// Cargar la inyección DI.
+    /// </summary>
+    /// <param name="service"></param>
+    public void LoadDI(IServiceProvider service)
+    {
+        if (Instance is null)
+            return;
+
+        Instance.ServiceProvider = service;
+    }
+
+
+    private static IServiceProvider Provider;
+
+    /// <summary>
+    /// Cargar la inyección DI de forma global.
+    /// </summary>
+    /// <param name="service"></param>
+    public static void LoadGlobalDI(IServiceProvider service)
+    {
+        Provider = service;
     }
 
 

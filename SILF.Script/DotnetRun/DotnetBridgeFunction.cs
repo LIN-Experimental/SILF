@@ -7,9 +7,22 @@ public class DotnetBridgeFunction : IFunction
     public List<Parameter> Parameters { get; set; } = [];
     public Context Context { get; set; } = null!;
     public Delegate Action { get; set; }
+    public bool IsDependency { get; set; }
+
 
     public FuncContext Run(Instance instance, List<ParameterValue> values, ObjectContext @object)
     {
+
+
+        if (IsDependency)
+        {
+            values.Insert(0, new("DI", new SILFObjectBase()
+            {
+                Value = instance.ServiceProvider
+            } ));
+        }
+
+
         // Convertir a tipos compatibles.
         var x = Action?.DynamicInvoke(values.Select(t => t.Objeto.GetValue()).ToArray());
 
@@ -31,7 +44,6 @@ public class DotnetBridgeFunction : IFunction
             }
 
         }
-
 
         return new()
         {
