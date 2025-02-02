@@ -19,7 +19,6 @@ internal class ScriptInterpreter
         if (!instance.IsRunning || funcContext.IsReturning)
             return [];
 
-
         // Preparador
         line = line.Normalize().Trim();
 
